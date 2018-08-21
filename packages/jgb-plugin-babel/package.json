@@ -1,0 +1,41 @@
+{
+  "name": "jgb-plugin-babel",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "typings": "typings/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf ./lib",
+    "watch": "yarn run build --watch"
+  },
+  "dependencies": {
+    "babel-code-frame": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-traverse": "^6.26.0",
+    "babylon": "^6.18.0",
+    "babylon-walk": "^1.0.2",
+    "browserslist": "^4.0.1",
+    "chalk": "^2.4.1",
+    "debug": "^3.1.0",
+    "jgb-shared": "^1.0.0",
+    "node-libs-browser": "^2.1.0",
+    "semver": "^5.5.0",
+    "terser": "^3.8.1",
+    "tslib": "^1.9.3"
+  },
+  "devDependencies": {
+    "@types/babel-core": "^6.25.5",
+    "@types/babel-traverse": "^6.25.4",
+    "@types/babel-types": "6.25.2",
+    "@types/babylon": "^6.16.3",
+    "@types/debug": "^0.0.30",
+    "@types/node": "^10.5.4",
+    "@types/semver": "^5.5.0",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.14.0",
+    "typescript": "3.0.1"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "jgb-cli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf ./lib",
+    "watch": "yarn run build --watch"
+  },
+  "bin": {
+    "jgb": "bin/cli.js"
+  },
+  "dependencies": {
+    "@types/mkdirp": "^0.5.2",
+    "chalk": "^2.4.1",
+    "commander": "^2.16.0",
+    "debug": "^3.1.0",
+    "fast-glob": "^2.2.2",
+    "fs-extra": "^7.0.0",
+    "fswatcher-child": "^1.0.5",
+    "is-glob": "^4.0.0",
+    "jgb-shared": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "physical-cpu-count": "^2.0.0",
+    "resolve": "^1.8.1",
+    "tslib": "^1.9.3",
+    "v8-compile-cache": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/debug": "^0.0.30",
+    "@types/fs-extra": "^5.0.4",
+    "@types/node": "^10.5.4",
+    "@types/resolve": "^0.0.8",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.14.0",
+    "typescript": "3.0.1"
+  }
+}

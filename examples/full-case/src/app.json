@@ -1,0 +1,19 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/useplugin/useplugin"
+  ],
+  "tabBar": {
+    "list": [{
+      "pagePath": "pages/index/index",
+      "text": "首页",
+      "iconPath": "imgs/category-gray.png",
+      "selectedIconPath": "imgs/category-red.png"
+    }, {
+      "pagePath": "pages/useplugin/useplugin",
+      "iconPath": "imgs/qa-grey.png",
+      "selectedIconPath": "imgs/qa-red.png",
+      "text": "插件"
+    }]
+  }
+}

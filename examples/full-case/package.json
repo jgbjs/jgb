@@ -1,0 +1,20 @@
+{
+  "name": "full-case",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "bin": {
+    "jgb-debug": "node_modules/.bin/jgb"
+  },
+  "scripts": {
+    "debug": "jgb-debug"
+  },
+  "dependencies": {
+    "jgb-cli": "^1.0.0",
+    "jgb-plugin-babel": "^1.0.0",
+    "jgb-plugin-json": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0"
+  }
+}

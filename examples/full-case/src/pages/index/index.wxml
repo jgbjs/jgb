@@ -1,0 +1,3 @@
+<include src="../../template/toast/toast.wxml"></include>
+<view>test</view>
+<popup></popup>

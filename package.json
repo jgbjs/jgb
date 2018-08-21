@@ -1,0 +1,19 @@
+{
+  "name": "jingubang",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:landn172/jingubang.git",
+  "author": "landn172 <landn172@gmail.com>",
+  "license": "Apache-2.0",
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "build:all": "lerna run build",
+    "clean:all": "lerna run clean",
+    "watch:all": "lerna run watch --parallel"
+  },
+  "devDependencies": {
+    "@types/node": "^10.5.4",
+    "lerna": "^2.11.0",
+    "typescript": "^3.0.1"
+  }
+}
