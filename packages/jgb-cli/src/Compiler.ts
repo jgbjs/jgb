@@ -24,8 +24,8 @@ export default class Compiler extends EventEmitter implements ICompiler {
    * 预加载插件等信息
    */
   async preload(options: IInitOptions) {
-    await this.loadPlugins(options.plugins);
     await this.loadPresets(options.presets);
+    await this.loadPlugins(options.plugins);
   }
 
   async init(resolver: Resolver) {

@@ -110,7 +110,7 @@ export default class CssAsset extends Asset {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class CSSAst {
+export class CSSAst {
   dirty = false;
   constructor(public css: string, public root: any) {}
 

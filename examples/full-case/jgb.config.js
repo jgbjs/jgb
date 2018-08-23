@@ -8,5 +8,9 @@ module.exports = {
     '@alias': './aliasTest',
     '@alias-test': Path.resolve('../alias-test/src/')
   },
-  presets: ['weapp']
+  presets: ['weapp'],
+  plugins: [['less', {
+    extensions: ['.wxss'],
+    outExt: '.wxss'
+  }]]
 }
