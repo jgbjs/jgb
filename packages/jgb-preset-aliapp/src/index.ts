@@ -9,25 +9,23 @@ interface IPluginConfig {
   coreOptions?: IInitOptions;
 }
 
-interface IAppTabBar {
-  color: string;
+interface IAliAppTabBar {
+  textColor: string;
   selectedColor: string;
   backgroundColor: string;
-  borderStyle: string;
-  list: IAppJsonTabarListConfg[];
-  position: string;
+  items: IAliAppJsonTabarItemConfig[];
+}
+
+interface IAliAppJsonTabarItemConfig {
+  pagePath: string;
+  name: string;
+  icon: string;
+  activeIcon: string;
 }
 
 interface IAppJson {
   pages: string[];
-  tabBar: IAppTabBar;
-}
-
-interface IAppJsonTabarListConfg {
-  pagePath: string;
-  text: string;
-  iconPath: string;
-  selectedIconPath: string;
+  tabBar: IAliAppTabBar;
 }
 
 export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
@@ -36,7 +34,7 @@ export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
       .concat(pluginConfig.coreOptions.entryFiles)
       .filter(Boolean);
     if (entryFiles.length === 0) {
-      entryFiles.push('app.js', 'app.json', 'app.wxss');
+      entryFiles.push('app.js', 'app.json', 'app.acss');
 
       pluginConfig.coreOptions.entryFiles = entryFiles;
     }
@@ -47,13 +45,13 @@ export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
   BabelPlugin(compiler, {});
   JsonPlugin(compiler, {});
   HtmlPlugin(compiler, {
-    extensions: ['.wxml'],
-    outExt: '.wxml'
+    extensions: ['.axml'],
+    outExt: '.axml'
   });
 
   CssPlugin(compiler, {
-    extensions: ['.wxss'],
-    outExt: '.wxss'
+    extensions: ['.acss'],
+    outExt: '.acss'
   });
 });
 
@@ -70,16 +68,16 @@ function attachCompilerEvent(compiler: ICompiler) {
       if (!appJson.tabBar) {
         return;
       }
-      if (!appJson.tabBar.list) {
-        return;
+      if (appJson.tabBar) {
+        if (appJson.tabBar.items) {
+          appJson.tabBar.items.forEach(config => {
+            // tslint:disable-next-line:no-unused-expression
+            config.icon && dependences.add(config.icon);
+            // tslint:disable-next-line:no-unused-expression
+            config.activeIcon && dependences.add(config.activeIcon);
+          });
+        }
       }
-
-      appJson.tabBar.list.forEach(config => {
-        // tslint:disable-next-line:no-unused-expression
-        config.iconPath && dependences.add(config.iconPath);
-        // tslint:disable-next-line:no-unused-expression
-        config.selectedIconPath && dependences.add(config.selectedIconPath);
-      });
     }
   );
 }

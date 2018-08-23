@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
 import Logger, { logger, LogType } from 'jgb-shared/lib/Logger';
+import { normalizeAlias } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
 import { promisify } from 'util';
@@ -284,12 +285,13 @@ function aliasResolve(options: IInitOptions, root: string) {
   Object.keys(alias)
     .sort((a1, a2) => a2.length - a1.length)
     .forEach(key => {
-      const aliasValue = alias[key];
-      if (!Path.isAbsolute(aliasValue)) {
-        newAlias[key] = Path.resolve(root, aliasValue);
-      } else {
-        newAlias[key] = aliasValue;
+      const aliasValue = normalizeAlias(alias[key]);
+      const aliasPath = aliasValue.path;
+      if (!Path.isAbsolute(aliasPath)) {
+        aliasValue.path = Path.resolve(root, aliasPath);
       }
+
+      newAlias[key] = aliasValue;
     });
   return newAlias;
 }

@@ -18,6 +18,7 @@ program
     'set the build type, either "weapp", "aliapp" or "baidu". defaults to "weapp"',
     /^(weapp|aliapp|baidu)$/
   )
+  .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')
   .action(builder);
 

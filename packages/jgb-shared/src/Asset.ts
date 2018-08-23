@@ -2,10 +2,12 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as URL from 'url';
-import { IInitOptions } from '../typings/jgb-shared';
+import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
 import * as config from './config';
 import { logger } from './Logger';
+import { ICompiler } from './pluginDeclare';
 import Resolver from './Resolver';
+import { normalizeAlias } from './utils';
 import isUrl from './utils/isUrl';
 import objectHash from './utils/objectHash';
 
@@ -28,6 +30,8 @@ export default class Asset {
   cacheData: any;
 
   distPath: string;
+  /** 某些插件会自动注入compiler */
+  parentCompiler: ICompiler;
 
   constructor(public name: string, public options: IInitOptions) {
     this.basename = path.basename(name);
@@ -73,7 +77,8 @@ export default class Asset {
       for (const key of Object.keys(alias)) {
         if (name.includes(key)) {
           aliasKey = key;
-          name = path.normalize(name.replace(key, alias[key]));
+          const aliasValue = normalizeAlias(alias[key]);
+          name = path.normalize(name.replace(key, aliasValue.path));
           const sourceFile = this.name;
           const dependenceFile = name;
           // relative path: ..\\utils\\index => ../utils/index
@@ -100,44 +105,57 @@ export default class Asset {
     /** require相对引用路径 */
     let relativeRequirePath = '';
 
-    /**
-     * replace require dependenceFile's relativeRequirePath no in sourceDir
-     * @example
-     *  aliasKey: @somewhere
-     *  require('@somewhere/abc') => require('npm/@somewhere/abc')
-     */
-    if (isNotInSourceDir) {
-      aliasKey = pathToUnixType(aliasKey);
-      const distNpmRelative = path.relative(alias[aliasKey], absolutePath);
-      distPath = path.resolve(
-        this.options.sourceDir,
-        path.join('npm', aliasKey, distNpmRelative)
-      );
+    distPath = this.generateDistPath(absolutePath);
+    const parentDistPath = this.generateDistPath(this.name);
+
+    if (distPath && parentDistPath) {
       relativeRequirePath = promoteRelativePath(
-        path.relative(this.name, distPath)
+        path.relative(parentDistPath, distPath)
       );
+      // tslint:disable-next-line:no-debugger
+      // debugger;
     }
 
-    /**
-     * 引用npm包替换成npm目录引用
-     * @example
-     *  require('lodash') => require('npm/lodash/lodash.js')
-     */
-    if (absolutePath.includes('node_modules')) {
-      relativeRequirePath = promoteRelativePath(
-        path.relative(this.name, absolutePath)
-      ).replace('../node_modules', 'npm');
-    }
+    // /**
+    //  * replace require dependenceFile's relativeRequirePath no in sourceDir
+    //  * @example
+    //  *  aliasKey: @somewhere
+    //  *  require('@somewhere/abc') => require('npm/@somewhere/abc')
+    //  */
+    // if (isNotInSourceDir) {
+    //   aliasKey = pathToUnixType(aliasKey);
 
-    if (distPath) {
-      const distRelative = pathToUnixType(
-        path.relative(this.options.sourceDir, distPath)
-      );
-      // in source dir
-      if (!distRelative.includes('../')) {
-        distPath = path.resolve(this.options.outDir, distRelative);
-      }
-    }
+    //   const aliasValue = normalizeAlias(alias[aliasKey]);
+    //   const distNpmRelative = path.relative(aliasValue.path, absolutePath);
+    //   distPath = path.resolve(
+    //     this.options.sourceDir,
+    //     path.join('npm', aliasKey, distNpmRelative)
+    //   );
+    //   relativeRequirePath = promoteRelativePath(
+    //     path.relative(this.name, distPath)
+    //   );
+    // }
+
+    // /**
+    //  * 引用npm包替换成npm目录引用
+    //  * @example
+    //  *  require('lodash') => require('npm/lodash/lodash.js')
+    //  */
+    // if (absolutePath.includes('node_modules')) {
+    //   relativeRequirePath = promoteRelativePath(
+    //     path.relative(this.name, absolutePath)
+    //   ).replace('../node_modules', 'npm');
+    // }
+
+    // if (distPath) {
+    //   const distRelative = pathToUnixType(
+    //     path.relative(this.options.sourceDir, distPath)
+    //   );
+    //   // in source dir
+    //   if (!distRelative.includes('../')) {
+    //     distPath = path.resolve(this.options.outDir, distRelative);
+    //   }
+    // }
 
     return {
       /* 文件真实路径 */
@@ -257,6 +275,54 @@ export default class Asset {
   }
 
   /**
+   * 生成文件dist路径
+   */
+  generateDistPath(sourcePath: string, ext: string = '') {
+    const alias = this.options.alias;
+    const sourceDir = path.resolve(this.options.sourceDir);
+    const name = sourcePath;
+    let distPath = '';
+
+    const aliasDirs = [
+      ['', { path: path.join(this.options.rootDir, 'node_modules') }]
+    ].concat(Object.entries(alias));
+
+    while (aliasDirs.length) {
+      const [aliasName, aliasValue] = aliasDirs.shift();
+      const dir = normalizeAlias(aliasValue).path;
+      // in alias source dir but not in build source file
+      if (name.includes(sourceDir)) {
+        const relatePath = path.relative(sourceDir, name);
+        distPath = path.join(this.options.outDir, relatePath);
+        break;
+      }
+      if (name.includes(dir)) {
+        // 相对于alias目录的相对路径
+        const relativeAlias = path.relative(dir, name);
+
+        distPath = path.join(
+          this.options.outDir,
+          'npm',
+          aliasName as string,
+          relativeAlias
+        );
+        break;
+      }
+    }
+
+    const extName = path.extname(this.basename);
+    if (!ext) {
+      // index => index.js
+      distPath += ext;
+    } else if (extName !== ext) {
+      // index.es6 => index.js
+      distPath = distPath.replace(extName, ext);
+    }
+
+    return distPath;
+  }
+
+  /**
    * 生成输出目录distPath
    * @param code
    * @param ext
@@ -275,22 +341,10 @@ export default class Asset {
       return { distPath: prettyDistPath };
     }
 
-    let distPath = path.resolve(this.options.outDir, this.relativeName);
-    const isInNpm = distPath.includes('node_modules');
-    if (isInNpm) {
-      distPath = distPath.replace(
-        'node_modules',
-        path.join(path.basename(this.options.outDir), 'npm')
-      );
-    }
-    const extName = path.extname(this.basename);
-    if (!ext) {
-      // index => index.js
-      distPath += ext;
-    } else if (extName !== ext) {
-      // index.es6 => index.js
-      distPath = distPath.replace(extName, ext);
-    }
+    // default distPath
+    const distPath =
+      this.generateDistPath(this.name, ext) ||
+      path.resolve(this.options.outDir, this.relativeName);
 
     this.distPath = distPath;
 

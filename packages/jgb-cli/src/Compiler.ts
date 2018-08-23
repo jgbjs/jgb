@@ -8,14 +8,17 @@ import {
 import { ICompiler, IPluginRegister } from 'jgb-shared/lib/pluginDeclare';
 import StaticAsset from 'jgb-shared/lib/StaticAsset';
 
+import { EventEmitter } from 'events';
 import * as path from 'path';
 
 type TypeAsset = typeof Asset;
 
-export default class Compiler implements ICompiler {
+export default class Compiler extends EventEmitter implements ICompiler {
   private extensions = new Map<string, TypeAsset>();
 
-  constructor(private options: IInitOptions) {}
+  constructor(private options: IInitOptions) {
+    super();
+  }
 
   /**
    * 预加载插件等信息

@@ -2,7 +2,8 @@ import * as debug from 'debug';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-import { IInitOptions } from '../typings/jgb-shared';
+import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
+import { normalizeAlias } from './utils';
 
 // debug.enable('*');
 
@@ -17,7 +18,7 @@ export default class Resolver {
    * 类似webpack resolve alias
    * 但是只匹配字符串
    */
-  alias = new Map<string, string>();
+  alias = new Map<string, IAliasValue>();
 
   constructor(private options: IInitOptions) {
     if (options.alias) {
@@ -297,6 +298,7 @@ export default class Resolver {
           return path.normalize(fileName);
       }
     } catch (error) {
+      // tslint:disable-next-line:no-debugger
       debugger;
     }
   }
@@ -324,7 +326,7 @@ export default class Resolver {
          *
          * @src/abc => /src/abc
          */
-        fileName = fileName.replace(key, target);
+        fileName = fileName.replace(key, normalizeAlias(target).path);
         return this.resolveFilename(fileName, dir);
       }
     }

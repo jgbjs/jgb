@@ -2,6 +2,12 @@ import Asset from '../src/Asset';
 
 export type IPluginConfig = string | [string] | [string, any];
 
+export type IAliasValue =
+  | string
+  | {
+      path: string;
+    };
+
 export interface IInitOptions {
   /**
    * 入口文件
@@ -35,7 +41,7 @@ export interface IInitOptions {
    * resolver alias
    */
   alias?: {
-    [key: string]: string;
+    [key: string]: IAliasValue;
   };
 
   /**

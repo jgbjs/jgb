@@ -8,5 +8,6 @@ export default declare((compiler, pluginConfig = {}) => {
   if (pluginConfig.outExt) {
     JsonAsset.outExt = pluginConfig.outExt;
   }
+  JsonAsset.prototype.parentCompiler = compiler;
   compiler.addAssetsType(exts, JsonAsset);
 });

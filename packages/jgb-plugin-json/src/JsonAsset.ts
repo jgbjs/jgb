@@ -1,25 +1,6 @@
 import { Asset, IInitOptions } from 'jgb-shared/lib';
 import * as path from 'path';
 
-interface IAppJsonTabarListConfg {
-  pagePath: string;
-  text: string;
-  iconPath: string;
-  selectedIconPath: string;
-}
-
-interface IAppJson {
-  pages: string[];
-  tabBar: {
-    color: string;
-    selectedColor: string;
-    backgroundColor: string;
-    borderStyle: string;
-    list: IAppJsonTabarListConfg[];
-    position: string;
-  };
-}
-
 interface IPageJson {
   usingComponents: {
     [componentName: string]: string;
@@ -60,8 +41,15 @@ export default class JsonAsset extends Asset {
     };
   }
 
+  get compiler() {
+    if (this.parentCompiler) {
+      return this.parentCompiler;
+    }
+  }
+
   async collectPageJson(page: IPageJson) {
-    if (!page.usingComponents) {
+    // 是否使用组件
+    if (!page.usingComponents || typeof page.usingComponents !== 'object') {
       return;
     }
 
@@ -69,6 +57,11 @@ export default class JsonAsset extends Asset {
     const supportExtensions = extensions.keys();
     const components = new Set(Object.values(page.usingComponents));
     const dependences = await this.expandFiles(components, supportExtensions);
+
+    this.compiler.emit('collect-page-json', {
+      dependences,
+      pageJson: page
+    });
 
     for (const name of dependences) {
       this.addDependency(name);
@@ -79,30 +72,29 @@ export default class JsonAsset extends Asset {
    * 搜集 app.json 中页面配置和其他依赖资源
    * @param pkg
    */
-  async collectAppJson(app: IAppJson) {
+  async collectAppJson(app: any) {
     const extensions = this.options.parser.extensions as Map<string, any>;
     const supportExtensions = extensions.keys();
-    const pages = new Set(app.pages || []);
+    const pages: Set<string> = new Set(
+      Array.isArray(app.pages) ? app.pages : []
+    );
     const dependences = await this.expandFiles(pages, supportExtensions);
 
-    const rawAssets = new Set();
+    this.compiler.emit('collect-app-json', {
+      dependences,
+      appJson: app
+    });
 
-    if (app.tabBar && app.tabBar.list) {
-      app.tabBar.list.forEach(config => {
-        dependences.add(config.pagePath);
-        // tslint:disable-next-line:no-unused-expression
-        config.iconPath && rawAssets.add(path.join('./', config.iconPath));
-        // tslint:disable-next-line:no-unused-expression
-        config.selectedIconPath &&
-          rawAssets.add(path.join('./', config.selectedIconPath));
-      });
-    }
-
-    for (const name of [...rawAssets, ...dependences]) {
+    for (const name of [...dependences]) {
       this.addDependency(name);
     }
   }
 
+  /**
+   * 查找满足条件的文件,扩展开文件名
+   * @param fileNames
+   * @param extensions
+   */
   async expandFiles(
     fileNames: Set<string>,
     extensions: IterableIterator<string>
