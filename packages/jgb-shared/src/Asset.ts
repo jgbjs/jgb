@@ -11,6 +11,11 @@ import { normalizeAlias } from './utils';
 import isUrl from './utils/isUrl';
 import objectHash from './utils/objectHash';
 
+export interface IAssetGenerate {
+  code: string;
+  ext: string;
+}
+
 export default class Asset {
   id: string;
   dependencies = new Map<string, any>();
@@ -20,7 +25,7 @@ export default class Asset {
   resolver: Resolver;
   ast: any;
   processed = false;
-  generated: any = null;
+  generated: IAssetGenerate | IAssetGenerate[] = null;
   hash: string;
   // tslint:disable-next-line:variable-name
   _package: any;
@@ -61,9 +66,8 @@ export default class Asset {
    * 根据当前文件
    * @param name
    */
-  async resolveAliasName(name: string) {
+  async resolveAliasName(name: string, ext: string = '') {
     /** 引用文件是否在sourceDir */
-    let isNotInSourceDir = false;
     let aliasKey = '';
     let distPath = '';
     const alias = this.options.alias;
@@ -83,11 +87,6 @@ export default class Asset {
           const dependenceFile = name;
           // relative path: ..\\utils\\index => ../utils/index
           name = promoteRelativePath(path.relative(sourceFile, dependenceFile));
-
-          isNotInSourceDir = path
-            .relative(this.options.sourceDir, dependenceFile)
-            .includes(`..${path.sep}`);
-
           break;
         }
       }
@@ -106,7 +105,7 @@ export default class Asset {
     let relativeRequirePath = '';
 
     distPath = this.generateDistPath(absolutePath);
-    const parentDistPath = this.generateDistPath(this.name);
+    const parentDistPath = this.generateDistPath(this.name, ext);
 
     if (distPath && parentDistPath) {
       relativeRequirePath = promoteRelativePath(
@@ -115,47 +114,6 @@ export default class Asset {
       // tslint:disable-next-line:no-debugger
       // debugger;
     }
-
-    // /**
-    //  * replace require dependenceFile's relativeRequirePath no in sourceDir
-    //  * @example
-    //  *  aliasKey: @somewhere
-    //  *  require('@somewhere/abc') => require('npm/@somewhere/abc')
-    //  */
-    // if (isNotInSourceDir) {
-    //   aliasKey = pathToUnixType(aliasKey);
-
-    //   const aliasValue = normalizeAlias(alias[aliasKey]);
-    //   const distNpmRelative = path.relative(aliasValue.path, absolutePath);
-    //   distPath = path.resolve(
-    //     this.options.sourceDir,
-    //     path.join('npm', aliasKey, distNpmRelative)
-    //   );
-    //   relativeRequirePath = promoteRelativePath(
-    //     path.relative(this.name, distPath)
-    //   );
-    // }
-
-    // /**
-    //  * 引用npm包替换成npm目录引用
-    //  * @example
-    //  *  require('lodash') => require('npm/lodash/lodash.js')
-    //  */
-    // if (absolutePath.includes('node_modules')) {
-    //   relativeRequirePath = promoteRelativePath(
-    //     path.relative(this.name, absolutePath)
-    //   ).replace('../node_modules', 'npm');
-    // }
-
-    // if (distPath) {
-    //   const distRelative = pathToUnixType(
-    //     path.relative(this.options.sourceDir, distPath)
-    //   );
-    //   // in source dir
-    //   if (!distRelative.includes('../')) {
-    //     distPath = path.resolve(this.options.outDir, distRelative);
-    //   }
-    // }
 
     return {
       /* 文件真实路径 */
@@ -223,13 +181,15 @@ export default class Asset {
     await this.pretransform();
     await this.getDependencies();
     this.generated = await this.generate();
-    const { code, ext } = this.generated;
-    this.hash = await this.generateHash();
-    const { distPath } = await this.output(code, ext);
 
-    this.endTime = +new Date();
+    for (const { code, ext } of [].concat(this.generated)) {
+      this.hash = await this.generateHash();
+      const { distPath } = await this.output(code, ext);
 
-    logger.log(`${distPath}`, '编译', this.endTime - this.startTime);
+      this.endTime = +new Date();
+
+      logger.log(`${distPath}`, '编译', this.endTime - this.startTime);
+    }
   }
 
   async loadIfNeeded() {
@@ -310,7 +270,8 @@ export default class Asset {
       }
     }
 
-    const extName = path.extname(this.basename);
+    const extName = path.extname(name);
+
     if (!ext) {
       // index => index.js
       distPath += ext;
@@ -333,18 +294,21 @@ export default class Asset {
   ): Promise<{
     distPath: string;
   }> {
-    let prettyDistPath = this.distPath;
-
-    if (this.distPath) {
-      prettyDistPath = path.relative(this.options.outDir, this.distPath);
-      await writeFile(this.distPath, code);
-      return { distPath: prettyDistPath };
-    }
-
-    // default distPath
-    const distPath =
+    let distPath =
+      this.distPath ||
       this.generateDistPath(this.name, ext) ||
       path.resolve(this.options.outDir, this.relativeName);
+
+    let prettyDistPath = this.distPath;
+    const extName = path.extname(this.basename);
+
+    if (!ext && !path.extname(distPath)) {
+      // index => index.js
+      distPath += ext;
+    } else if (extName !== ext) {
+      // index.es6 => index.js
+      distPath = distPath.replace(extName, ext);
+    }
 
     this.distPath = distPath;
 
@@ -376,10 +340,7 @@ export default class Asset {
     console.log('Asset.parse must be overload');
   }
 
-  async generate(): Promise<{
-    code: string;
-    ext: string;
-  }> {
+  async generate(): Promise<IAssetGenerate | IAssetGenerate[]> {
     // console.log('Asset.generate must be overload');
     return {
       code: '',

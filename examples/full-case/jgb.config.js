@@ -1,7 +1,6 @@
 const Path = require('path')
 
 module.exports = {
-  entryFiles: ['app.json'],
   alias: {
     '@/utils': './src/utils',
     "@/src": './src',
@@ -12,5 +11,7 @@ module.exports = {
   plugins: [['less', {
     extensions: ['.wxss'],
     outExt: '.wxss'
+  }], ['typescript', {
+    outExt: '.js'
   }]]
 }

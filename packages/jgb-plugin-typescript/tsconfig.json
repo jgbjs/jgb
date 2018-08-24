@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib/",
+    "declarationDir": "lib",
     "baseUrl": "src",
-    "noImplicitAny": false
   },
   "typeRoots": [
     "./typings",
