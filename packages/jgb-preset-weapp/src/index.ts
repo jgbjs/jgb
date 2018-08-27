@@ -111,7 +111,9 @@ async function collectPageJson({
         if (relativeRequire === realName) {
           // alias
           components.push(realName);
-        } else {
+        }
+
+        if (absolutePath.includes('node_modules')) {
           // npm
           const npmDir = await ctx.resolver.findNodeModulePath(
             realName,

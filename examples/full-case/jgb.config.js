@@ -6,7 +6,11 @@ module.exports = {
     '@/utils': './src/utils',
     "@/src": './src',
     '@alias': './aliasTest',
-    '@alias-test': Path.resolve('../alias-test/src/')
+    '@alias-test': Path.resolve('../alias-test/src/'),
+    '@navbar': {
+      path: './node_modules/miniprogram-navigation-bar',
+      dist: 'pages/aliasComponent/'
+    }
   },
   presets: ['weapp'],
   plugins: [['less', {

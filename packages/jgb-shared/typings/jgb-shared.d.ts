@@ -5,7 +5,10 @@ export type IPluginConfig = string | [string] | [string, any];
 export type IAliasValue =
   | string
   | {
+      /** 路径 */
       path: string;
+      /** 相对路径，相对于output目录  */
+      dist?: string;
     };
 
 export interface IInitOptions {
@@ -64,4 +67,3 @@ export interface IInitOptions {
   /* 是否压缩 */
   minify?: boolean;
 }
-

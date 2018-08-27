@@ -239,13 +239,16 @@ export default class Asset {
     const name = sourcePath;
     let distPath = '';
 
-    const aliasDirs = [
+    const aliasDirs = [].concat([
+      ...Object.entries(alias),
       ['', { path: path.join(this.options.rootDir, 'node_modules') }]
-    ].concat(Object.entries(alias));
+    ]);
 
     while (aliasDirs.length) {
       const [aliasName, aliasValue] = aliasDirs.shift();
-      const dir = normalizeAlias(aliasValue).path;
+      const normalizedAlias = normalizeAlias(aliasValue);
+      const dir = normalizedAlias.path;
+      const distDir = normalizedAlias.dist ? normalizedAlias.dist : 'npm'
       // in alias source dir but not in build source file
       if (name.includes(sourceDir)) {
         const relatePath = path.relative(sourceDir, name);
@@ -258,7 +261,7 @@ export default class Asset {
 
         distPath = path.join(
           this.options.outDir,
-          'npm',
+          distDir,
           aliasName as string,
           relativeAlias
         );
