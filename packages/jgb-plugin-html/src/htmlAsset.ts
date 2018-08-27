@@ -170,7 +170,8 @@ export default class HtmlAsset extends Asset {
             const depHandler = this.getAttrDepHandler(attr);
             const options = OPTIONS[node.tag];
             // vue like bind data
-            if (node.attrs[attr].indexOf('{{') === 0) {
+            const nodeValue = node.attrs[attr];
+            if (nodeValue.startsWith('{{') || nodeValue.startsWith('data:')) {
               continue;
             }
             node.attrs[attr] = pathToUnixType(

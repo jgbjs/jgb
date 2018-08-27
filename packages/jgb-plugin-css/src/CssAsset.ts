@@ -71,10 +71,14 @@ export default class CssAsset extends Asset {
             node.value === 'url' &&
             node.nodes.length
           ) {
-            const url = this.addURLDependency(node.nodes[0].value, this.name, {
+            const nodeValue: string = node.nodes[0].value;
+            if (nodeValue.startsWith('data:')) {
+              return;
+            }
+            const url = this.addURLDependency(nodeValue, this.name, {
               loc: decl.source.start
             });
-            dirty = node.nodes[0].value !== url;
+            dirty = nodeValue !== url;
             node.nodes[0].value = url;
           }
         });
