@@ -168,6 +168,10 @@ export default class HtmlAsset extends Asset {
           if (elements && elements.includes(node.tag)) {
             const depHandler = this.getAttrDepHandler(attr);
             const options = OPTIONS[node.tag];
+            // vue like bind data
+            if (node.attrs[attr].indexOf('{{') === 0) {
+              continue;
+            }
             node.attrs[attr] = depHandler.call(
               this,
               node.attrs[attr],

@@ -1,8 +1,8 @@
-import { EventEmitter } from 'events';
 import Asset from './Asset';
+import AwaitEventEmitter from './awaitEventEmitter';
 export type TypeAsset = typeof Asset;
 
-export interface ICompiler extends EventEmitter {
+export interface ICompiler extends AwaitEventEmitter {
   addAssetsType(exts: string | string[], asset: TypeAsset): void;
 }
 

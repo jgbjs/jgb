@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "test": "@/components/popup/popup",
+    "navigation-bar": "miniprogram-navigation-bar"
+  }
+}

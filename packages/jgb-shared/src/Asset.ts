@@ -7,7 +7,7 @@ import * as config from './config';
 import { logger } from './Logger';
 import { ICompiler } from './pluginDeclare';
 import Resolver from './Resolver';
-import { normalizeAlias } from './utils';
+import { normalizeAlias, promoteRelativePath } from './utils';
 import isUrl from './utils/isUrl';
 import objectHash from './utils/objectHash';
 
@@ -67,8 +67,6 @@ export default class Asset {
    * @param name
    */
   async resolveAliasName(name: string, ext: string = '') {
-    /** 引用文件是否在sourceDir */
-    let aliasKey = '';
     let distPath = '';
     const alias = this.options.alias;
 
@@ -80,7 +78,6 @@ export default class Asset {
     if (alias) {
       for (const key of Object.keys(alias)) {
         if (name.includes(key)) {
-          aliasKey = key;
           const aliasValue = normalizeAlias(alias[key]);
           name = path.normalize(name.replace(key, aliasValue.path));
           const sourceFile = this.name;
@@ -111,14 +108,13 @@ export default class Asset {
       relativeRequirePath = promoteRelativePath(
         path.relative(parentDistPath, distPath)
       );
-      // tslint:disable-next-line:no-debugger
-      // debugger;
     }
 
     return {
       /* 文件真实路径 */
       realName: name,
       distPath,
+      absolutePath,
       /* require相对路径 */
       relativeRequirePath
     };
@@ -290,7 +286,7 @@ export default class Asset {
    */
   async output(
     code: string,
-    ext: string
+    ext: string = ''
   ): Promise<{
     distPath: string;
   }> {
@@ -312,9 +308,12 @@ export default class Asset {
 
     this.distPath = distPath;
 
-    await writeFile(distPath, code);
-
     prettyDistPath = path.relative(this.options.outDir, distPath);
+
+    // if distPath not in outDir
+    if (!prettyDistPath.startsWith('..')) {
+      await writeFile(distPath, code);
+    }
 
     return {
       distPath: prettyDistPath
@@ -384,31 +383,4 @@ export default class Asset {
 async function writeFile(filePath: string, code: string) {
   await fs.ensureDir(path.dirname(filePath));
   await fs.writeFile(filePath, code);
-}
-
-/**
- * 修正relatviePath
- * @param fPath
- */
-function promoteRelativePath(fPath: string) {
-  const fPathArr = fPath.split(path.sep);
-  let dotCount = 0;
-  fPathArr.forEach(item => {
-    if (item.indexOf('..') >= 0) {
-      dotCount++;
-    }
-  });
-  if (dotCount === 1) {
-    fPathArr.splice(0, 1, '.');
-    return fPathArr.join('/');
-  }
-  if (dotCount > 1) {
-    fPathArr.splice(0, 1);
-    return fPathArr.join('/');
-  }
-  return pathToUnixType(fPath);
-}
-
-function pathToUnixType(fPath: string) {
-  return fPath.replace(/\\/g, '/');
 }

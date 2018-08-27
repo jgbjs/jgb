@@ -2,6 +2,7 @@ const Path = require('path')
 
 module.exports = {
   alias: {
+    '@/components': './src/components',
     '@/utils': './src/utils',
     "@/src": './src',
     '@alias': './aliasTest',
@@ -11,7 +12,5 @@ module.exports = {
   plugins: [['less', {
     extensions: ['.wxss'],
     outExt: '.wxss'
-  }], ['typescript', {
-    outExt: '.js'
-  }]]
+  }], 'typescript']
 }

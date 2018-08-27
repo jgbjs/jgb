@@ -21,6 +21,15 @@ export default class LessAsset extends CssAsset {
 
     return await super.parse(lessAst.css || '');
   }
+
+  async generate() {
+    const { code, ext } = await super.generate();
+
+    return {
+      code,
+      ext: LessAsset.outExt || ext
+    };
+  }
 }
 
 function urlPlugin(asset: LessAsset) {
@@ -28,10 +37,12 @@ function urlPlugin(asset: LessAsset) {
     install: (less: any, pluginManager: any) => {
       const visitor = new less.visitors.Visitor({
         visitUrl: (node: any) => {
-          node.value.value = asset.addURLDependency(
-            node.value.value,
-            node.currentFileInfo.filename
-          );
+          if (!ignoreDependency(node.value.value)) {
+            node.value.value = asset.addURLDependency(
+              node.value.value,
+              node.currentFileInfo.filename
+            );
+          }
           return node;
         }
       });
@@ -40,4 +51,12 @@ function urlPlugin(asset: LessAsset) {
       pluginManager.addVisitor(visitor);
     }
   };
+}
+
+function ignoreDependency(value: string) {
+  if (value.startsWith('data:')) {
+    return true;
+  }
+
+  return false;
 }

@@ -64,3 +64,4 @@ export interface IInitOptions {
   /* 是否压缩 */
   minify?: boolean;
 }
+

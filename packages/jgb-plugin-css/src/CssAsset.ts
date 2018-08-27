@@ -2,6 +2,7 @@ import { Asset, IInitOptions } from 'jgb-shared/lib';
 import * as path from 'path';
 import * as postcss from 'postcss';
 import * as valueParser from 'postcss-value-parser';
+import CSSAst from './CSSAst';
 import postcssTransform from './postcss';
 
 const URL_RE = /url\s*\("?(?![a-z]+:)/;
@@ -9,7 +10,7 @@ const IMPORT_RE = /@import/;
 const PROTOCOL_RE = /^[a-z]+:/;
 
 export default class CssAsset extends Asset {
-  static outExt: '.css';
+  static outExt = '.css';
   cssModules: any;
 
   constructor(name: string, options: IInitOptions) {
@@ -106,20 +107,5 @@ export default class CssAsset extends Asset {
       code: css,
       ext: CssAsset.outExt
     };
-  }
-}
-
-// tslint:disable-next-line:max-classes-per-file
-export class CSSAst {
-  dirty = false;
-  constructor(public css: string, public root: any) {}
-
-  render() {
-    if (this.dirty) {
-      this.css = '';
-      postcss.stringify(this.root, (c: string) => (this.css += c));
-    }
-
-    return this.css;
   }
 }

@@ -19,7 +19,7 @@ export default class StaticAsset extends Asset {
   }
 
   async output() {
-    const distPath = path.resolve(this.options.outDir, this.relativeName);
+    const distPath = this.distPath || this.generateDistPath(this.name);
 
     this.distPath = distPath;
 

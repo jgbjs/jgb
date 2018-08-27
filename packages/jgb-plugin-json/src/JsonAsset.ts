@@ -1,12 +1,6 @@
 import { Asset, IInitOptions } from 'jgb-shared/lib';
 import * as path from 'path';
 
-interface IPageJson {
-  usingComponents: {
-    [componentName: string]: string;
-  };
-}
-
 export default class JsonAsset extends Asset {
   constructor(fileName: string, options: IInitOptions) {
     super(fileName, options);
@@ -47,18 +41,11 @@ export default class JsonAsset extends Asset {
     }
   }
 
-  async collectPageJson(page: IPageJson) {
-    // 是否使用组件
-    if (!page.usingComponents || typeof page.usingComponents !== 'object') {
-      return;
-    }
+  async collectPageJson(page: any) {
+    const dependences = new Set<string>();
 
-    const extensions = this.options.parser.extensions as Map<string, any>;
-    const supportExtensions = extensions.keys();
-    const components = new Set(Object.values(page.usingComponents));
-    const dependences = await this.expandFiles(components, supportExtensions);
-
-    this.compiler.emit('collect-page-json', {
+    await this.compiler.emit('collect-page-json', {
+      ctx: this,
       dependences,
       pageJson: page
     });
@@ -73,14 +60,10 @@ export default class JsonAsset extends Asset {
    * @param pkg
    */
   async collectAppJson(app: any) {
-    const extensions = this.options.parser.extensions as Map<string, any>;
-    const supportExtensions = extensions.keys();
-    const pages: Set<string> = new Set(
-      Array.isArray(app.pages) ? app.pages : []
-    );
-    const dependences = await this.expandFiles(pages, supportExtensions);
+    const dependences = new Set<string>();
 
-    this.compiler.emit('collect-app-json', {
+    await this.compiler.emit('collect-app-json', {
+      ctx: this,
       dependences,
       appJson: app
     });
@@ -102,13 +85,13 @@ export default class JsonAsset extends Asset {
     const dependences = new Set();
     const dir = path.dirname(this.name);
     const exts = [...extensions];
-    for (const fileName of fileNames) {
-      const files = this.resolver.expandFile(
-        path.resolve(dir, fileName),
-        exts,
-        {},
-        false
-      );
+
+    for (let fileName of fileNames) {
+      fileName = path.isAbsolute(fileName)
+        ? fileName
+        : path.resolve(dir, fileName);
+
+      const files = this.resolver.expandFile(fileName, exts, {}, false);
       for (const file of files) {
         const isFile = await this.resolver.isFile(file);
         if (isFile) {
