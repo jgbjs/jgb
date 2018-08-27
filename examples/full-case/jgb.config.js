@@ -1,6 +1,7 @@
 const Path = require('path')
 
 module.exports = {
+  // entryFiles: ['utils/index.js'],
   alias: {
     '@/components': './src/components',
     '@/utils': './src/utils',

@@ -141,7 +141,11 @@ async function getBabelConfig(asset: BabelAsset) {
 
   // Otherwise, don't run babel at all
   return {
-    presets: ['env'],
+    presets: [
+      safeLocalRequire('babel-preset-env', asset.name, () =>
+        require('babel-preset-env')
+      )
+    ],
     ignore: ['node_modules']
   };
 }

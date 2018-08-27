@@ -1,4 +1,5 @@
 import { Asset, IInitOptions, Utils } from 'jgb-shared/lib';
+import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as render from 'posthtml-render';
 import * as api from 'posthtml/lib/api';
 import { parse, transform } from './posthtml';
@@ -172,10 +173,8 @@ export default class HtmlAsset extends Asset {
             if (node.attrs[attr].indexOf('{{') === 0) {
               continue;
             }
-            node.attrs[attr] = depHandler.call(
-              this,
-              node.attrs[attr],
-              options && options[attr]
+            node.attrs[attr] = pathToUnixType(
+              depHandler.call(this, node.attrs[attr], options && options[attr])
             );
             // this.isAstDirty = true;
           }
@@ -198,7 +197,9 @@ export default class HtmlAsset extends Asset {
 
   async generate() {
     return {
-      code: render(this.ast),
+      code: render(this.ast, {
+        closingSingleTag: 'slash'
+      }),
       ext: HtmlAsset.outExt
     };
   }

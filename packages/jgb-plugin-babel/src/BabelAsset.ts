@@ -8,6 +8,7 @@ import * as walk from 'babylon-walk';
 import { Asset, IInitOptions } from 'jgb-shared/lib';
 import * as Path from 'path';
 import babel, { getConfig } from './babel';
+import npmHack from './npmHack';
 import terser from './terser';
 import collectDependencies from './vistors/dependencies';
 import envVisitor from './vistors/env';
@@ -116,6 +117,14 @@ export default class BabelAsset extends Asset {
       opts.node.value = relativeRequirePath;
     }
 
+    if (opts.node) {
+      const ext = Path.extname(opts.node.value);
+      // .ts => .js
+      if (ext && ext !== BabelAsset.outExt) {
+        opts.node.value = opts.node.value.replace(/\.(\w)+/, BabelAsset.outExt);
+      }
+    }
+
     // avoid save large data or circle data
     delete opts.node;
 
@@ -204,6 +213,7 @@ export default class BabelAsset extends Asset {
     } else {
       code = this.outputCode != null ? this.outputCode : this.contents;
     }
+    code = npmHack(this.basename, code);
 
     return {
       code,

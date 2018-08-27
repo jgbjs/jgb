@@ -1,7 +1,10 @@
-import testUtil from '@/utils/index'
+import testUtil from '@/utils/index';
 
 Page({
+  data: {
+    title: 'title - 1121'
+  },
   onLoad() {
-    testUtil(1)
+    testUtil(1);
   }
-})
+});
