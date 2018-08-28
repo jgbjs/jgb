@@ -27,5 +27,6 @@
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
     "typescript": "3.0.1"
-  }
+  },
+  "gitHead": "5f20f17043cc0131daab77646f8431ea87431fc5"
 }
