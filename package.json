@@ -2,14 +2,19 @@
   "name": "jingubang",
   "version": "1.0.1",
   "main": "index.js",
-  "repository": "git@github.com:landn172/jingubang.git",
   "author": "landn172 <landn172@gmail.com>",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/landn172/jingubang.git"
+  },
+  "homepage": "https://github.com/landn172/jingubang",
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build:all": "lerna run build",
     "clean:all": "lerna run clean",
-    "watch:all": "lerna run watch --parallel"
+    "watch:all": "lerna run watch --parallel",
+    "publish:all": "lerna publish --registry https://registry.npmjs.org/"
   },
   "devDependencies": {
     "@types/node": "^10.5.4",

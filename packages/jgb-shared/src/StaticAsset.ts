@@ -32,7 +32,8 @@ export default class StaticAsset extends Asset {
     readable.pipe(writable);
 
     return {
-      distPath: prettyDistPath
+      distPath: prettyDistPath,
+      ignore: false
     };
   }
 }

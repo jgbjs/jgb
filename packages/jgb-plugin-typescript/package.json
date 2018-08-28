@@ -4,6 +4,11 @@
   "main": "lib/index.js",
   "typings": "typings/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/landn172/jingubang.git"
+  },
+  "homepage": "https://github.com/landn172/jingubang",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
