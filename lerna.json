@@ -1,10 +1,10 @@
 {
   "lerna": "2.11.0",
   "packages": [
-    "packages/*",
-    "examples/*"
+    "examples/*",
+    "packages/*"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "npmClient": "yarn",
   "command": {
     "run": {
