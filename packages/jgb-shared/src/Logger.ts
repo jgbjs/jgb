@@ -1,4 +1,5 @@
 import chalk, { Chalk } from 'chalk';
+import { Console } from 'console';
 import WorkerFarm from './workerfarm/WorkerFarm';
 
 export type LogTypeColor = '编译';
@@ -44,12 +45,13 @@ export default class Logger {
     }
 
     const fn = this.getColorFn(type as LogTypeColor);
-
-    console.log(
+    const msg =
       fn(`[${type}] `) +
-        message +
-        ` ${usedTime ? chalk.gray(`[${usedTime}ms]`) : ''}`
-    );
+      message +
+      ` ${usedTime ? chalk.gray(`[${usedTime}ms]`) : ''}`;
+
+    // process.stdout.write(msg);
+    console.log(msg);
   }
 
   warning(message: any) {

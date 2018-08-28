@@ -113,11 +113,10 @@ export default class BabelAsset extends Asset {
       distPath
     } = await this.resolveAliasName(name, BabelAsset.outExt);
 
-    if (relativeRequirePath) {
-      opts.node.value = relativeRequirePath;
-    }
-
     if (opts.node) {
+      if (relativeRequirePath) {
+        opts.node.value = relativeRequirePath;
+      }
       const ext = Path.extname(opts.node.value);
       // .ts => .js
       if (ext && ext !== BabelAsset.outExt) {

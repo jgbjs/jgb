@@ -144,11 +144,6 @@ export default class Core extends EventEmitter {
       this.cache && (await this.cache.read(asset.name));
     let cacheMiss = false;
 
-    if (asset.name.includes('cloneDeep')) {
-      // tslint:disable-next-line:no-debugger
-      // debugger;
-    }
-
     if (!processed || asset.shouldInvalidate(processed.cacheData)) {
       processed = await this.farm.run(asset.name, asset.distPath);
       cacheMiss = true;
@@ -159,8 +154,6 @@ export default class Core extends EventEmitter {
     asset.id = processed.id;
     // asset.generated = processed.generated;
     asset.hash = processed.hash;
-
-    const tasks: Array<Promise<Asset>> = [];
 
     const dependencies = processed.dependencies;
 

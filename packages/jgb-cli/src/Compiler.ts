@@ -27,7 +27,7 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     await this.loadPlugins(options.plugins);
   }
 
-  async init(resolver: Resolver) {
+  async init(resolver?: Resolver) {
     await this.preload(this.options);
 
     const exts = [...this.extensions.keys()];

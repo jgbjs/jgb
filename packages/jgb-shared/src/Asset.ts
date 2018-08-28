@@ -180,11 +180,13 @@ export default class Asset {
 
     for (const { code, ext } of [].concat(this.generated)) {
       this.hash = await this.generateHash();
-      const { distPath } = await this.output(code, ext);
+      const { distPath, ignore } = await this.output(code, ext);
 
       this.endTime = +new Date();
 
-      logger.log(`${distPath}`, '编译', this.endTime - this.startTime);
+      if (!ignore) {
+        logger.log(`${distPath}`, '编译', this.endTime - this.startTime);
+      }
     }
   }
 
@@ -248,7 +250,7 @@ export default class Asset {
       const [aliasName, aliasValue] = aliasDirs.shift();
       const normalizedAlias = normalizeAlias(aliasValue);
       const dir = normalizedAlias.path;
-      const distDir = normalizedAlias.dist ? normalizedAlias.dist : 'npm'
+      const distDir = normalizedAlias.dist ? normalizedAlias.dist : 'npm';
       // in alias source dir but not in build source file
       if (name.includes(sourceDir)) {
         const relatePath = path.relative(sourceDir, name);
@@ -292,7 +294,11 @@ export default class Asset {
     ext: string = ''
   ): Promise<{
     distPath: string;
+    ignore: boolean;
   }> {
+    /* 是否忽略编译 */
+    let ignore = true;
+
     let distPath =
       this.distPath ||
       this.generateDistPath(this.name, ext) ||
@@ -315,10 +321,12 @@ export default class Asset {
 
     // if distPath not in outDir
     if (!prettyDistPath.startsWith('..')) {
+      ignore = false;
       await writeFile(distPath, code);
     }
 
     return {
+      ignore,
       distPath: prettyDistPath
     };
   }

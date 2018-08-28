@@ -1,6 +1,5 @@
 import { Asset, IInitOptions } from 'jgb-shared/lib';
-import md5 from 'jgb-shared/lib/utils/md5';
-import * as Path from 'path';
+import { logger } from 'jgb-shared/lib/Logger';
 import Compiler from './Compiler';
 
 export default class Pipeline {
@@ -9,7 +8,7 @@ export default class Pipeline {
 
   constructor(private options: IInitOptions) {
     this.compiler = new Compiler(options);
-    this.initPromise = this.compiler.preload(options);
+    this.initPromise = this.compiler.init();
   }
 
   // tslint:disable-next-line:no-empty
@@ -45,7 +44,9 @@ export default class Pipeline {
     } catch (err) {
       // tslint:disable-next-line:no-debugger
       debugger;
-      // throw asset.generateErrorMessage(err);
+      // tslint:disable-next-line:no-unused-expression
+      logger.error(err.message)
+      throw err;
     }
 
     return asset.generated;
