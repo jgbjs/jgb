@@ -31,7 +31,7 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     await this.preload(this.options);
 
     const exts = [...this.extensions.keys()];
-    resolver.addExts(exts);
+    this.options.extensions = new Set(exts);
   }
 
   /**

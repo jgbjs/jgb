@@ -21,6 +21,7 @@
     "miniprogram-navigation-bar": "^0.0.4"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.116",
     "babel-preset-env": "^1.7.0"
   }
 }

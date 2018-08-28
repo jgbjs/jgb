@@ -34,7 +34,7 @@ export default class Resolver {
       return this.cache.get(cacheKey);
     }
 
-    let exts = [...this.exts];
+    let exts = [...this.options.extensions];
 
     if (parent) {
       const parentExt = path.extname(parent);
@@ -69,10 +69,6 @@ export default class Resolver {
 
   getCacheKey(fileName: string, parent: any) {
     return (parent ? path.dirname(parent) : '') + ':' + fileName;
-  }
-
-  addExts(exts: string[]) {
-    exts.forEach(ext => this.exts.add(ext));
   }
 
   async resolveModule(fileName: string, parent: any) {

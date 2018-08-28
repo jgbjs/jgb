@@ -1,9 +1,14 @@
 import BabelAsset from 'jgb-plugin-babel/lib/BabelAsset';
+import { IInitOptions } from 'jgb-shared';
 import { safeLocalRequire } from 'jgb-shared/lib/utils';
 import * as Typescript from 'typescript';
 
 export default class TypeScriptAsset extends BabelAsset {
   static outExt = '.js';
+
+  constructor(fileName: string, options: IInitOptions) {
+    super(fileName, options);
+  }
 
   async parse(code: string) {
     // require typescript, installed locally in the app

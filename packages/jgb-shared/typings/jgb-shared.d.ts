@@ -55,7 +55,7 @@ export interface IInitOptions {
   plugins?: IPluginConfig[];
   presets?: IPluginConfig[];
 
-  extensions?: Map<string, typeof Asset>;
+  extensions?: Set<string>;
   parser?: any;
   useLocalWorker?: any;
   publicURL?: string;
