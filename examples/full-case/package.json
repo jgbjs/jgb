@@ -1,7 +1,7 @@
 {
   "name": "full-case",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.1.0",
   "main": "index.js",
   "license": "MIT",
   "bin": {
@@ -11,13 +11,13 @@
     "debug": "jgb-debug"
   },
   "dependencies": {
-    "jgb-cli": "^1.0.2",
-    "jgb-plugin-babel": "^1.0.2",
-    "jgb-plugin-css": "^1.0.2",
-    "jgb-plugin-json": "^1.0.2",
-    "jgb-plugin-less": "^1.0.2",
-    "jgb-plugin-typescript": "^1.0.2",
-    "jgb-preset-weapp": "^1.0.2",
+    "jgb-cli": "^1.1.0",
+    "jgb-plugin-babel": "^1.1.0",
+    "jgb-plugin-css": "^1.1.0",
+    "jgb-plugin-json": "^1.1.0",
+    "jgb-plugin-less": "^1.1.0",
+    "jgb-plugin-typescript": "^1.1.0",
+    "jgb-preset-weapp": "^1.1.0",
     "miniprogram-navigation-bar": "^0.0.4"
   },
   "devDependencies": {

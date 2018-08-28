@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-weapp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -13,11 +13,11 @@
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",
-    "jgb-plugin-babel": "^1.0.2",
-    "jgb-plugin-css": "^1.0.2",
-    "jgb-plugin-html": "^1.0.2",
-    "jgb-plugin-json": "^1.0.2",
-    "jgb-shared": "^1.0.2",
+    "jgb-plugin-babel": "^1.1.0",
+    "jgb-plugin-css": "^1.1.0",
+    "jgb-plugin-html": "^1.1.0",
+    "jgb-plugin-json": "^1.1.0",
+    "jgb-shared": "^1.1.0",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
