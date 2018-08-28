@@ -7,7 +7,7 @@ import { normalizeAlias } from './utils';
 
 // debug.enable('*');
 
-const log = debug('Resolver');
+// const log = debug('Resolver');
 
 export default class Resolver {
   cache = new Map();
