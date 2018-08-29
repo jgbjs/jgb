@@ -156,9 +156,14 @@ export default class Core extends EventEmitter {
     asset.hash = processed.hash;
 
     const dependencies = processed.dependencies;
+    
 
     const assetDeps = await Promise.all(
       dependencies.map(async dep => {
+        // from cache dep
+        if(Array.isArray(dep) && dep.length>1){
+          dep = dep[1];
+        }
         // This dependency is already included in the parent's generated output,
         // so no need to load it. We map the name back to the parent asset so
         // that changing it triggers a recompile of the parent.

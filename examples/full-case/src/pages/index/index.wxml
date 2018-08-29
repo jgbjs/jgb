@@ -1,3 +1,8 @@
 <include src="../../template/toast/toast.wxml"></include>
+<import src="../../template/tips/tips.wxml" />
 <view>test</view>
+<view wx:if="{{title}}">1</view>
+<image src="../../imgs/category-gray.png" wx:else></image>
 <popup title="{{title}}"></popup>
+<template is="tipMsg" data="{{...tipMsg}}" />
+<wxs src="../../template/wxs.wxs"></wxs>

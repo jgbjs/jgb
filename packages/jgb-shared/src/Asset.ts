@@ -7,9 +7,11 @@ import * as config from './config';
 import { logger } from './Logger';
 import { ICompiler } from './pluginDeclare';
 import Resolver from './Resolver';
-import { normalizeAlias, promoteRelativePath } from './utils';
+import { normalizeAlias, pathToUnixType, promoteRelativePath } from './utils';
 import isUrl from './utils/isUrl';
 import objectHash from './utils/objectHash';
+
+const NODE_MODULES = 'node_modules';
 
 export interface IAssetGenerate {
   code: string;
@@ -241,10 +243,7 @@ export default class Asset {
     const name = sourcePath;
     let distPath = '';
 
-    const aliasDirs = [].concat([
-      ...Object.entries(alias),
-      ['', { path: path.join(this.options.rootDir, 'node_modules') }]
-    ]);
+    const aliasDirs = [...Object.entries(alias)];
 
     while (aliasDirs.length) {
       const [aliasName, aliasValue] = aliasDirs.shift();
@@ -269,6 +268,15 @@ export default class Asset {
         );
         break;
       }
+    }
+
+    if (
+      (!distPath && name.includes(NODE_MODULES)) ||
+      distPath.includes(NODE_MODULES)
+    ) {
+      const spNM = name.split(NODE_MODULES);
+      const relativeAlias = spNM.pop();
+      distPath = path.join(this.options.outDir, 'npm', relativeAlias);
     }
 
     const extName = path.extname(name);

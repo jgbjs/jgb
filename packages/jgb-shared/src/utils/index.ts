@@ -41,7 +41,7 @@ export function promoteRelativePath(fPath: string) {
     fPathArr.splice(0, 1);
     return fPathArr.join('/');
   }
-  return pathToUnixType(fPath);
+  return fPath;
 }
 
 export function pathToUnixType(fPath: string) {

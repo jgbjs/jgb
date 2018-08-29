@@ -21,7 +21,8 @@ const ATTRS: {
     // weapp： https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/import.html
     'image',
     'import',
-    'include'
+    'include',
+    'wxs'
   ],
   href: ['link', 'a', 'use'],
   srcset: ['img', 'source'],
@@ -166,11 +167,17 @@ export default class HtmlAsset extends Asset {
             continue;
           }
 
+          const nodeValue = node.attrs[attr];
+
+          // wx:else do not transform to  wx:else=""
+          if (nodeValue === '') {
+            node.attrs[attr] = true;
+          }
+
           if (elements && elements.includes(node.tag)) {
             const depHandler = this.getAttrDepHandler(attr);
             const options = OPTIONS[node.tag];
-            // vue like bind data
-            const nodeValue = node.attrs[attr];
+            // vue like bind data or base64
             if (nodeValue.startsWith('{{') || nodeValue.startsWith('data:')) {
               continue;
             }
@@ -199,6 +206,16 @@ export default class HtmlAsset extends Asset {
   async generate() {
     return {
       code: render(this.ast, {
+        singleTags: [
+          'icon',
+          'image',
+          'progress',
+          'checkbox',
+          'slider',
+          'radio',
+          'switch',
+          'wxs'
+        ],
         closingSingleTag: 'slash'
       }),
       ext: HtmlAsset.outExt

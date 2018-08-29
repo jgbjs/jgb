@@ -115,29 +115,27 @@ async function collectPageJson({
 
         if (absolutePath.includes('node_modules')) {
           // npm
-          const npmDir = await ctx.resolver.findNodeModulePath(
-            realName,
-            ctx.name
-          );
-          if (!npmDir.moduleDir) {
+          const result = await findPackage(absolutePath);
+          if (!result) {
             continue;
           }
-          const pkg = require(`${npmDir.moduleDir}/package.json`);
-          // 小程序组件 目录
-          const npmProjectDir = Path.join(
-            npmDir.moduleDir,
-            pkg.miniprogram || ''
-          );
+          const { pkg, dir } = result;
+          // 如果配置了miniprogram小程序组件目录 会copy整个目录
+          if (pkg.miniprogram) {
+            const npmProjectDir = Path.join(dir, pkg.miniprogram);
 
-          const allMatches = await glob.async(['**/**'], {
-            cwd: npmProjectDir
-          });
-          if (allMatches) {
-            allMatches.forEach((file: string) => {
-              dependences.add(Path.join(npmProjectDir, file));
+            const allMatches = await glob.async(['**/**'], {
+              cwd: npmProjectDir
             });
+            if (allMatches) {
+              allMatches.forEach((file: string) => {
+                dependences.add(Path.join(npmProjectDir, file));
+              });
+            }
+          } else {
+            // only resolve
+            components.push(absolutePath.replace(/\.(\w)+/, ''));
           }
-          // components.push(absolutePath.replace(/\.(\w)+/, ''));
         }
         continue;
       }
@@ -153,6 +151,24 @@ async function collectPageJson({
       supportExtensions
     )) {
       dependences.add(dep);
+    }
+  }
+
+  async function findPackage(dir: string) {
+    // Find the nearest package.json file within the current node_modules folder
+    const root = Path.parse(dir).root;
+    while (dir !== root && Path.basename(dir) !== 'node_modules') {
+      try {
+        const pkg = await ctx.resolver.findPackage(dir);
+        return {
+          dir,
+          pkg
+        };
+      } catch (err) {
+        // ignore
+      }
+
+      dir = Path.dirname(dir);
     }
   }
 }

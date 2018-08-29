@@ -223,7 +223,7 @@ export default class Resolver {
     // libraries like d3.js specifies node.js specific files in the "main" which breaks the build
     // we use the "browser" or "module" field to get the full dependency tree if available.
     // If this is a linked module with a `source` field, use that as the entry point.
-    return [pkg.source, browser, pkg.module, pkg.main]
+    return [pkg.source, browser, pkg.main, pkg.module]
       .filter(entry => typeof entry === 'string')
       .map(main => {
         // Default to index file if no main field find

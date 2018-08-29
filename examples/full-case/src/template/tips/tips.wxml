@@ -1,0 +1,5 @@
+<template name="tipMsg">
+	<view hidden="{{!tipMessage}}" class="tipBox">
+		<view class="tipMsg">{{tipMessage}}</view>
+	</view>
+</template>
