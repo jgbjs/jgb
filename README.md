@@ -1,6 +1,6 @@
 # JGB （金箍棒）
 
-小程序渐进式增强开发工具。寓意像金箍棒一样可长可短使用自如（依靠插件系统），一件强有力的武器能够支持不同开发系统的渐进式开发工具。
+小程序渐进式增强开发工具。
 
 ## 使用
 
@@ -24,7 +24,7 @@ module.exports = {
 };
 ```
 
-## 特性
+## 特性 (具体查看examples)
 
 - 支持alias（默认编译到dist目录中的npm目录）
 - 支持npm （默认编译到dist目录中的npm目录）
@@ -80,6 +80,7 @@ module.exports = {
 - [jgb-plugin-html](packages/jgb-plugin-html/README.md)
 - [jgb-plugin-json](packages/jgb-plugin-json/README.md)
 - [jgb-plugin-less](packages/jgb-plugin-less/README.md)
+- [jgb-plugin-typescript](packages/jgb-plugin-typescript/README.md)
 
 ## presets
 

@@ -43,7 +43,7 @@ async function builder(main: any = [], command: any = {}) {
   await core.start();
 }
 
-if (process.argv.indexOf('build') === -1) {
+if (process.argv.indexOf('debug') >= 0) {
   builder([], {
     cache: false
   });
