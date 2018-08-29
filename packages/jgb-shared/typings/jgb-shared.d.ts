@@ -66,4 +66,6 @@ export interface IInitOptions {
   cacheDir?: string;
   /* 是否压缩 */
   minify?: boolean;
+
+  hooks?: Array<(...args: any[]) => Promise<void>>;
 }

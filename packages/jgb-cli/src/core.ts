@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
 import Logger, { logger, LogType } from 'jgb-shared/lib/Logger';
 import { normalizeAlias } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
@@ -11,7 +11,7 @@ import FSCache from './FSCache';
 import PromiseQueue from './utils/PromiseQueue';
 import Watcher from './Watcher';
 
-export default class Core extends EventEmitter {
+export default class Core extends AwaitEventEmitter {
   private currentDir = process.cwd();
   private loadedAssets = new Map<string, Asset>();
   private options: IInitOptions;
@@ -24,9 +24,11 @@ export default class Core extends EventEmitter {
   watchedAssets = new Map();
   farm: WorkerFarm;
   cache: FSCache;
+  hooks: Array<(...args: any[]) => Promise<void>>;
 
   constructor(options: IInitOptions) {
     super();
+    this.hooks = options.hooks || [];
     this.options = this.normalizeOptions(options);
 
     if (options.rootDir) {
@@ -67,14 +69,35 @@ export default class Core extends EventEmitter {
     };
   }
 
+  async initHook() {
+    if (!this.hooks || this.hooks.length === 0) {
+      return;
+    }
+
+    const allHooks = this.hooks.map(async fn => await fn(this));
+
+    await Promise.all(allHooks);
+  }
+
+  async init() {
+    await this.compiler.init(this.resolver);
+
+    await this.initHook();
+  }
+
   async start() {
+    const startTime = new Date();
+
     if (this.farm) {
       return;
     }
 
-    const startTime = new Date();
+    await this.emit('before-init');
 
-    await this.compiler.init(this.resolver);
+    await this.init();
+
+    await this.emit('before-compiler');
+
     // another channce to modify entryFiles
     this.entryFiles = this.normalizeEntryFiles();
 
@@ -99,6 +122,8 @@ export default class Core extends EventEmitter {
     const endTime = new Date();
 
     logger.log(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
+
+    await this.emit('end-build');
 
     if (!this.options.watch) {
       process.exit(0);
@@ -156,12 +181,11 @@ export default class Core extends EventEmitter {
     asset.hash = processed.hash;
 
     const dependencies = processed.dependencies;
-    
 
     const assetDeps = await Promise.all(
       dependencies.map(async dep => {
         // from cache dep
-        if(Array.isArray(dep) && dep.length>1){
+        if (Array.isArray(dep) && dep.length > 1) {
           dep = dep[1];
         }
         // This dependency is already included in the parent's generated output,
