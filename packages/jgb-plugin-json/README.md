@@ -6,11 +6,10 @@ usingComponents 中的组件等资源
 
 ## hook
 
-|     hookName      |                 hooktime                  |          emitdata          |
-| :---------------: | :---------------------------------------: | :------------------------: |
-| collect-app-json  |           当收集app.json依赖时            |            表1             |
-| collect-page-json | 当收集其他包含usingComponents字段的json时 | {dependences,pageJson,ctx} |
-|                   |                                           |                            |
+|     hookName      |                 hooktime                  | emitdata |
+| :---------------: | :---------------------------------------: | :------: |
+| collect-app-json  |           当收集app.json依赖时            |   表1    |
+| collect-page-json | 当收集其他包含usingComponents字段的json时 |   表2    |
 
 |   字段名    |    值    |        描述        |
 | :---------: | :------: | :----------------: |

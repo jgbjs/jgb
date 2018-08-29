@@ -32,6 +32,28 @@ module.exports = {
 
 
 
+## alias
+
+支持script,json等文件的alias, 配置：
+
+```js
+module.exports = {
+    alias: {
+        // object 类型
+        '@keyboard': {
+            // alias 路径
+            path: './node_modules/miniapp-keyboard',
+            // 指定需要编译到的dist目录， 默认npm
+            dist: 'pages/component/'
+        },
+        // string 类型相当于 object.path
+        '@/utils': './src/utils'
+    }
+}
+```
+
+
+
 
 
 ## plugins
@@ -54,20 +76,16 @@ module.exports = {
 ```
 
 - [jgb-plugin-babel](packages/jgb-plugin-babel/README.md)
-
 - [jgb-plugin-css](packages/jgb-plugin-css/README.md)
-
-- jgb-plugin-html
-
-- jgb-plugin-json
-
+- [jgb-plugin-html](packages/jgb-plugin-html/README.md)
+- [jgb-plugin-json](packages/jgb-plugin-json/README.md)
+- [jgb-plugin-less](packages/jgb-plugin-less/README.md)
 
 ## presets
 
 - jgb-preset-weapp (微信小程序)
 
 - jgb-preset-aliapp (支付宝小程序)
-
 
 ## Roadmap
 
@@ -77,14 +95,13 @@ module.exports = {
 
 - [x] 支持百度小程序编译
 
-- [ ] 支持微信小程序usingComponents使用npm中的组件
+- [x] 支持微信小程序usingComponents使用npm中的组件
 
-- [ ] 支持 typescript 编译
+- [x] 支持 typescript 编译
 
-- [ ] 支持 less 编译
+- [x] 支持 less 编译
 
 - [ ] 支持 sass/scss 编译
-
 
 ## 参考项目
 
