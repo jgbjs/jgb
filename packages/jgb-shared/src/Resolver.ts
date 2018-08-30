@@ -1,5 +1,6 @@
 import * as debug from 'debug';
 import * as fs from 'fs';
+import * as fsExtra from 'fs-extra';
 import * as path from 'path';
 import { promisify } from 'util';
 import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
@@ -270,6 +271,9 @@ export default class Resolver {
     try {
       switch (fileName[0]) {
         case '/':
+          if (fsExtra.existsSync(fileName) ) {
+            return fileName;
+          }
           // Absolute path. Resolve relative to project root.
           return path.resolve(this.options.sourceDir, fileName.slice(1));
 

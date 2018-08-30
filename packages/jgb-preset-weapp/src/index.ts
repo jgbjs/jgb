@@ -115,7 +115,7 @@ async function collectPageJson({
 
         if (absolutePath.includes('node_modules')) {
           // npm
-          const result = await findPackage(absolutePath);
+          const result = await findPackage(Path.dirname(absolutePath));
           if (!result) {
             continue;
           }
