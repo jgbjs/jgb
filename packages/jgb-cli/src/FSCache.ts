@@ -7,6 +7,7 @@ import { md5, objectHash } from 'jgb-shared/lib/utils';
 import * as mkdir from 'mkdirp';
 import * as path from 'path';
 import { promisify } from 'util';
+import * as VError from 'verror';
 import * as pkg from '../package.json';
 
 // These keys can affect the output, so if they differ, the cache should not match
@@ -97,7 +98,7 @@ export default class FSCache {
           try {
             dep.mtime = this.getLastModifiedSync(dep.name);
           } catch (error) {
-            logger.error(error);
+            logger.error(VError.fullStack(error));
           }
         }
       }
@@ -114,16 +115,15 @@ export default class FSCache {
           return [fileName, { ...asset, asset: null }];
         });
       } else if (Array.isArray(data.dependencies)) {
-        data.dependencies = [...data.dependencies].map((asset) => {
+        data.dependencies = [...data.dependencies].map(asset => {
           return [asset.name, { ...asset, asset: null }];
         });
       }
       await fsExtra.writeFile(cacheFile, JSON.stringify(data));
       this.invalidated.delete(filename);
     } catch (err) {
-      logger.error(`
-        Error writing to cache: ${err.message}
-        ${err.stack}`);
+      err.name = 'FSCache Error write cache';
+      logger.error(VError.fullStack(err));
     }
   }
 

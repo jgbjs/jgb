@@ -1,5 +1,6 @@
 import { Asset, IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
+import * as VError from 'verror'
 import Compiler from './Compiler';
 
 export default class Pipeline {
@@ -44,8 +45,7 @@ export default class Pipeline {
     } catch (err) {
       // tslint:disable-next-line:no-debugger
       debugger;
-      // tslint:disable-next-line:no-unused-expression
-      logger.error(err.message)
+      logger.error(VError.fullStack(err))
       throw err;
     }
 
