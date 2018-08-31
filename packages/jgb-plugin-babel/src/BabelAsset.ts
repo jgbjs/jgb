@@ -141,7 +141,7 @@ export default class BabelAsset extends Asset {
     await babel(this);
 
     // Inline environment variables
-    if (this.options.target === 'browser' && ENV_RE.test(this.contents)) {
+    if (this.options.target !== 'node' && ENV_RE.test(this.contents)) {
       await this.parseIfNeeded();
       this.traverseFast(envVisitor);
     }

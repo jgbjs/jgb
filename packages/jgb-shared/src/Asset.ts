@@ -13,6 +13,8 @@ import objectHash from './utils/objectHash';
 
 const NODE_MODULES = 'node_modules';
 
+const cache = new Map();
+
 export interface IAssetGenerate {
   code: string;
   ext: string;
@@ -166,28 +168,30 @@ export default class Asset {
    * 2. pretransform
    * 3. getDependencies
    * 4. transform
-   * 5. output
+   * 5. generate
+   * 6. output
    */
   async process() {
     if (!this.id) {
       this.id = this.relativeName;
     }
 
-    this.startTime = +new Date();
+    const startTime = +new Date();
 
     await this.loadIfNeeded();
     await this.pretransform();
     await this.getDependencies();
+    await this.transform();
     this.generated = await this.generate();
 
     for (const { code, ext } of [].concat(this.generated)) {
       this.hash = await this.generateHash();
       const { distPath, ignore } = await this.output(code, ext);
 
-      this.endTime = +new Date();
+      const endTime = +new Date();
 
       if (!ignore) {
-        logger.log(`${distPath}`, '编译', this.endTime - this.startTime);
+        logger.log(`${distPath}`, '编译', endTime - startTime);
       }
     }
   }
@@ -238,6 +242,10 @@ export default class Asset {
    * 生成文件dist路径
    */
   generateDistPath(sourcePath: string, ext: string = '') {
+    if (cache.has(sourcePath)) {
+      return cache.get(sourcePath);
+    }
+
     const alias = this.options.alias;
     const sourceDir = path.resolve(this.options.sourceDir);
     const name = sourcePath;
@@ -289,6 +297,7 @@ export default class Asset {
       distPath = distPath.replace(extName, ext);
     }
 
+    cache.set(sourcePath, distPath);
     return distPath;
   }
 

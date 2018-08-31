@@ -95,6 +95,10 @@ async function getBabelConfig(asset: BabelAsset) {
   const envConfig = await getEnvConfig(asset, isSource);
   const jsxConfig = await getJSXConfig(asset, isSource);
 
+  if (babelrc) {
+    babelrc.ignore = ['node_modules'].concat(babelrc.ignore || []);
+  }
+
   // Merge the babel-preset-env config and the babelrc if needed
   if (babelrc && !shouldIgnoreBabelrc(asset.name, babelrc)) {
     if (envConfig) {
