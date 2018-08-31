@@ -50,8 +50,8 @@ export default class Logger {
       message +
       ` ${usedTime ? chalk.gray(`[${usedTime}ms]`) : ''}`;
 
-    // process.stdout.write(msg);
-    console.log(msg);
+    process.stdout.write(msg + '\n');
+    // console.log(msg);
   }
 
   warning(message: any) {
