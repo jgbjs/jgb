@@ -1,4 +1,4 @@
-@import (css) '../../utils/index.wxss';
+@import '../../utils/index.wxss';
 view {
   color: #f0f;
 }

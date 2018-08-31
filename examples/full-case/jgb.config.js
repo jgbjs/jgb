@@ -2,6 +2,7 @@ const Path = require('path')
 
 module.exports = {
   // entryFiles: ['utils/index.js'],
+  // entryFiles: ['pages/index/index.wxss'],
   alias: {
     '@/components': './src/components',
     '@/utils': './src/utils',

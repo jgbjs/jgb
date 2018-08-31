@@ -3,10 +3,11 @@ import { safeLocalRequire } from 'jgb-shared';
 import * as Less from 'less';
 import { promisify } from 'util';
 
+const importOptionReg = /@import(?:\s)+(?:\((less|css|multiple|once|inline|reference|optional)\)){0,1}/;
+
 export default class LessAsset extends CssAsset {
   async parse(code: string) {
     // less should be installed locally in the module that's being required
-
     const less = await safeLocalRequire('less', this.name, () => Less);
     const render = promisify(less.render.bind(less));
 
@@ -16,6 +17,14 @@ export default class LessAsset extends CssAsset {
       })) || {};
     opts.filename = this.name;
     opts.plugins = (opts.plugins || []).concat(urlPlugin(this));
+
+    // 如果没有指定@import的importOption  默认是css
+    code = code.replace(importOptionReg, (g, r1) => {
+      if (!r1) {
+        return `@import (css) `;
+      }
+      return g;
+    });
 
     const lessAst = await render(code, opts);
 
