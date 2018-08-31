@@ -2,6 +2,7 @@ import { Asset, IInitOptions, Utils } from 'jgb-shared/lib';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as render from 'posthtml-render';
 import * as api from 'posthtml/lib/api';
+import htmlnanoTransform from './htmlnano';
 import { parse, transform } from './posthtml';
 
 // A list of all attributes that may produce a dependency
@@ -198,9 +199,9 @@ export default class HtmlAsset extends Asset {
   }
 
   async transform() {
-    // if (this.options.minify) {
-    //   await htmlnanoTransform(this);
-    // }
+    if (this.options.minify) {
+      await htmlnanoTransform(this);
+    }
   }
 
   async generate() {
