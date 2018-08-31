@@ -1,7 +1,7 @@
 {
   "name": "full-case",
   "private": true,
-  "version": "1.2.4",
+  "version": "1.2.5",
   "main": "index.js",
   "license": "MIT",
   "bin": {
@@ -15,7 +15,7 @@
     "jgb-plugin-babel": "^1.2.4",
     "jgb-plugin-css": "^1.2.4",
     "jgb-plugin-json": "^1.2.4",
-    "jgb-plugin-less": "^1.2.4",
+    "jgb-plugin-less": "^1.2.5",
     "jgb-plugin-typescript": "^1.2.4",
     "jgb-preset-weapp": "^1.2.4",
     "miniprogram-navigation-bar": "^0.0.4"
