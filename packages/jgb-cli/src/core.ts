@@ -1,3 +1,4 @@
+import * as Debug from 'debug';
 import * as fs from 'fs';
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
 import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
@@ -10,6 +11,8 @@ import Compiler from './Compiler';
 import FSCache from './FSCache';
 import PromiseQueue from './utils/PromiseQueue';
 import Watcher from './Watcher';
+
+const debug = Debug('core');
 
 export default class Core extends AwaitEventEmitter {
   private currentDir = process.cwd();
@@ -65,7 +68,8 @@ export default class Core extends AwaitEventEmitter {
       entryFiles: [].concat(options.entryFiles),
       cache: !!options.cache,
       sourceDir: Path.resolve(options.sourceDir || 'src'),
-      alias: aliasResolve(options, rootDir)
+      alias: aliasResolve(options, rootDir),
+      minify: !!options.minify
     };
   }
 
@@ -121,12 +125,12 @@ export default class Core extends AwaitEventEmitter {
 
     const endTime = new Date();
 
-    logger.log(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
+    logger.info(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
 
     await this.emit('end-build');
 
     if (!this.options.watch) {
-      process.exit(0);
+      await this.stop();
     }
   }
 
@@ -175,6 +179,8 @@ export default class Core extends AwaitEventEmitter {
     }
 
     asset.endTime = Date.now();
+
+    debug(`${asset.name} processd time: ${asset.endTime - asset.startTime}ms`);
 
     asset.id = processed.id;
     // asset.generated = processed.generated;
@@ -247,7 +253,12 @@ export default class Core extends AwaitEventEmitter {
     }
 
     const asset = this.compiler.getAsset(path);
+    if (this.loadedAssets.has(asset.name)) {
+      return this.loadedAssets.get(asset.name);
+    }
+
     this.loadedAssets.set(path, asset);
+    this.loadedAssets.set(asset.name, asset);
 
     this.watch(path, asset);
     return asset;
@@ -265,6 +276,16 @@ export default class Core extends AwaitEventEmitter {
       this.watchedAssets.set(path, new Set());
     }
     this.watchedAssets.get(path).add(asset);
+  }
+
+  async stop() {
+    if (this.watcher) {
+      this.watcher.stop();
+    }
+
+    if (this.farm) {
+      await this.farm.end();
+    }
   }
 
   async unwatch(path: string, asset: Asset) {

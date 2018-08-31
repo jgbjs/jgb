@@ -19,6 +19,14 @@ declare module 'is-glob' {
   }
 }
 
+declare module 'rimraf' {
+  function rimraf(f: string, options?: any, cb?: any): any;
+  export = rimraf;
+  namespace rimraf {
+
+  }
+}
+
 interface IPipelineProcessed {
   id: string;
   dependencies: any[];
