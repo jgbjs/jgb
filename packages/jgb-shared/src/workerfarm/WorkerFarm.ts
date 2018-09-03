@@ -152,16 +152,19 @@ export default class WorkerFarm extends EventEmitter {
       this.startChild();
     }
 
-    for (const worker of this.workers.values()) {
+    // 能够工作并且任务量最少优先的worker
+    const workers = [...this.workers.values()]
+      .filter(worker => !(!worker.ready || worker.stopped || worker.isStopping))
+      .sort((w1, w2) => w1.calls.size - w2.calls.size);
+
+    const maxConcurrentCallsPerWorker = this.options.maxConcurrentCallsPerWorker
+
+    for (const worker of workers) {
       if (!this.callQueue.length) {
         break;
       }
 
-      if (!worker.ready || worker.stopped || worker.isStopping) {
-        continue;
-      }
-
-      if (worker.calls.size < this.options.maxConcurrentCallsPerWorker) {
+      if (worker.calls.size < maxConcurrentCallsPerWorker) {
         worker.call(this.callQueue.shift());
       }
     }
