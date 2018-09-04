@@ -2,7 +2,19 @@
 # yarn lockfile v1
 
 
-"@types/lodash@^4.14.115":
+"@tuhu/dt-weapp@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@tuhu/dt-weapp/-/dt-weapp-1.2.0.tgz#af763478211419793ef30e9b9339883be1e5ce4e"
+  dependencies:
+    lodash "^4.17.5"
+
+"@types/lodash-es@^4.17.1":
+  version "4.17.1"
+  resolved "http://r.cnpmjs.org/@types/lodash-es/download/@types/lodash-es-4.17.1.tgz#56745e5411558362aeca31def918f88f725dd29d"
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*", "@types/lodash@^4.14.115":
   version "4.14.116"
   resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.116.tgz#5ccf215653e3e8c786a58390751033a9adca0eb9"
 
@@ -152,9 +164,9 @@ js-yaml@^3.7.0:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-lodash@^4.17.10:
+lodash@^4.17.10, lodash@^4.17.5:
   version "4.17.10"
-  resolved "http://registry.npm.taobao.org/lodash/download/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
+  resolved "http://r.cnpmjs.org/lodash/download/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
 
 minimatch@^3.0.4:
   version "3.0.4"

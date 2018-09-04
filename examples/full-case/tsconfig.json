@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "inlineSourceMap": true,
+    "module": "commonjs",
+    "target": "es5",
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "downlevelIteration": true,
+    "moduleResolution": "node",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@tuhu"
+    ],
+    "declaration": true,
+    "lib": [
+      "es7",
+      "dom",
+      "esnext"
+    ],
+    "paths": {
+      "tslib": ["node_modules/tslib/tslib.d.ts"]
+    }
+  }
+}

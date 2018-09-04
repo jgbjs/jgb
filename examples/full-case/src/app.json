@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/useplugin/useplugin",
-    "pages/aliasComponent/index"
+    "pages/aliasComponent/index",
+    "pages/weapp/weapp"
   ],
   "tabBar": {
     "list": [{

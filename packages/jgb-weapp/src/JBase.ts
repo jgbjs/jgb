@@ -1,15 +1,22 @@
-import { eventBus, IEventFunction } from './EventBus';
+import { bus, IEventFunction } from './EventBus';
 export default class JBase {
   $on(evtName: string, fn: IEventFunction) {
-    eventBus.on(evtName, fn);
+    bus.on(evtName, fn);
   }
+
   $once(evtName: string, fn: IEventFunction) {
-    eventBus.once(evtName, fn);
+    bus.once(evtName, fn);
   }
-  $emit(...data: any[]) {
-    eventBus.emit(...data);
+
+  $emit(evtName: string, ...data: any[]) {
+    bus.emit(evtName, ...data);
   }
+
+  async $emitAsync(evtName: string, ...data: any[]) {
+    await bus.emitAsync(evtName, ...data);
+  }
+
   $off(evtName?: string, fn?: IEventFunction) {
-    eventBus.off(evtName, fn);
+    bus.off(evtName, fn);
   }
 }

@@ -1,38 +1,53 @@
+import isObject = require('lodash/isObject');
 import { IEventFunction } from './EventBus';
 import JBase from './JBase';
-import { Mixin } from './Utils';
+import { Intercept, Mixin } from './Utils';
 
-const mixins = new Map<string, IEventFunction[]>();
+const mixins = new Set();
+const intercepts = new Map<string, IEventFunction[]>();
 
-export interface IJPageOptions {
-  [key: string]: any;
-
-  data?: {
-    [key: string]: any;
-  };
-
-  onLoad(options: any): void;
-}
+const init = Symbol('init');
 
 export default class JPage extends JBase {
-  constructor(opts?: IJPageOptions) {
+  constructor(opts?: any) {
     super();
     if (!(this instanceof JPage)) {
-      return new JPage(Mixin(opts, mixins));
+      return new JPage(opts);
     }
+
+    this[init](opts);
   }
 
-  static mixin(fnName: string, fn: IEventFunction) {
-    const events = mixins.get(fnName) || [];
-    events.push(fn);
-    mixins.set(fnName, events);
+  [init](opts: any) {
+    opts = Mixin(opts, mixins);
+    opts = Mixin(
+      opts,
+      new Set([
+        this,
+        {
+          onLoad() {
+            // intercept use Object.defineProperty
+            // so Intercept invoke must be after onLoad init
+            Intercept(this, intercepts);
+          }
+        }
+      ])
+    );
+
+    Page(opts);
+  }
+
+  static mixin(obj: any) {
+    if (isObject('object')) {
+      return;
+    }
+
+    mixins.add(obj);
+  }
+
+  static intercept(event: string, fn: IEventFunction) {
+    const fns = intercepts.get(event) || [];
+    fns.push(fn);
+    intercepts.set(event, fns);
   }
 }
-
-const page = new JPage({
-  data:{},
-  onLoad() {
-    // tslint:disable-next-line:no-unused-expression
-    this.data;
-  }
-})

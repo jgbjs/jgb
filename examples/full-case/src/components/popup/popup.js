@@ -1,4 +1,6 @@
-Component({
+import { JComponent } from 'jgb-weapp'
+
+JComponent({
   properties: {
     title: {
       type: String,

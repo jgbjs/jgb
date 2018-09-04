@@ -5,6 +5,7 @@
     "no-console": false,
     "no-bitwise": false,
     "object-literal-sort-keys": false,
-    "member-ordering": false
+    "member-ordering": false,
+    "interface-name": false
   }
 }

@@ -5,4 +5,4 @@
 <image src="../../imgs/category-gray.png" wx:else></image>
 <popup title="{{title}}"></popup>
 <template is="tipMsg" data="{{...tipMsg}}" />
-<wxs src="../../template/wxs.wxs"></wxs>
+<wxs src="../../template/wxs.wxs" module="wxs"></wxs>

@@ -2,7 +2,20 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib/",
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "allowSyntheticDefaultImports": true,
+    "declaration": false,
+    "sourceMap": false,
+    "inlineSourceMap": false,
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@tuhu"
+    ],
+    "paths": {
+      "lodash/*": [
+        "node_modules/@types/lodash-es/*"
+      ],
+    }
   },
   "exclude": [
     "node_modules",
