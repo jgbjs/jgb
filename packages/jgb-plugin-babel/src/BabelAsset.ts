@@ -74,7 +74,6 @@ export default class BabelAsset extends Asset {
 
   mightHaveDependencies() {
     return (
-      this.isAstDirty ||
       !/.js$/.test(this.name) ||
       IMPORT_RE.test(this.contents) ||
       GLOBAL_RE.test(this.contents) ||
@@ -120,16 +119,12 @@ export default class BabelAsset extends Asset {
       const ext = Path.extname(opts.node.value);
       // .ts => .js
       if (ext && ext !== BabelAsset.outExt) {
-        opts.node.value = opts.node.value.replace(/\.(\w)+/, BabelAsset.outExt);
+        opts.node.value = opts.node.value.replace(ext, BabelAsset.outExt);
       }
     }
-
-    // avoid save large data or circle data
-    delete opts.node;
-
     opts.distPath = distPath;
-
-    super.addDependency(realName, opts);
+    // avoid save large data or circle data
+    super.addDependency(realName, { ...opts, node: null });
     resolveCollectDependency(relativeRequirePath);
   }
 
@@ -219,10 +214,4 @@ export default class BabelAsset extends Asset {
       ext: BabelAsset.outExt
     };
   }
-}
-
-function complementExt(filePath: string, defaultExt = '.js') {
-  const ext = Path.extname(filePath);
-  const containsExtName = ext ? filePath : `${filePath}${defaultExt}`;
-  return containsExtName;
 }
