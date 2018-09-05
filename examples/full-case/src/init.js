@@ -1,4 +1,6 @@
-import { JPage, JApp } from 'jgb-weapp';
+import { JPage, JApp, Plugins ,use } from 'jgb-weapp';
+
+use(Plugins.RouterPlugin);
 
 JApp.mixin({
   onLaunch(e) {

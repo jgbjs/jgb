@@ -33,4 +33,34 @@ declare namespace JGB {
   }
 
   var JComponent: IJComponentConstructor;
+
+  interface IPlugin {
+    install: InstallPlugin;
+  }
+
+  type InstallPlugin = (
+    plugin: {
+      JApp: typeof JApp;
+      JPage: typeof JPage;
+      JComponent: typeof JComponent;
+    }
+  ) => void;
+
+  type IUsePlugin = (res: IPlugin) => void;
+
+  var use: IUsePlugin;
+
+  namespace Router {
+    type ILocation =
+      | string
+      | {
+          path: string;
+          query: any;
+          reLaunch: boolean;
+        };
+  }
+
+  var Plugins: {
+    RouterPlugin: IPlugin;
+  };
 }

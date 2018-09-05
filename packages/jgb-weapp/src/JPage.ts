@@ -1,5 +1,5 @@
 import JBase from './JBase';
-import expand, { INIT } from './Utils/expand';
+import expand, { INIT } from './utils/expand';
 
 @expand(Page, 'onLoad')
 export default class JPage extends JBase {

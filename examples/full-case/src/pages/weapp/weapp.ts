@@ -16,5 +16,8 @@ JPage({
       title: '改-自定义转发标题',
       path: '/page/index/index?id=123'
     });
+    setTimeout(() => {
+      this.$router.push('/pages/index/index');
+    }, 100);
   }
 });

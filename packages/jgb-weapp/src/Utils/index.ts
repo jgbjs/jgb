@@ -3,6 +3,16 @@ import isFunction = require('lodash/isFunction');
 import isObject = require('lodash/isObject');
 import { IEventFunction } from '../EventBus';
 
+// tslint:disable-next-line:ban-types
+export function promisify<T extends Function>(wxMethod: T) {
+  return (params: any) =>
+    new Promise((resolve, reject) => {
+      params.success = resolve;
+      params.fail = reject;
+      wxMethod(params);
+    });
+}
+
 export function Mixin(base: any, mixins: Set<any>) {
   for (const mixObj of mixins) {
     const keys = [];

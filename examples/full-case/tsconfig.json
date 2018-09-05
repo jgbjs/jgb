@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
-    "inlineSourceMap": true,
+    "inlineSourceMap": false,
     "module": "commonjs",
     "target": "es5",
     "experimentalDecorators": true,
