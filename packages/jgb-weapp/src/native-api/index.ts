@@ -9,7 +9,7 @@ import { noPromiseApis, onAndSyncApis, otherApis } from './native-apis';
 
 const intercepts = new Map<string, IEventFunction[]>();
 
-export type IInterceptStatus = 'fail' | 'success' | 'complete';
+export type IInterceptStatus = 'fail' | 'success' | 'complete' | 'begin';
 
 export type IInterceptFn = (
   /** 返回值  */
@@ -21,7 +21,7 @@ export type IInterceptFn = (
 ) => any;
 
 function getIntercept(key: string) {
-  return (result: any, status: IInterceptStatus, options: any) => {
+  return (result: any, status: IInterceptStatus, options?: any) => {
     const target = intercepts.get(key);
 
     if (!target || target.length === 0) {
@@ -44,6 +44,9 @@ export default function initNativeApi(JGB: any = {}) {
     if (!onAndSyncApis[key] && !noPromiseApis[key]) {
       JGB[key] = (options: any = {}) => {
         let task: any = null;
+
+        options = doIntercept(options, 'begin', options);
+
         const obj: any = Object.assign({}, options);
 
         if (typeof options === 'string') {
@@ -87,6 +90,8 @@ export default function initNativeApi(JGB: any = {}) {
       };
     } else {
       JGB[key] = (...args: any[]) => {
+        args = doIntercept(args, 'begin', args);
+
         // @ts-ignore
         const result = wx[key].apply(wx, args);
         return doIntercept(result, 'success', args);
