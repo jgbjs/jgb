@@ -1,11 +1,6 @@
 /// <reference types="@tuhu/dt-weapp" />
+import * as out from './exports';
 
-import JApp from './JApp';
-import JComponent from './JComponent';
-import JPage from './JPage';
-import Plugins from './plugins';
-import use from './plugins/use';
+export * from './exports';
 
-export { JPage, JApp, JComponent, Plugins, use };
-
-export default { JPage, JApp, JComponent, Plugins, use };
+export default out;

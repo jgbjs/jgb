@@ -43,6 +43,7 @@ declare namespace JGB {
       JApp: typeof JApp;
       JPage: typeof JPage;
       JComponent: typeof JComponent;
+      JGB: any;
     }
   ) => void;
 
@@ -59,8 +60,11 @@ declare namespace JGB {
           reLaunch: boolean;
         };
   }
+}
 
+declare module 'jgb-weapp/lib/plugins' {
   var Plugins: {
-    RouterPlugin: IPlugin;
+    RouterPlugin: JGB.IPlugin;
+    NativeApiPlugin: JGB.IPlugin;
   };
 }

@@ -19,5 +19,12 @@ JPage({
     setTimeout(() => {
       this.$router.push('/pages/index/index');
     }, 100);
+
+    this.$on('onUnload', () => {
+      console.log('weapp-onuload');
+    });
+  },
+  onUnload() {
+    this.$emit('onUnload');
   }
 });
