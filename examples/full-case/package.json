@@ -18,10 +18,16 @@
     "jgb-plugin-less": "^1.2.5",
     "jgb-plugin-typescript": "^1.2.4",
     "jgb-preset-weapp": "^1.2.4",
-    "miniprogram-navigation-bar": "^0.0.4"
+    "jgb-weapp": "^1.0.0",
+    "lodash-es": "^4.17.10",
+    "miniapp-regenerator-runtime": "^1.0.0",
+    "miniprogram-navigation-bar": "^0.0.4",
+    "tslib": "^1.9.3"
   },
   "devDependencies": {
+    "@tuhu/dt-weapp": "^1.1.6",
     "@types/lodash": "^4.14.116",
+    "babel-plugin-lodash": "^3.3.4",
     "babel-preset-env": "^1.7.0"
   }
 }

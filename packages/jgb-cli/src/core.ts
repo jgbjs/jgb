@@ -331,7 +331,11 @@ function aliasResolve(options: IInitOptions, root: string) {
       const aliasValue = normalizeAlias(alias[key]);
       const aliasPath = aliasValue.path;
       if (!Path.isAbsolute(aliasPath)) {
-        aliasValue.path = Path.resolve(root, aliasPath);
+        if (aliasPath.startsWith('.')) {
+          aliasValue.path = Path.resolve(root, aliasPath);
+        } else {
+          aliasValue.path = Path.resolve(root, 'node_modules', aliasPath);
+        }
       }
 
       newAlias[key] = aliasValue;

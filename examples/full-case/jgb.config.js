@@ -1,10 +1,11 @@
 const Path = require('path')
 
 module.exports = {
-  // entryFiles: ['utils/index.js'],
-  // entryFiles: ['pages/index/index.wxss'],
+  // entryFiles: ['app.js'],
+  // entryFiles: ['pages/weapp/weapp.ts'],
   alias: {
     '@/components': './src/components',
+    // 'lodash': 'lodash-es',
     '@/utils': './src/utils',
     "@/src": './src',
     '@alias': './aliasTest',

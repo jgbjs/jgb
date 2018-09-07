@@ -1,4 +1,7 @@
 {
   "sourceMap": true,
-  "presets": ["env"]
+  "presets": ["env"],
+  "plugins": [
+    "lodash"
+  ]
 }

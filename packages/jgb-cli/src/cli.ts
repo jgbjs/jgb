@@ -69,7 +69,6 @@ async function builder(main: any = [], command: any = {}) {
 
 if (process.argv.indexOf('debug') >= 0) {
   builder([], {
-    cache: false,
-    minify: true
+    cache: false
   });
 }

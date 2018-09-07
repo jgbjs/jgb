@@ -68,7 +68,15 @@ export default async function babelTransform(asset: BabelAsset) {
     : await safeLocalRequire('babel-core', asset.name, () => FallBackBabel);
   // const babel = FallBackBabel
 
-  const res = babel.transformFromAst(asset.ast, asset.contents, config);
+  let res: any = {
+    ignore: true
+  };
+  try {
+    res = babel.transformFromAst(asset.ast, asset.contents, config);
+  } catch (error) {
+    // tslint:disable-next-line:no-debugger
+    debugger;
+  }
 
   if (!res.ignored) {
     asset.ast = res.ast;
@@ -89,7 +97,14 @@ async function getBabelConfig(asset: BabelAsset) {
     !asset.name.includes(NODE_MODULES);
 
   // Try to resolve a .babelrc file. If one is found, consider the module source code.
-  const babelrc = await getBabelRc(asset, isSource);
+  const babelrc = (await getBabelRc(asset, isSource)) || {
+    presets: [
+      await safeLocalRequire('babel-preset-env', asset.name, () =>
+        require('babel-preset-env')
+      )
+    ],
+    ignore: ['node_modules']
+  };
   isSource = isSource || !!babelrc;
 
   const envConfig = await getEnvConfig(asset, isSource);
@@ -144,14 +159,7 @@ async function getBabelConfig(asset: BabelAsset) {
   }
 
   // Otherwise, don't run babel at all
-  return {
-    presets: [
-      safeLocalRequire('babel-preset-env', asset.name, () =>
-        require('babel-preset-env')
-      )
-    ],
-    ignore: ['node_modules']
-  };
+  return babelrc;
 }
 
 function hasPlugin(arr: any[], plugin: any) {

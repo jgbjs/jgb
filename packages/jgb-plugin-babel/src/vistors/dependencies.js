@@ -65,7 +65,6 @@ export default {
       node.arguments[0] = argTemplate({
         MODULE: args[0]
       }).expression;
-      asset.isAstDirty = true;
       return;
     }
 
@@ -169,6 +168,7 @@ function addDependency(asset, node, opts = {}) {
   // todo: if node.value is in node_modules
   // try replace value to npm/
   asset.addDependency(node.value, opts);
+  asset.isAstDirty = true;
 }
 
 async function addURLDependency(asset, node, opts = {}) {
