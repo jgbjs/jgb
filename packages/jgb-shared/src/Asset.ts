@@ -287,12 +287,17 @@ export default class Asset {
       distPath = path.join(this.options.outDir, 'npm', relativeAlias);
     }
 
+    if(!distPath) {
+      const relatePath = path.relative(sourceDir, name);
+      distPath = path.join(this.options.outDir, relatePath);
+    }
+
     const extName = path.extname(name);
 
-    if (!ext) {
+    if (!extName) {
       // index => index.js
       distPath += ext;
-    } else if (extName !== ext) {
+    } else if (ext && extName && extName !== ext) {
       // index.es6 => index.js
       distPath = distPath.replace(extName, ext);
     }
