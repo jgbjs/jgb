@@ -47,7 +47,17 @@ export default class BabelAsset extends Asset {
       strictMode: false,
       sourceType: 'module',
       locations: true,
-      plugins: ['exportExtensions', 'dynamicImport']
+      plugins: [
+        'exportExtensions',
+        'dynamicImport',
+        'doExpressions',
+        'functionBind',
+        'templateInvalidEscapes',
+        'objectRestSpread',
+        'asyncGenerators',
+        'classProperties',
+        'decorators'
+      ]
     };
 
     // Check if there is a babel config file. If so, determine which parser plugins to enable
