@@ -154,13 +154,14 @@ export default class Asset {
       if (filename[0] === '/' && !this.name.includes(this.options.sourceDir)) {
         const pkg = this.resolver.findPackageSync(dir);
         if (pkg) {
+          let root = pkg.pkgdir;
           // pkg.main like dist/index.js
           if (pkg.main && pkg.main.includes('/')) {
             const distDir = pkg.main.split(/\\|\//g)[0];
-            filename = `~${distDir}/${filename.slice(1)}`;
-          } else {
-            filename = `~${filename.slice(1)}`;
+            root = path.join(root, distDir);
           }
+
+          filename = promoteRelativePath(path.relative(this.name, path.join(root, filename)));
         }
       }
       depName = resolved = this.resolver.resolveFilename(filename, dir);
