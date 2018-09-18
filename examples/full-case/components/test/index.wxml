@@ -1,0 +1,2 @@
+<view>components/test/index</view>
+<include src="/components/othertest/index.wxml"></include>

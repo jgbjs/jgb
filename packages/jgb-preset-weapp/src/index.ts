@@ -108,7 +108,7 @@ async function collectPageJson({
       if (distPath && relativeRequirePath) {
         const relativeRequire = relativeRequirePath.replace(/\.(\w)+/, '');
         pageJson.usingComponents[key] = relativeRequire;
-        if (relativeRequire === realName) {
+        if (realName) {
           // alias
           components.push(realName);
         }

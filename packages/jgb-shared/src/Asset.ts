@@ -142,11 +142,26 @@ export default class Asset {
     let depName;
     let resolved;
     let dir = path.dirname(from);
-    const filename = decodeURIComponent(parsed.pathname);
+    let filename = decodeURIComponent(parsed.pathname);
 
     if (filename[0] === '~' || filename[0] === '/') {
       if (dir === '.') {
         dir = this.options.rootDir;
+      }
+      // 绝对定位默认是相对于 sourceDir而言
+      // 当文件不在source目录中时
+      // 绝对目录应该相对于文件所在项目package.json位置或者是package.json所指向的main文件所在位置
+      if (filename[0] === '/' && !this.name.includes(this.options.sourceDir)) {
+        const pkg = this.resolver.findPackageSync(dir);
+        if (pkg) {
+          // pkg.main like dist/index.js
+          if (pkg.main && pkg.main.includes('/')) {
+            const distDir = pkg.main.split(/\\|\//g)[0];
+            filename = `~${distDir}/${filename.slice(1)}`;
+          } else {
+            filename = `~${filename.slice(1)}`;
+          }
+        }
       }
       depName = resolved = this.resolver.resolveFilename(filename, dir);
     } else {
@@ -154,9 +169,14 @@ export default class Asset {
       depName = './' + path.relative(path.dirname(this.name), resolved);
     }
 
+    if (path.isAbsolute(depName)) {
+      depName = promoteRelativePath(path.relative(this.name, depName));
+    }
+
     this.addDependency(depName, Object.assign({ dynamic: true }, opts));
 
     // parsed.pathname = this.options.parser.getAsset(resolved, this.options);
+
     parsed.pathname = depName;
 
     return URL.format(parsed);
@@ -287,7 +307,7 @@ export default class Asset {
       distPath = path.join(this.options.outDir, 'npm', relativeAlias);
     }
 
-    if(!distPath) {
+    if (!distPath) {
       const relatePath = path.relative(sourceDir, name);
       distPath = path.join(this.options.outDir, relatePath);
     }

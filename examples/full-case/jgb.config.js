@@ -3,8 +3,10 @@ const Path = require('path')
 module.exports = {
   // entryFiles: ['app.js'],
   // entryFiles: ['pages/weapp/weapp.ts'],
+  cache: false,
   alias: {
     '@/components': './src/components',
+    '@components': './components/',
     // 'lodash': 'lodash-es',
     '@/utils': './src/utils',
     "@/src": './src',

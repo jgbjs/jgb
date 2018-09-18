@@ -271,7 +271,7 @@ export default class Resolver {
     try {
       switch (fileName[0]) {
         case '/':
-          if (fsExtra.existsSync(fileName) ) {
+          if (fsExtra.existsSync(fileName)) {
             return fileName;
           }
           // Absolute path. Resolve relative to project root.
@@ -421,6 +421,20 @@ export default class Resolver {
     }
   }
 
+  findPackageSync(dir: string) {
+    // Find the nearest package.json file within the current node_modules folder
+    const root = path.parse(dir).root;
+    while (dir !== root && path.basename(dir) !== 'node_modules') {
+      try {
+        return this.readPackageSync(dir);
+      } catch (err) {
+        // ignore
+      }
+
+      dir = path.dirname(dir);
+    }
+  }
+
   async readPackage(dir: string) {
     const file = path.join(dir, 'package.json');
     if (this.packageCache.has(file)) {
@@ -437,6 +451,31 @@ export default class Resolver {
     // If so, we treat the module as source code rather than a pre-compiled module.
     if (pkg.source) {
       const realpath = await promisify(fs.realpath)(file);
+      if (realpath === file) {
+        delete pkg.source;
+      }
+    }
+
+    this.packageCache.set(file, pkg);
+    return pkg;
+  }
+
+  readPackageSync(dir: string) {
+    const file = path.join(dir, 'package.json');
+    if (this.packageCache.has(file)) {
+      return this.packageCache.get(file);
+    }
+
+    const json = fs.readFileSync(file, { encoding: 'utf8' });
+    const pkg = JSON.parse(json);
+
+    pkg.pkgfile = file;
+    pkg.pkgdir = dir;
+
+    // If the package has a `source` field, check if it is behind a symlink.
+    // If so, we treat the module as source code rather than a pre-compiled module.
+    if (pkg.source) {
+      const realpath = fs.readFileSync(file, { encoding: 'utf8' });
       if (realpath === file) {
         delete pkg.source;
       }
