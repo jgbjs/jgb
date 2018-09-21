@@ -89,6 +89,8 @@ const OPTIONS: {
   }
 };
 
+const enableEmptyAttrs = ['class'];
+
 export default class HtmlAsset extends Asset {
   constructor(fileName: string, options: IInitOptions) {
     super(fileName, options);
@@ -171,7 +173,7 @@ export default class HtmlAsset extends Asset {
           const nodeValue = node.attrs[attr];
 
           // wx:else do not transform to  wx:else=""
-          if (nodeValue === '') {
+          if (!enableEmptyAttrs.includes(attr) && nodeValue === '') {
             node.attrs[attr] = true;
           }
 
