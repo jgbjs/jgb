@@ -6,6 +6,8 @@ import TestAlias from '@alias/testAlias'
 import AliasTest from '@alias-test'
 import test from './utils/test.ts'
 
+const isProd = process.env.NODE_ENV === 'production'
+
 JApp({
   async onLaunch() {
     JGB.intercept('getStorageInfo', (result, status, options) => {

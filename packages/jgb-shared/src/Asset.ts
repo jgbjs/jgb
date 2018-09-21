@@ -36,7 +36,7 @@ export default class Asset {
 
   startTime: any;
   endTime: any;
-  cacheData: any;
+  cacheData: any = {};
 
   distPath: string;
   /** 某些插件会自动注入compiler */
@@ -161,7 +161,9 @@ export default class Asset {
             root = path.join(root, distDir);
           }
 
-          filename = promoteRelativePath(path.relative(this.name, path.join(root, filename)));
+          filename = promoteRelativePath(
+            path.relative(this.name, path.join(root, filename))
+          );
         }
       }
       depName = resolved = this.resolver.resolveFilename(filename, dir);

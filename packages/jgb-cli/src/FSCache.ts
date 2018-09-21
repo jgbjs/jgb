@@ -14,11 +14,11 @@ import * as pkg from '../package.json';
 const OPTION_KEYS: string[] = [
   'alias',
   'target',
-  'presets'
+  'presets',
+  'target',
   // 'publicURL',
   // 'minify',
   // 'hmr',
-  // 'target',
   // 'scopeHoist'
 ];
 

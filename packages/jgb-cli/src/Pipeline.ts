@@ -34,8 +34,8 @@ export default class Pipeline {
     return {
       id: asset.id,
       dependencies: Array.from(asset.dependencies.values()),
-      hash: asset.hash
-      // cacheData: asset.cacheData
+      hash: asset.hash,
+      cacheData: asset.cacheData
     };
   }
 

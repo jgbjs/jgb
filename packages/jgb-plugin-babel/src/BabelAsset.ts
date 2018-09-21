@@ -27,6 +27,7 @@ const DATA_URL_RE = /^data:[^;]+(?:;charset=[^;]+)?;base64,(.*)/;
 export default class BabelAsset extends Asset {
   constructor(fileName: string, options: IInitOptions) {
     super(fileName, options);
+    this.cacheData.env = {}
   }
 
   babelConfig: any;
