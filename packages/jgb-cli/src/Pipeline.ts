@@ -1,6 +1,6 @@
 import { Asset, IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
-import * as VError from 'verror'
+import * as VError from 'verror';
 import Compiler from './Compiler';
 
 export default class Pipeline {
@@ -43,10 +43,15 @@ export default class Pipeline {
     try {
       await asset.process();
     } catch (err) {
-      // tslint:disable-next-line:no-debugger
-      debugger;
-      logger.error(VError.fullStack(err))
-      throw err;
+      // @ts-ignore
+      const verror = new VError(
+        {
+          name: `BuildError`,
+          cause: err
+        },
+        `${asset.name}\n`
+      );
+      logger.error(VError.fullStack(verror));
     }
 
     return asset.generated;
