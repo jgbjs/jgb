@@ -6,9 +6,9 @@
   "typings": "types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/landn172/jingubang.git"
+    "url": "git+https://github.com/jgbjs/jgb.git"
   },
-  "homepage": "https://github.com/landn172/jingubang",
+  "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",

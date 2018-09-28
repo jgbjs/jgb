@@ -6,9 +6,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/landn172/jingubang.git"
+    "url": "git+https://github.com/jgbjs/jgb.git"
   },
-  "homepage": "https://github.com/landn172/jingubang",
+  "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
     "build:ts": "tsc -p tsconfig.json",
     "build:ts-nd": "tsc -p tsconfig.json --allowjs --declaration false",
