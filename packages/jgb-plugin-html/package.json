@@ -1,14 +1,14 @@
 {
   "name": "jgb-plugin-html",
-  "version": "1.3.5",
+  "version": "1.3.7",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/landn172/jingubang.git"
+    "url": "git+https://github.com/jgbjs/jgb.git"
   },
-  "homepage": "https://github.com/landn172/jingubang",
+  "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
@@ -17,7 +17,7 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "htmlnano": "^0.1.10",
-    "jgb-shared": "^1.3.5",
+    "jgb-shared": "^1.3.7",
     "posthtml": "^0.11.3",
     "posthtml-parser": "^0.4.1",
     "posthtml-render": "^1.1.4",

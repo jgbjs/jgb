@@ -1,14 +1,14 @@
 {
-  "name": "jingubang",
+  "name": "jgb",
   "version": "1.0.1",
   "main": "index.js",
   "author": "landn172 <landn172@gmail.com>",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/landn172/jingubang.git"
+    "url": "git+https://github.com/jgbjs/jgb.git"
   },
-  "homepage": "https://github.com/landn172/jingubang",
+  "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build:all": "lerna run build",

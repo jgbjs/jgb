@@ -12,7 +12,9 @@ export default async function(asset: HtmlAsset) {
     }),
     {
       minifyCss: false,
-      minifyJs: false
+      minifyJs: false,
+      // some attr do not minify likt: hidden etc.
+      collapseBooleanAttributes: false
     }
   );
 
