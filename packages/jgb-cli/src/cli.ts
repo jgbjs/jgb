@@ -1,8 +1,6 @@
 import * as program from 'commander';
-import { Config, IInitOptions } from 'jgb-shared/lib';
-import * as rimraf from 'rimraf';
 import * as pkg from '../package.json';
-import Core from './core';
+import { builder, clean, init } from './command';
 
 program.version((pkg as any).version, '-v, --version');
 
@@ -27,45 +25,16 @@ program
 program
   .command('clean')
   .description('clean project dist and cache dir')
-  .action(async () => {
-    const config = (await Config.load(process.cwd(), [
-      'jgb.config.js'
-    ])) as IInitOptions;
+  .action(clean);
 
-    if (!config) {
-      return;
-    }
-
-    const cacheDir = config.cacheDir || '.cache';
-    const distDir = config.outDir || 'dist';
-
-    console.log(`clean [${cacheDir}], [${distDir}] ...`);
-
-    const rmCachePromise = new Promise(resolve => rimraf(cacheDir, resolve));
-    const rmDistPromise = new Promise(resolve => rimraf(distDir, resolve));
-    await Promise.all([rmCachePromise, rmDistPromise]);
-  });
+program
+  .command('init <template-name> [project-name]')
+  .usage('<template-name> [project-name]')
+  .option('-c --clone', 'use git clone')
+  .option('--offline', 'use cached template')
+  .action(init);
 
 program.parse(process.argv);
-
-async function builder(main: any = [], command: any = {}) {
-  const config = (await Config.load(process.cwd(), [
-    'jgb.config.js'
-  ])) as IInitOptions;
-
-  const core = new Core(
-    Object.assign(
-      {
-        cache: true
-      },
-      config,
-      command
-    )
-  );
-
-  // console.log(main, command);
-  await core.start();
-}
 
 if (process.argv.indexOf('debug') >= 0) {
   builder([], {
