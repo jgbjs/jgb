@@ -22,7 +22,11 @@ export async function transform(asset: Asset) {
   }
 
   await asset.parseIfNeeded();
-  const res = await posthtml(config.plugins).process(asset.ast, config);
+  const containsAst = !!asset.ast;
+  const res = await posthtml(config.plugins).process(
+    containsAst ? asset.ast : asset.contents,
+    Object.assign(config, { skipParse: containsAst })
+  );
 
   asset.ast = res.tree;
   // asset.isAstDirty = true;
@@ -35,13 +39,35 @@ export async function getConfig(asset: Asset) {
       packageKey: 'posthtml'
     }
   );
+  const { source, target } = asset.options;
+  // 但两个都指定值且不相同时
+  const shouldAddTransform = source && target && source !== target;
+
   if (!config /* && !asset.options.minify */) {
+    if (shouldAddTransform) {
+      const selfPlugins = {
+        'posthtml-transform-miniprogram': {
+          source,
+          target
+        }
+      };
+      return {
+        plugins: await loadPlugins(selfPlugins, asset.name)
+      };
+    }
     return;
   }
 
   config = config || {};
   const plugins = config.plugins;
+
   if (typeof plugins === 'object') {
+    if (shouldAddTransform) {
+      plugins['posthtml-transform-miniprogram'] = {
+        source,
+        target
+      };
+    }
     // This is deprecated in favor of result messages but kept for compatibility
     // See https://github.com/posthtml/posthtml-include/blob/e4f2a57c2e52ff721eed747b65eddf7d7a1451e3/index.js#L18-L26
     const depConfig = {

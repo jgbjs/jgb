@@ -17,7 +17,13 @@ export interface IInitOptions {
    */
   entryFiles?: string | string[];
   /**
+   * 源项目类型
+   * @default wx 微信小程序
+   */
+  source?:string;
+  /**
    * 输出类型
+   * @default wx 微信小程序
    */
   target?: string;
   /**

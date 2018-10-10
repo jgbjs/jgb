@@ -69,7 +69,9 @@ export default class Core extends AwaitEventEmitter {
       cache: !!options.cache,
       sourceDir: Path.resolve(options.sourceDir || 'src'),
       alias: aliasResolve(options, rootDir),
-      minify: !!options.minify
+      minify: !!options.minify,
+      source: options.source || 'wx',
+      target: options.target || 'wx'
     };
   }
 

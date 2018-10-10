@@ -12,6 +12,12 @@ export default class JsonAsset extends Asset {
     return code ? JSON.parse(code) : {};
   }
 
+  async pretransform() {
+    if(this.ast) {
+      // TODO: transform json
+    }
+  }
+
   async collectDependencies() {
     const baseName = path.basename(this.name);
     if (baseName === 'app.json') {

@@ -14,6 +14,7 @@ type TypeAsset = typeof Asset;
 
 export default class Compiler extends AwaitEventEmitter implements ICompiler {
   private extensions = new Map<string, TypeAsset>();
+  resolver: Resolver;
 
   constructor(private options: IInitOptions) {
     super();
@@ -27,9 +28,9 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     await this.loadPlugins(options.plugins);
   }
 
-  async init(resolver?: Resolver) {
+  async init(resolver: Resolver) {
     await this.preload(this.options);
-
+    this.resolver = resolver;
     const exts = [...this.extensions.keys()];
     this.options.extensions = new Set(exts);
   }

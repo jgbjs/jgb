@@ -1,0 +1,15 @@
+<import src="../../components/toast.wxml" />
+<scroll-view scroll-top="{{scrollTop}}"></scroll-view>
+<block wx:if="{{show}}">
+  <view class="line {{index%2 === 0 ? 'odd' : ''}}" wx:if="{{discountInfo.Items}}" wx:for="{{discountInfo.Items}}"
+    wx:key="{{index}}">
+    <view class="field-goods1">{{item.ProductName}}</view>
+    <view class="field-amount1">{{item.Price}}</view>
+    <view class="field-amount1">{{item.Quantity}}</view>
+    <view class="field-amount1">{{item.Describe}}</view>
+    <view class="field-reason1">{{item.DiscountPrice}}</view>
+  </view>
+  <video id="myVideo" src="http://wxsnsdy.tc.qq.com/105/20210/snsdyvideodownload?filekey=30280201010421301f0201690402534804102ca905ce620b1241b726bc41dcff44e00204012882540400&bizid=1023&hy=SH&fileparam=302c020101042530230204136ffd93020457e3c4ff02024ef202031e8d7f02030f42400204045a320a0201000400"
+    binderror="videoErrorCallback" danmu-list="{{danmuList}}" enable-danmu danmu-btn controls></video>
+
+</block>

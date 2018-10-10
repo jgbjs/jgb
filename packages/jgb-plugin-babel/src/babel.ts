@@ -34,6 +34,19 @@ const ENV_PRESETS: {
   env: true
 };
 
+async function loadPlugin(name: string, assetName: string) {
+  const plugin = await safeLocalRequire(
+    'babel-plugin-transform-miniprogram',
+    assetName,
+    () => require('babel-plugin-transform-miniprogram')
+  );
+
+  if (plugin && plugin.default) {
+    return plugin.default;
+  }
+  return plugin;
+}
+
 export async function getConfig(asset: BabelAsset): Promise<any> {
   const config = await getBabelConfig(asset);
   if (config) {
@@ -71,12 +84,8 @@ export default async function babelTransform(asset: BabelAsset) {
   let res: any = {
     ignore: true
   };
-  try {
-    res = babel.transformFromAst(asset.ast, asset.contents, config);
-  } catch (error) {
-    // tslint:disable-next-line:no-debugger
-    debugger;
-  }
+  
+  res = babel.transformFromAst(asset.ast, asset.contents, config);
 
   if (!res.ignored) {
     asset.ast = res.ast;
@@ -112,6 +121,19 @@ async function getBabelConfig(asset: BabelAsset) {
 
   if (babelrc) {
     babelrc.ignore = ['node_modules'].concat(babelrc.ignore || []);
+    const { source, target } = asset.options;
+    // 但两个都指定值且不相同时
+    if (source && target && source !== target) {
+      babelrc.plugins = (babelrc.plugins || []).concat([
+        [
+          await loadPlugin('babel-plugin-transform-miniprogram', asset.name),
+          {
+            SOURCE: source,
+            TARGET: target
+          }
+        ]
+      ]);
+    }
   }
 
   // Merge the babel-preset-env config and the babelrc if needed
