@@ -14,10 +14,11 @@ program
     'set the output directory. defaults to "dist"'
   )
   .option('-w, --watch', 'setup watch mode')
+  .option('-s, --source <source>', 'set the origin project type', /^(wx)$/)
   .option(
     '-t, --target <target>',
-    'set the build type, either "weapp", "aliapp" or "baidu". defaults to "weapp"',
-    /^(weapp|aliapp|baidu)$/
+    'set the build type, either "wx", "my" or "swan". defaults to "wx"',
+    /^(wx|my|swan)$/
   )
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')

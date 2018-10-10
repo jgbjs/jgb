@@ -859,6 +859,10 @@ posthtml-render@^1.1.0, posthtml-render@^1.1.4:
   version "1.1.4"
   resolved "http://registry.npm.taobao.org/posthtml-render/download/posthtml-render-1.1.4.tgz#95dac09892f4f183fad5ac823f08f42c0256551e"
 
+posthtml-transform-miniprogram@^0.1.0:
+  version "0.1.0"
+  resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.1.0.tgz#250fcc9daba49aa018d601bb1b85b8488af1c9d0"
+
 posthtml@^0.11.3:
   version "0.11.3"
   resolved "http://registry.npm.taobao.org/posthtml/download/posthtml-0.11.3.tgz#17ea2921b0555b7455f33c977bd16d8b8cb74f27"

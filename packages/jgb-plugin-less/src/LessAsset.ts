@@ -27,7 +27,7 @@ export default class LessAsset extends CssAsset {
     });
 
     const lessAst = await render(code, opts);
-
+    CssAsset.outExt = LessAsset.outExt
     return await super.parse(lessAst.css || '');
   }
 

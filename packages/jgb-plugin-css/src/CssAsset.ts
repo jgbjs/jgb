@@ -1,4 +1,4 @@
-import { Asset, IInitOptions } from 'jgb-shared/lib';
+import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
 import * as path from 'path';
 import * as postcss from 'postcss';
 import * as valueParser from 'postcss-value-parser';
@@ -31,10 +31,12 @@ export default class CssAsset extends Asset {
   }
 
   async collectDependencies() {
+    const asyncTasks: Array<Promise<any>> = [];
+
     this.ast.root.walkAtRules('import', (rule: any) => {
       const params = valueParser(rule.params);
       let [name, ...media] = params.nodes;
-      let dep;
+      let dep: string;
       if (
         name.type === 'function' &&
         name.value === 'url' &&
@@ -54,8 +56,19 @@ export default class CssAsset extends Asset {
       }
 
       media = valueParser.stringify(media).trim();
-      this.addDependency(dep, { media, loc: rule.source.start });
-      // rule.remove();
+
+      const task = async () => {
+        const ext = path.extname(dep);
+        const depDist = await this.getDepDist(dep, ext);
+        const depExt = path.extname(depDist);
+        if (depExt !== ext) {
+          // app.wxss => app.css
+          rule.params = `"${dep.replace(ext, depExt)}"`;
+        }
+        this.addDependency(dep, { media, loc: rule.source.start });
+      };
+
+      asyncTasks.push(task())
 
       this.ast.dirty = true;
     });
@@ -89,6 +102,23 @@ export default class CssAsset extends Asset {
         }
       }
     });
+
+    await Promise.all(asyncTasks);
+  }
+
+  async getDepDist(assetPath: string, ext: string) {
+    const resolver = this.options.parser.resolver as Resolver;
+    const { path: depPath } = await resolver.resolve(assetPath, this.name);
+    const depAsset: Asset = this.options.parser.getAsset(depPath);
+    if (depAsset instanceof CssAsset) {
+      // .wxss => .css
+      const depDistPath = depAsset.generateDistPath(assetPath, CssAsset.outExt);
+      const depExt = path.extname(depDistPath);
+      if (depExt !== ext) {
+        assetPath = assetPath.replace(ext, depExt);
+      }
+    }
+    return assetPath;
   }
 
   async transform() {
