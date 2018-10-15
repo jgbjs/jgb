@@ -916,6 +916,10 @@ os-tmpdir@^1.0.0:
   version "1.0.2"
   resolved "http://registry.npm.taobao.org/os-tmpdir/download/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
 
+os-utils@^0.0.14:
+  version "0.0.14"
+  resolved "http://registry.npm.taobao.org/os-utils/download/os-utils-0.0.14.tgz#29e511697b1982b8c627722175fe39797ef64156"
+
 osenv@^0.1.4:
   version "0.1.5"
   resolved "http://registry.npm.taobao.org/osenv/download/osenv-0.1.5.tgz#85cdfafaeb28e8677f416e287592b5f3f49ea410"

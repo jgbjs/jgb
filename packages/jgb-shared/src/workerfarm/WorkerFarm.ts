@@ -1,7 +1,9 @@
 import { EventEmitter } from 'events';
 import * as os from 'os';
+import * as osUtil from 'os-utils';
 import Asset from '../Asset';
 import { logger } from '../Logger';
+import { debounce, throttle } from '../utils/decorator';
 import { errorToJson } from './errorUtils';
 import Worker from './Worker';
 
@@ -10,6 +12,7 @@ let shared: WorkerFarm = null;
 export default class WorkerFarm extends EventEmitter {
   options: any;
   warmWorkers = 0;
+  cpuUsage = 0;
   workers = new Map<number, Worker>();
   callQueue: any[] = [];
   localWorker: any;
@@ -22,7 +25,7 @@ export default class WorkerFarm extends EventEmitter {
 
     this.options = Object.assign(
       {
-        maxConcurrentWorkers: WorkerFarm.getNumWorkers(),
+        maxConcurrentWorkers: 1, // WorkerFarm.getNumWorkers(),
         maxConcurrentCallsPerWorker: WorkerFarm.getConcurrentCallsPerWorker(),
         forcedKillTime: 500,
         warmWorkers: true,
@@ -123,6 +126,7 @@ export default class WorkerFarm extends EventEmitter {
 
   async stopWorker(worker: Worker) {
     if (!worker.stopped) {
+      console.log(`stop worker ${worker.id}`);
       this.workers.delete(worker.id);
 
       worker.isStopping = true;
@@ -149,15 +153,18 @@ export default class WorkerFarm extends EventEmitter {
     }
 
     if (this.workers.size < this.options.maxConcurrentWorkers) {
-      this.startChild();
+      this.prefStartChild();
     }
+
+    this.prefCpuUsage();
 
     // 能够工作并且任务量最少优先的worker
     const workers = [...this.workers.values()]
       .filter(worker => !(!worker.ready || worker.stopped || worker.isStopping))
       .sort((w1, w2) => w1.calls.size - w2.calls.size);
 
-    const maxConcurrentCallsPerWorker = this.options.maxConcurrentCallsPerWorker
+    const maxConcurrentCallsPerWorker = this.options
+      .maxConcurrentCallsPerWorker;
 
     for (const worker of workers) {
       if (!this.callQueue.length) {
@@ -168,6 +175,44 @@ export default class WorkerFarm extends EventEmitter {
         worker.call(this.callQueue.shift());
       }
     }
+  }
+
+  @debounce(100)
+  prefStartChild() {
+    if (this.cpuUsage > 0.8) {
+      return;
+    }
+    osUtil.cpuUsage((v: any) => {
+      this.cpuUsage = v;
+      if (v < 0.8 && this.workers.size < this.options.maxConcurrentWorkers) {
+        this.startChild();
+      }
+    });
+  }
+
+  @throttle(1000)
+  prefCpuUsage() {
+    // 优化cpu占用率
+    osUtil.cpuUsage((v: any) => {
+      this.cpuUsage = v;
+      // 满cpu需要暂停一个进程
+      if (v >= 0.99) {
+        const [worker] = this.workers.values();
+        worker.isStopping = true;
+      }
+
+      // cpu空闲可以开启进程
+      if (v <= 0.5) {
+        const stopedWorkers = [...this.workers.values()].filter(
+          worker => worker.isStopping
+        );
+        if (stopedWorkers.length) {
+          stopedWorkers[0].isStopping = false;
+        } else {
+          this.options.maxConcurrentWorkers++;
+        }
+      }
+    });
   }
 
   /**
@@ -330,9 +375,9 @@ export default class WorkerFarm extends EventEmitter {
   /**
    * 每个Worker并发数
    *
-   * @default process.env.JGB_MAX_CONCURRENT_CALLS || 5
+   * @default process.env.JGB_MAX_CONCURRENT_CALLS || 1
    */
   static getConcurrentCallsPerWorker() {
-    return parseInt(process.env.JGB_MAX_CONCURRENT_CALLS, 10) || 5;
+    return parseInt(process.env.JGB_MAX_CONCURRENT_CALLS, 10) || 1;
   }
 }
