@@ -1,5 +1,3 @@
-import Asset from '../src/Asset';
-
 export type IPluginConfig = string | [string] | [string, any];
 
 export type IAliasValue =
