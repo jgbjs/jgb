@@ -21,7 +21,7 @@
     "posthtml": "^0.11.3",
     "posthtml-parser": "^0.4.1",
     "posthtml-render": "^1.1.4",
-    "posthtml-transform-miniprogram": "^0.1.1",
+    "posthtml-transform-miniprogram": "^0.1.3",
     "tslib": "^1.9.3"
   },
   "devDependencies": {

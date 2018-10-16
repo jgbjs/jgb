@@ -35,11 +35,7 @@ const ENV_PRESETS: {
 };
 
 async function loadPlugin(name: string, assetName: string) {
-  const plugin = await safeLocalRequire(
-    'babel-plugin-transform-miniprogram',
-    assetName,
-    () => require('babel-plugin-transform-miniprogram')
-  );
+  const plugin = await safeLocalRequire(name, assetName, () => require(name));
 
   if (plugin && plugin.default) {
     return plugin.default;
@@ -84,7 +80,7 @@ export default async function babelTransform(asset: BabelAsset) {
   let res: any = {
     ignore: true
   };
-  
+
   res = babel.transformFromAst(asset.ast, asset.contents, config);
 
   if (!res.ignored) {
@@ -121,15 +117,16 @@ async function getBabelConfig(asset: BabelAsset) {
 
   if (babelrc) {
     babelrc.ignore = ['node_modules'].concat(babelrc.ignore || []);
-    const { source, target } = asset.options;
+    const { source, target, lib } = asset.options;
     // 但两个都指定值且不相同时
     if (source && target && source !== target) {
       babelrc.plugins = (babelrc.plugins || []).concat([
         [
           await loadPlugin('babel-plugin-transform-miniprogram', asset.name),
           {
-            SOURCE: source,
-            TARGET: target
+            source,
+            target,
+            lib
           }
         ]
       ]);

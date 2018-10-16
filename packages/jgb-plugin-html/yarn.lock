@@ -541,6 +541,10 @@ lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "http://r.cnpmjs.org/lodash.uniq/download/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
+lodash@^4.17.11:
+  version "4.17.11"
+  resolved "http://registry.npm.taobao.org/lodash/download/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+
 math-expression-evaluator@^1.2.14:
   version "1.2.17"
   resolved "http://r.cnpmjs.org/math-expression-evaluator/download/math-expression-evaluator-1.2.17.tgz#de819fdbcd84dccd8fae59c6aeb79615b9d266ac"
@@ -859,9 +863,11 @@ posthtml-render@^1.1.0, posthtml-render@^1.1.4:
   version "1.1.4"
   resolved "http://registry.npm.taobao.org/posthtml-render/download/posthtml-render-1.1.4.tgz#95dac09892f4f183fad5ac823f08f42c0256551e"
 
-posthtml-transform-miniprogram@^0.1.0:
-  version "0.1.0"
-  resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.1.0.tgz#250fcc9daba49aa018d601bb1b85b8488af1c9d0"
+posthtml-transform-miniprogram@^0.1.3:
+  version "0.1.3"
+  resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.1.3.tgz#0a2de61962b71966d0e896f2f111c3dbf8a1748b"
+  dependencies:
+    lodash "^4.17.11"
 
 posthtml@^0.11.3:
   version "0.11.3"
