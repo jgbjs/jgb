@@ -1,4 +1,4 @@
-import { Asset, IInitOptions } from 'jgb-shared/lib';
+import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import * as VError from 'verror';
 import Compiler from './Compiler';
@@ -6,10 +6,12 @@ import Compiler from './Compiler';
 export default class Pipeline {
   compiler: Compiler;
   initPromise: Promise<any>;
+  resolver: Resolver;
 
   constructor(private options: IInitOptions) {
     this.compiler = new Compiler(options);
-    this.initPromise = this.compiler.init();
+    this.resolver = new Resolver(options);
+    this.initPromise = this.compiler.init(this.resolver);
   }
 
   // tslint:disable-next-line:no-empty
@@ -44,14 +46,10 @@ export default class Pipeline {
       await asset.process();
     } catch (err) {
       // @ts-ignore
-      const verror = new VError(
-        {
-          name: `BuildError`,
-          cause: err
-        },
-        `${asset.name}\n`
-      );
-      logger.error(VError.fullStack(verror));
+      logger.error(`
+      file: ${asset.name}
+      ${err.stack}
+      `)
     }
 
     return asset.generated;

@@ -1,5 +1,7 @@
-import { Asset, IInitOptions, Utils } from 'jgb-shared/lib';
+// tslint:disable-next-line:ordered-imports
+import { Asset, IInitOptions, Resolver, Utils } from 'jgb-shared/lib';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
+import { extname } from 'path';
 import * as render from 'posthtml-render';
 import * as api from 'posthtml/lib/api';
 import htmlnanoTransform from './htmlnano';
@@ -69,14 +71,6 @@ const META: {
   ]
 };
 
-const SCRIPT_TYPES: {
-  [key: string]: any;
-} = {
-  'application/javascript': 'js',
-  'text/javascript': 'js',
-  'application/json': false
-};
-
 // Options to be passed to `addURLDependency` for certain tags + attributes
 const OPTIONS: {
   [key: string]: any;
@@ -105,24 +99,44 @@ export default class HtmlAsset extends Asset {
     return res;
   }
 
-  processSingleDependency(path: string, opts: any) {
+  async processSingleDependency(path: string, opts: any) {
     let assetPath = this.addURLDependency(path, opts);
     if (!Utils.isUrl(assetPath)) {
       if (this.options.publicURL) {
         assetPath = Utils.urlJoin(this.options.publicURL, assetPath);
       }
+
+      const ext = extname(assetPath);
+
+      if (HtmlAsset.outExt !== ext) {
+        const resolver = this.options.parser.resolver as Resolver;
+        const { path: depPath } = await resolver.resolve(assetPath, this.name);
+        const depAsset: Asset = this.options.parser.getAsset(depPath);
+        if (depAsset instanceof HtmlAsset) {
+          // .wxml => .swan
+          // .wxs => .filter.js
+          const depDistPath = depAsset.generateDistPath(
+            assetPath,
+            HtmlAsset.outExt
+          );
+          const depExt = extname(depDistPath);
+          if (depExt !== ext) {
+            assetPath = assetPath.replace(ext, depExt);
+          }
+        }
+      }
     }
     return assetPath;
   }
 
-  collectSrcSetDependencies(srcset: string, opts: any) {
+  async collectSrcSetDependencies(srcset: string, opts: any) {
     const newSources = [];
     for (const source of srcset.split(',')) {
       const pair = source.trim().split(' ');
       if (pair.length === 0) {
         continue;
       }
-      pair[0] = this.processSingleDependency(pair[0], opts);
+      pair[0] = await this.processSingleDependency(pair[0], opts);
       newSources.push(pair.join(' '));
     }
     return newSources.join(',');
@@ -149,51 +163,64 @@ export default class HtmlAsset extends Asset {
       });
     }
 
+    const asyncTasks: Array<Promise<any>> = [];
+
     ast.walk((node: any) => {
+      if (!node) {
+        return node;
+      }
       if (node.attrs) {
-        if (node.tag === 'meta') {
-          if (
-            !Object.keys(node.attrs).some((attr: any) => {
-              const values = META[attr];
-              return values && values.includes(node.attrs[attr]);
-            })
-          ) {
-            return node;
-          }
-        }
+        const task = async () => {
+          // if (node.tag === 'meta') {
+          //   if (
+          //     !Object.keys(node.attrs).some((attr: any) => {
+          //       const values = META[attr];
+          //       return values && values.includes(node.attrs[attr]);
+          //     })
+          //   ) {
+          //     return node;
+          //   }
+          // }
 
-        // tslint:disable-next-line:forin
-        for (const attr of Object.keys(node.attrs)) {
-          const elements = ATTRS[attr];
-          // Check for virtual paths
-          if (node.tag === 'a' && node.attrs[attr].lastIndexOf('.') < 1) {
-            continue;
-          }
-
-          const nodeValue = node.attrs[attr];
-
-          // wx:else do not transform to  wx:else=""
-          if (!enableEmptyAttrs.includes(attr) && nodeValue === '') {
-            node.attrs[attr] = true;
-          }
-
-          if (elements && elements.includes(node.tag)) {
-            const depHandler = this.getAttrDepHandler(attr);
-            const options = OPTIONS[node.tag];
-            // vue like bind data or base64
-            if (nodeValue.startsWith('{{') || nodeValue.startsWith('data:')) {
+          // tslint:disable-next-line:forin
+          for (const attr of Object.keys(node.attrs)) {
+            const elements = ATTRS[attr];
+            // Check for virtual paths
+            if (node.tag === 'a' && node.attrs[attr].lastIndexOf('.') < 1) {
               continue;
             }
-            node.attrs[attr] = pathToUnixType(
-              depHandler.call(this, node.attrs[attr], options && options[attr])
-            );
-            // this.isAstDirty = true;
+
+            const nodeValue: string = node.attrs[attr];
+
+            // wx:else do not transform to  wx:else=""
+            if (!enableEmptyAttrs.includes(attr) && nodeValue === '') {
+              node.attrs[attr] = true;
+            }
+
+            if (elements && elements.includes(node.tag)) {
+              const depHandler = this.getAttrDepHandler(attr);
+              const options = OPTIONS[node.tag];
+              // vue like bind data or base64
+              if (nodeValue.includes('{{') || nodeValue.startsWith('data:')) {
+                continue;
+              }
+              const depPath = await depHandler.call(
+                this,
+                node.attrs[attr],
+                options && options[attr]
+              );
+              node.attrs[attr] = pathToUnixType(depPath);
+              // this.isAstDirty = true;
+            }
           }
-        }
+        };
+        asyncTasks.push(task());
       }
 
       return node;
     });
+
+    await Promise.all(asyncTasks);
   }
 
   async pretransform() {

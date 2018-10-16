@@ -4,6 +4,10 @@
     "outDir": "./lib/",
     "baseUrl": "src"
   },
+  "typeRoots": [
+    "./typings",
+    "node_modules/@types"
+  ],
   "exclude": [
     "node_modules",
     "dist",

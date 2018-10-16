@@ -17,7 +17,13 @@ export interface IInitOptions {
    */
   entryFiles?: string | string[];
   /**
+   * 源项目类型
+   * @default wx 微信小程序
+   */
+  source?: string;
+  /**
    * 输出类型
+   * @default wx 微信小程序
    */
   target?: string;
   /**
@@ -66,6 +72,8 @@ export interface IInitOptions {
   cacheDir?: string;
   /* 是否压缩 */
   minify?: boolean;
-
+  /* 提供编译钩子回调 */
   hooks?: Array<(...args: any[]) => Promise<void>>;
+  /* 转换适配库默认： miniapp-adapter */
+  lib?: string;
 }
