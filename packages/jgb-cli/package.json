@@ -30,6 +30,7 @@
     "mkdirp": "^0.5.1",
     "os-utils": "^0.0.14",
     "physical-cpu-count": "^2.0.0",
+    "read-metadata": "^1.0.0",
     "request": "^2.88.0",
     "resolve": "^1.8.1",
     "rimraf": "^2.6.2",
@@ -38,6 +39,7 @@
     "tslib": "^1.9.3",
     "user-home": "^2.0.0",
     "v8-compile-cache": "^2.0.2",
+    "validate-npm-package-name": "^3.0.0",
     "verror": "^1.10.0"
   },
   "devDependencies": {

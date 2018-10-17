@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+miniapp-adapter@^1.2.0:
+  version "1.2.0"
+  resolved "http://registry.npm.taobao.org/miniapp-adapter/download/miniapp-adapter-1.2.0.tgz#25520e46f5fdbf11a7236bd02af02b9445aa926d"
+
 posthtml-transform-miniprogram@^0.1.0:
   version "0.1.0"
   resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.1.0.tgz#250fcc9daba49aa018d601bb1b85b8488af1c9d0"

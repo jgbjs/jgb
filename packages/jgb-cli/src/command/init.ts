@@ -1,12 +1,15 @@
 import chalk from 'chalk';
+import * as crypto from 'crypto';
 import * as downloadRepo from 'download-git-repo';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
 import { logger } from 'jgb-shared/lib/Logger';
 import * as path from 'path';
+import * as rimraf from 'rimraf';
 import * as tildify from 'tildify';
 import * as home from 'user-home';
 import checkVersion from '../utils/checkVersion';
+import generate from '../utils/generate';
 
 export default async function init(
   template: string,
@@ -18,7 +21,7 @@ export default async function init(
   const to = path.resolve(rawName || '.');
   const clone = program.clone || false;
   const offline = program.offline || false;
-  const tmp = path.join(home, '.jgb_templates', template.replace(/\//g, '-'));
+  const tmp = path.join(home, '.jgb_templates', md5(template));
   /**
    * use offline cache
    */
@@ -40,45 +43,59 @@ export default async function init(
       ])
       .then(async (answers: any) => {
         if (answers.ok) {
-          await run(template, tmp);
+          await run();
         }
       })
       .catch();
   } else {
-    await run(template, tmp);
+    await run();
   }
-}
 
-async function run(template: string, tmp: string) {
-  if (isLocalPath(template)) {
-    const templatePath = getTemplatePath(template);
-    if (fs.existsSync(templatePath)) {
-      await gen(templatePath);
-    } else {
-      logger.warn(`Local template "${template}" not found.`);
-    }
-  } else {
-    await checkVersion();
-    await downloadAndGenerate(template, tmp);
-  }
-}
-
-async function downloadAndGenerate(template: string, tmp: string) {
-  return new Promise(resolve => {
-    downloadRepo(template, tmp, { clone: false }, async err => {
-      if (err) {
-        logger.error(
-          'Failed to download repo ' + template + ': ' + err.message.trim()
-        );
+  async function run() {
+    if (isLocalPath(template)) {
+      const templatePath = getTemplatePath(template);
+      if (fs.existsSync(templatePath)) {
+        await gen(templatePath);
+      } else {
+        logger.warning(`Local template "${template}" not found.`);
       }
-      await gen(tmp);
-      resolve();
-    });
-  });
-}
+    } else {
+      await checkVersion();
+      await downloadAndGenerate();
+    }
+  }
 
-async function gen(templatePath: string) {
-  // todo: gen template
+  async function downloadAndGenerate() {
+    logger.info('downloading template ...');
+
+    if (fs.existsSync(tmp)) {
+      rimraf(tmp);
+    }
+
+    return new Promise(resolve => {
+      logger.info(`template: ${template}`);
+      downloadRepo(template, tmp, { clone }, async err => {
+        if (err) {
+          logger.error(
+            'Failed to download repo ' + template + ': ' + err.message.trim()
+          );
+          return resolve();
+        }
+        await gen(tmp);
+        resolve();
+      });
+    });
+  }
+
+  async function gen(templatePath: string) {
+    generate(name, templatePath, to, err => {
+      if (err) {
+        logger.error(err);
+      }
+      console.log();
+      logger.info(`Generated "${name}".`);
+    });
+  }
 }
 
 function isLocalPath(templatePath: string) {
@@ -92,4 +109,10 @@ function getTemplatePath(templatePath: string) {
   return path.isAbsolute(templatePath)
     ? templatePath
     : path.normalize(path.join(process.cwd(), templatePath));
+}
+
+function md5(str: string) {
+  const hash = crypto.createHash('md5');
+  hash.update(str);
+  return hash.digest('hex');
 }

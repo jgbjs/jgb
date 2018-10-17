@@ -90,13 +90,14 @@ export default class Logger {
   }
 }
 
-let logger: any;
+// tslint:disable-next-line:max-classes-per-file
+class LoggerProxy {
+  [method: string]: any;
+}
+
+let logger: Logger | LoggerProxy;
 
 if (WorkerFarm.isWorker()) {
-  // tslint:disable-next-line:max-classes-per-file
-  class LoggerProxy {
-    [method: string]: any;
-  }
   for (const method of Object.getOwnPropertyNames(Logger.prototype)) {
     LoggerProxy.prototype[method] = (...args: any[]) => {
       WorkerFarm.callMaster(
