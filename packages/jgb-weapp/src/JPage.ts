@@ -1,4 +1,4 @@
-import { IEventFunction } from './EventBus';
+import { IEventFunction } from '../types/eventbus';
 import JBase from './JBase';
 import expand, { INIT } from './utils/expand';
 

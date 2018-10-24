@@ -2,8 +2,7 @@
  * 参考 taro
  * https://github.com/NervJS/taro/blob/a16bb2cd0e9bbc44562877fc8476ff797c688b9c/packages/taro-weapp/src/native-api.js
  */
-
-import { IEventFunction } from '../EventBus';
+import { IEventFunction } from '../../types/eventbus';
 import PromiseTask from '../utils/task';
 import { noPromiseApis, onAndSyncApis, otherApis } from './native-apis';
 
@@ -35,14 +34,14 @@ function getIntercept(key: string) {
   };
 }
 
-export default function initNativeApi(JGB: any = {}) {
+export default function initNativeApi(jgb: any = {}) {
   const weApis = Object.assign({}, onAndSyncApis, noPromiseApis, otherApis);
 
   Object.keys(weApis).forEach(key => {
     const doIntercept = getIntercept(key);
     // @ts-ignore
     if (!onAndSyncApis[key] && !noPromiseApis[key]) {
-      JGB[key] = (options: any = {}) => {
+      jgb[key] = (options: any = {}) => {
         let task: any = null;
 
         options = doIntercept(options, 'begin', options);
@@ -74,22 +73,26 @@ export default function initNativeApi(JGB: any = {}) {
           // @ts-ignore
           task = wx[key](obj);
         });
-        if (key === 'uploadFile' || key === 'downloadFile') {
+        if (['uploadFile', 'downloadFile', 'request'].includes(key)) {
           p.progress = cb => {
-            task.onProgressUpdate(cb);
+            if (typeof task.onProgressUpdate === 'function') {
+              task.onProgressUpdate(cb);
+            }
             return p;
           };
           p.abort = cb => {
             // tslint:disable-next-line:no-unused-expression
             cb && cb();
-            task.abort();
+            if (typeof task.abort === 'function') {
+              task.abort(cb);
+            }
             return p;
           };
         }
         return p;
       };
     } else {
-      JGB[key] = (...args: any[]) => {
+      jgb[key] = (...args: any[]) => {
         args = doIntercept(args, 'begin', args);
 
         // @ts-ignore
@@ -99,7 +102,7 @@ export default function initNativeApi(JGB: any = {}) {
     }
   });
 
-  Object.defineProperty(JGB, 'intercept', {
+  Object.defineProperty(jgb, 'intercept', {
     get() {
       return (event: string, ...data: any[]) => {
         let status: IInterceptStatus;

@@ -2,7 +2,7 @@ import JApp from '../JApp';
 import JComponent from '../JComponent';
 import JPage from '../JPage';
 
-export const JGB = {};
+export const jgb = {};
 
 /**
  * 使用插件
@@ -13,6 +13,6 @@ export default (plugin: { install: (data: any) => void }) => {
     JApp,
     JPage,
     JComponent,
-    JGB
+    jgb
   });
 };

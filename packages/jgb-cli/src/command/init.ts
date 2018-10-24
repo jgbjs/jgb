@@ -69,7 +69,9 @@ export default async function init(
     logger.info('downloading template ...');
 
     if (fs.existsSync(tmp)) {
-      rimraf(tmp);
+      await new Promise(resolve => {
+        rimraf(tmp, resolve);
+      });
     }
 
     return new Promise(resolve => {

@@ -11,7 +11,7 @@ module.exports = {
     '@/utils': './src/utils',
     "@/src": './src',
     '@alias': './aliasTest',
-    '@alias-test': Path.resolve('../alias-test/src/'),
+    '@alias-test': Path.resolve('../alias-test/src/index.js'),
     '@navbar': {
       path: './node_modules/miniprogram-navigation-bar',
       dist: 'pages/aliasComponent/'

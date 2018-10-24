@@ -1,7 +1,8 @@
-import { bus, IEventFunction } from './EventBus';
+import { IEventFunction } from '../types/eventbus';
+import { bus } from './EventBus';
 import nextTick from './utils/nextTick';
 
-const event = '__$events$__';
+export const event = '$events$';
 
 export default class JBase {
   /* 当前绑定事件集合 */
