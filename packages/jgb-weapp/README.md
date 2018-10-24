@@ -151,11 +151,10 @@ JPage({
 ### 使用插件
 
 ```js
-import { JGB , use} from 'jgb-weapp'
-import Plugins from 'jgb-weapp/lib/plugins'
+import { jgb , use} from 'jgb-weapp'
+import Plugin from 'xxx/Plugin'
 
-use(Plugins.RouterPlugin);
-use(Plugins.NativeApiPlugin)
+use(Plugin);
 ```
 
 ### 编写插件
@@ -166,7 +165,7 @@ export default {
         JApp,
         JPage,
         JComponent,
-        JGB
+        jgb
     }) {
         // todo: 实现plugin
     }
@@ -183,11 +182,7 @@ export default {
 
 ```js
 import 'miniapp-regenerator-runtime' // babel regenerator-runtime
-import { JGB , use} from 'jgb-weapp'
-import Plugins from 'jgb-weapp/lib/plugins'
-
-// 以插件的形式开启， 否则JGB是一个空对象
-use(Plugins.NativeApiPlugin)
+import { jgb } from 'jgb-weapp'
 
 /**
 	result: 返回值
@@ -198,7 +193,7 @@ use(Plugins.NativeApiPlugin)
 		complete: 完成, 异步方法完成时
 	options: 请求的参数
 */
-JGB.intercept('getStorageInfo', (result, status , options) => {
+jgb.intercept('getStorageInfo', (result, status , options) => {
     switch(status) {
         case 'begin':
             // 主要 result 和 options 参数都是一样
@@ -214,13 +209,13 @@ JGB.intercept('getStorageInfo', (result, status , options) => {
 });
 
 
-JGB.getStorageInfo({
+jgb.getStorageInfo({
     success(res) {
         console.log(res)
     }
 })
 
-const result = await JGB.getStorageInfo()
+const result = await jgb.getStorageInfo()
 
 
 ```

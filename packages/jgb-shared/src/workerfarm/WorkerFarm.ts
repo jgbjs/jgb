@@ -121,12 +121,12 @@ export default class WorkerFarm extends EventEmitter {
 
     this.workers.set(worker.id, worker);
 
-    logger.info(`start worker: ${worker.id}`);
+    logger.info(`started worker id: ${worker.id}.`);
   }
 
   async stopWorker(worker: Worker) {
     if (!worker.stopped) {
-      console.log(`stop worker ${worker.id}`);
+      logger.info(`stopped worker id: ${worker.id}`);
       this.workers.delete(worker.id);
 
       worker.isStopping = true;

@@ -1,8 +1,8 @@
-export type IEventFunction = (...data: any[]) => any;
+import { IEventBus, IEventFunction } from '../types/eventbus';
 
 const STORE = Symbol('stores');
 
-class EventBus {
+class EventBus implements IEventBus {
   [STORE] = new Map();
   on(event: string, fn: IEventFunction, ctx?: any) {
     if (typeof fn !== 'function') {

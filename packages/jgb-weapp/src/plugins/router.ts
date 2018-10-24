@@ -1,3 +1,5 @@
+import { IPlugin } from '../../types/plugins';
+import { ILocation } from '../../types/router';
 import { safeNavigate, safeRedirect } from '../utils/navigate';
 import { stringifyQuery } from '../utils/query';
 
@@ -19,7 +21,7 @@ Object.defineProperty(_router, 'currentRoute', {
   }
 });
 
-const routerPlugin: JGB.IPlugin = {
+const routerPlugin: IPlugin = {
   install: res => {
     const { JPage } = res;
 
@@ -30,7 +32,7 @@ const routerPlugin: JGB.IPlugin = {
       onLoad(options: any) {
         _query = options;
 
-        _route =  parseRoute(this.route || this.__route__, _query);
+        _route = parseRoute(this.route || this.__route__, _query);
 
         Object.defineProperty(this, '$router', {
           get() {
@@ -50,8 +52,10 @@ const routerPlugin: JGB.IPlugin = {
 
 export default routerPlugin;
 
+export const Router = _router;
+
 function push(
-  location: JGB.Router.ILocation,
+  location: ILocation,
   complete?: wx.BaseCallback,
   fail?: wx.BaseCallback,
   success?: wx.BaseCallback
@@ -70,7 +74,7 @@ function push(
 }
 
 function replace(
-  location: JGB.Router.ILocation,
+  location: ILocation,
   complete?: wx.BaseCallback,
   fail?: wx.BaseCallback,
   success?: wx.BaseCallback

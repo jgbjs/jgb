@@ -1,5 +1,5 @@
 import isObject = require('lodash/isObject');
-import { IEventFunction } from '../EventBus';
+import { IEventFunction } from '../../types/eventbus';
 import { Intercept, Mixin } from './index';
 
 /** init expand的方法名 */
@@ -51,7 +51,7 @@ export default function expand(
         }
       ])
     );
-
+    delete opts.constructor;
     fn(opts);
   }
 

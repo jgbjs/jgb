@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@tuhu/dt-weapp@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/@tuhu/dt-weapp/-/dt-weapp-1.2.0.tgz#af763478211419793ef30e9b9339883be1e5ce4e"
+"@tuhu/dt-weapp@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.npmjs.org/@tuhu/dt-weapp/-/dt-weapp-1.2.3.tgz#1af59709550420ec97d9d6a29502ebefc9d020a0"
   dependencies:
     lodash "^4.17.5"
 

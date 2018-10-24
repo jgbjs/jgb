@@ -1,7 +1,7 @@
 import defaultsDeep = require('lodash/defaultsDeep');
 import isFunction = require('lodash/isFunction');
 import isObject = require('lodash/isObject');
-import { IEventFunction } from '../EventBus';
+import { IEventFunction } from '../../types/eventbus';
 
 // tslint:disable-next-line:ban-types
 export function promisify<T extends Function>(wxMethod: T) {

@@ -105,7 +105,7 @@ export default class Asset {
     /** require相对引用路径 */
     let relativeRequirePath = '';
 
-    distPath = this.generateDistPath(absolutePath);
+    distPath = this.generateDistPath(absolutePath, ext);
     const parentDistPath = this.generateDistPath(this.name, ext);
 
     if (distPath && parentDistPath) {
@@ -315,7 +315,7 @@ export default class Asset {
       distPath = path.join(this.options.outDir, relatePath);
     }
 
-    const extName = path.extname(name);
+    const extName = path.extname(distPath);
 
     if (!extName) {
       // index => index.js

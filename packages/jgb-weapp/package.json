@@ -24,7 +24,7 @@
     "typescript": "3.0.1"
   },
   "dependencies": {
-    "@tuhu/dt-weapp": "^1.2.0",
+    "@tuhu/dt-weapp": "^1.2.3",
     "lodash": "^4.17.10",
     "tslib": "^1.9.3"
   },
