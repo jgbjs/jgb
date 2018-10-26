@@ -1,5 +1,5 @@
 import 'miniapp-regenerator-runtime';
-import { JApp, JGB } from 'jgb-weapp'
+import { JApp, jgb } from 'jgb-weapp'
 import './init.js';
 import testUtil from './utils/index'
 import TestAlias from '@alias/testAlias'
@@ -10,12 +10,12 @@ const isProd = process.env.NODE_ENV === 'production'
 
 JApp({
   async onLaunch() {
-    JGB.intercept('getStorageInfo', (result, status, options) => {
+    jgb.intercept('getStorageInfo', (result, status, options) => {
       console.info('intercept', status, result, options)
       return result
     })
 
-    const res = await JGB.getStorageInfo()
+    const res = await jgb.getStorageInfo()
     console.log('getStorageInfo', res)
 
     testUtil(2)

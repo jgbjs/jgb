@@ -12,7 +12,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build:all": "yarn run build",
-    "build": "tsc -b packages/jgb-shared packages/jgb-cli packages/jgb-plugin-css packages/jgb-plugin-html packages/jgb-plugin-json packages/jgb-plugin-less packages/jgb-plugin-typescript packages/jgb-preset-aliapp packages/jgb-preset-weapp",
+    "build": "tsc -b packages/jgb-shared packages/jgb-cli packages/jgb-plugin-babel packages/jgb-plugin-css packages/jgb-plugin-html packages/jgb-plugin-json packages/jgb-plugin-less packages/jgb-plugin-typescript packages/jgb-preset-aliapp packages/jgb-preset-weapp",
     "clean:all": "lerna run clean",
     "watch:all": "yarn run build --watch",
     "publish:all": "lerna publish --registry https://registry.npmjs.org/"

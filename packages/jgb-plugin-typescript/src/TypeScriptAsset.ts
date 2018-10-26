@@ -1,6 +1,7 @@
 import BabelAsset from 'jgb-plugin-babel/lib/BabelAsset';
 import { IInitOptions } from 'jgb-shared';
-import { safeLocalRequire } from 'jgb-shared/lib/utils';
+import SourceMap from 'jgb-shared/lib/SourceMap';
+import { pathToUnixType, safeLocalRequire } from 'jgb-shared/lib/utils';
 import * as Typescript from 'typescript';
 
 export default class TypeScriptAsset extends BabelAsset {
@@ -27,7 +28,7 @@ export default class TypeScriptAsset extends BabelAsset {
         // see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html
         esModuleInterop: true,
         noEmit: false,
-        sourceMap: false
+        sourceMap: true
       },
       fileName: this.relativeName
     };
@@ -42,10 +43,27 @@ export default class TypeScriptAsset extends BabelAsset {
       );
     }
     transpilerOptions.compilerOptions.noEmit = false;
-    transpilerOptions.compilerOptions.sourceMap = false; // this.options.sourceMaps;
+    transpilerOptions.compilerOptions.sourceMap = true; // this.options.sourceMaps;
 
     // Transpile Module using TypeScript and parse result as ast format through babylon
     const transpiled = typescript.transpileModule(code, transpilerOptions);
+
+    let sourceMap = transpiled.sourceMapText;
+
+    if (sourceMap) {
+      sourceMap = JSON.parse(sourceMap);
+      sourceMap.sources = [pathToUnixType(this.relativeName)];
+      sourceMap.sourcesContent = [this.contents];
+
+      // Remove the source map URL
+      const content = transpiled.outputText;
+      transpiled.outputText = content.substring(
+        0,
+        content.lastIndexOf('//# sourceMappingURL')
+      );
+
+      this.sourceMap = await new SourceMap().addMap(sourceMap);
+    }
 
     return super.parse(transpiled.outputText);
   }

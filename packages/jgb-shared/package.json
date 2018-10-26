@@ -38,6 +38,7 @@
     "lodash": "^4.17.10",
     "os-utils": "^0.0.14",
     "resolve": "^1.8.1",
+    "source-map": "^0.7.3",
     "tslib": "^1.9.3"
   },
   "gitHead": "5f20f17043cc0131daab77646f8431ea87431fc5"
