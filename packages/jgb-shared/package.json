@@ -30,7 +30,6 @@
     "@types/glob": "^5.0.35",
     "@types/lodash": "^4.14.117",
     "chalk": "^2.4.1",
-    "crypto": "^1.0.1",
     "debug": "^3.1.0",
     "fs-extra": "^7.0.0",
     "glob": "^7.1.2",

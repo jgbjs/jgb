@@ -125,10 +125,6 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "http://registry.npm.taobao.org/concat-map/download/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
-crypto@^1.0.1:
-  version "1.0.1"
-  resolved "http://registry.npm.taobao.org/crypto/download/crypto-1.0.1.tgz#2af1b7cad8175d24c8a1b0778255794a21803037"
-
 debug@^3.1.0:
   version "3.1.0"
   resolved "http://registry.npm.taobao.org/debug/download/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
