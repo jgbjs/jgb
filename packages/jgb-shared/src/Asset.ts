@@ -7,6 +7,7 @@ import * as config from './config';
 import { logger } from './Logger';
 import { ICompiler } from './pluginDeclare';
 import Resolver from './Resolver';
+import SourceMap from './SourceMap';
 import { normalizeAlias, pathToUnixType, promoteRelativePath } from './utils';
 import isUrl from './utils/isUrl';
 import objectHash from './utils/objectHash';
@@ -18,6 +19,7 @@ const cache = new Map();
 export interface IAssetGenerate {
   code: string;
   ext: string;
+  map?: SourceMap;
 }
 
 export default class Asset {
@@ -206,11 +208,10 @@ export default class Asset {
     await this.getDependencies();
     await this.transform();
     this.generated = await this.generate();
-
-    for (const { code, ext } of [].concat(this.generated)) {
+    const generated: IAssetGenerate[] = [].concat(this.generated);
+    for (const { code, ext, map } of generated) {
       this.hash = await this.generateHash();
-      const { distPath, ignore } = await this.output(code, ext);
-
+      const { distPath, ignore } = await this.output(code, ext, map);
       const endTime = +new Date();
 
       if (!ignore) {
@@ -336,7 +337,8 @@ export default class Asset {
    */
   async output(
     code: string,
-    ext: string = ''
+    ext: string = '',
+    map: SourceMap
   ): Promise<{
     distPath: string;
     ignore: boolean;
@@ -362,12 +364,28 @@ export default class Asset {
 
     this.distPath = distPath;
 
-    prettyDistPath = path.relative(this.options.outDir, distPath);
+    prettyDistPath = promoteRelativePath(
+      path.relative(this.options.outDir, distPath)
+    );
 
     // if distPath not in outDir
     if (!prettyDistPath.startsWith('..')) {
       ignore = false;
-      await writeFile(distPath, code);
+      const sourceMapString = map
+        ? map.stringify(path.basename(prettyDistPath), '/')
+        : '';
+      if (sourceMapString) {
+        await writeFile(
+          distPath,
+          code +
+            `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+              sourceMapString,
+              'utf-8'
+            ).toString('base64')}`
+        );
+      } else {
+        await writeFile(distPath, code);
+      }
     }
 
     return {
