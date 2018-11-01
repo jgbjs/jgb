@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/useplugin/useplugin",
     "pages/aliasComponent/index",
-    "pages/weapp/weapp"
+    "pages/weapp/weapp",
+    "pages/tsClass/index"
   ],
   "tabBar": {
     "list": [{

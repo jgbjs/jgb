@@ -1,5 +1,4 @@
-@import '../../components/toast.wxss';
-@import '../../app.wxss';
+
 
 .page {
   background-color: #fff;
