@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as Path from 'path';
 import * as template from 'babel-template';
 
-const bufferTemplate = template('Buffer(CONTENT, ENC)');
+const bufferTemplate = template('Buffer.from(CONTENT, ENC)');
 
 export default {
   AssignmentExpression(path) {

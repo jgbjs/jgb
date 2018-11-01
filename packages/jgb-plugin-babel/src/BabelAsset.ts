@@ -91,13 +91,15 @@ export default class BabelAsset extends Asset {
   }
 
   mightHaveDependencies() {
-    return (
-      !/.js$/.test(this.name) ||
-      IMPORT_RE.test(this.contents) ||
-      GLOBAL_RE.test(this.contents) ||
-      SW_RE.test(this.contents) ||
-      WORKER_RE.test(this.contents)
-    );
+    return true
+    // return (
+    //   !/.js$/.test(this.name) ||
+    //   IMPORT_RE.test(this.contents) ||
+    //   GLOBAL_RE.test(this.contents) ||
+    //   SW_RE.test(this.contents) ||
+    //   WORKER_RE.test(this.contents) ||
+    //   this.isAstDirty
+    // );
   }
 
   async parse(code: string): Promise<Babel.types.File> {
@@ -226,7 +228,7 @@ export default class BabelAsset extends Asset {
         let filename;
         if (dataURLMatch) {
           filename = this.name;
-          json = new Buffer(dataURLMatch[1], 'base64').toString();
+          json = Buffer.from(dataURLMatch[1], 'base64').toString();
         } else {
           filename = path.join(path.dirname(this.name), url);
           json = await promisify(fs.readFile)(filename);
@@ -293,7 +295,7 @@ export default class BabelAsset extends Asset {
         const rawMap = new SourceMap(generated.rawMappings, {
           [this.relativeName]: this.contents
         });
-        
+
         // Check if we already have a source map (e.g. from TypeScript or CoffeeScript)
         // In that case, we need to map the original source map to the babel generated one.
         this.sourceMap = !this.sourceMap

@@ -1,12 +1,13 @@
 
 module.exports = {
+  // entryFiles: ['app.js'],
   cache: false,
   presets: ['weapp'],
   plugins: [['css', {
     outExt: '.css',
-    extensions: ['.wxss'],
+    extensions: ['.wxss', 'bcss'],
   }], ['html', {
-    extensions: ['.wxml'],
+    extensions: ['.wxml', 'swan'],
     outExt: '.swan'
   }]]
 }

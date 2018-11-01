@@ -89,10 +89,23 @@ export default async function babelTransform(asset: BabelAsset) {
   }
 }
 
+function generateIgnore(ignores = [] as string[], isDifferenceTarget) {
+  if (isDifferenceTarget) {
+    // 移除node_modules相关的忽略
+    return ignores.filter(ig => !ig.includes('node_modules'));
+  }
+  return [...new Set(ignores.concat('node_modules'))];
+}
+
 async function getBabelConfig(asset: BabelAsset) {
   if (asset.babelConfig) {
     return asset.babelConfig;
   }
+
+  const { source, target, lib } = asset.options;
+
+  // 但两个都指定值且不相同时
+  const isDifferenceTarget = source && target && source !== target;
 
   // Consider the module source code rather than precompiled if the resolver
   // used the `source` field, or it is not in node_modules.
@@ -108,7 +121,7 @@ async function getBabelConfig(asset: BabelAsset) {
         require('babel-preset-env')
       )
     ],
-    ignore: ['node_modules']
+    ignore: generateIgnore([], isDifferenceTarget)
   };
   isSource = isSource || !!babelrc;
 
@@ -116,10 +129,9 @@ async function getBabelConfig(asset: BabelAsset) {
   const jsxConfig = await getJSXConfig(asset, isSource);
 
   if (babelrc) {
-    babelrc.ignore = ['node_modules'].concat(babelrc.ignore || []);
-    const { source, target, lib } = asset.options;
-    // 但两个都指定值且不相同时
-    if (source && target && source !== target) {
+    babelrc.ignore = generateIgnore(babelrc.ignore || [], isDifferenceTarget);
+
+    if (isDifferenceTarget) {
       babelrc.plugins = (babelrc.plugins || []).concat([
         [
           await loadPlugin('babel-plugin-transform-miniprogram', asset.name),
