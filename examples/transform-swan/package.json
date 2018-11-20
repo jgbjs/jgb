@@ -1,16 +1,16 @@
 {
   "name": "transform-swan",
   "private": true,
-  "version": "1.4.2-alpha.0",
+  "version": "1.4.2-alpha.1",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "jgb-cli": "^1.4.2-alpha.0",
-    "jgb-plugin-babel": "^1.4.2-alpha.0",
-    "jgb-plugin-css": "^1.4.2-alpha.0",
-    "jgb-plugin-html": "^1.4.2-alpha.0",
-    "jgb-plugin-json": "^1.4.2-alpha.0",
-    "jgb-preset-weapp": "^1.4.2-alpha.0",
+    "jgb-cli": "^1.4.2-alpha.1",
+    "jgb-plugin-babel": "^1.4.2-alpha.1",
+    "jgb-plugin-css": "^1.4.2-alpha.1",
+    "jgb-plugin-html": "^1.4.2-alpha.1",
+    "jgb-plugin-json": "^1.4.2-alpha.1",
+    "jgb-preset-weapp": "^1.4.2-alpha.1",
     "miniapp-adapter": "^1.2.0",
     "posthtml-transform-miniprogram": "^0.1.0"
   }
