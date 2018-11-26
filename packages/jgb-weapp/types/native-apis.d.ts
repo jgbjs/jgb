@@ -79,7 +79,7 @@ export interface INoPromiseApis {
 export interface IOtherApis {
   // 网络
   uploadFile: true;
-  downloadFile: true;
+  // /* downloadFile: true;
   connectSocket: true;
   sendSocketMessage: true;
   closeSocket: true;
@@ -195,9 +195,9 @@ export interface IOtherApis {
   checkSession: true;
   authorize: true;
   getUserInfo: true;
-  checkIsSupportFacialRecognition: true;
-  startFacialRecognitionVerify: true;
-  startFacialRecognitionVerifyAndUploadVideo: true;
+  // checkIsSupportFacialRecognition: true;
+  // startFacialRecognitionVerify: true;
+  // startFacialRecognitionVerifyAndUploadVideo: true;
   requestPayment: true;
   showShareMenu: true;
   hideShareMenu: true;

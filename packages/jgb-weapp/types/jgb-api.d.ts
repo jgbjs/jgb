@@ -1,4 +1,5 @@
-/// <reference types="@tuhu/dt-weapp" />
+/// <reference types="miniprogram-api-typings" />
+
 import { IOnAndSyncApis, IOtherApis, INoPromiseApis } from './native-apis';
 
 type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any
@@ -13,16 +14,18 @@ type keyOfWx = keyof TypeOfWx;
 
 type PromiseApiKey = keyof IOtherApis;
 
-type SyncApiKey = keyof IOtherApis | keyof IOnAndSyncApis;
+type SyncApiKey = keyof INoPromiseApis & keyof IOnAndSyncApis;
 
-// type TypePromiseApi<
-//   K extends PromiseApiKey = any,
-//   T extends TypeOfWx = TypeOfWx
-// > = { [P in K]: PromiseFunc<T[P]> };
+type TypePromiseApi<
+  K extends PromiseApiKey = PromiseApiKey,
+  T extends TypeOfWx = TypeOfWx
+> = { [P in K]: PromiseFunc<P, T[P]> };
 
-// type TypeSyncApi<K extends SyncApiKey = any, T extends TypeOfWx = TypeOfWx> = {
-//   [P in K]: PromiseFunc<T[P]>
-// };
+type TypeSyncApi<
+  K extends SyncApiKey = SyncApiKey,
+  T extends TypeOfWx = TypeOfWx
+> = { [P in K]: PromiseFunc<P, T[P]> };
+
 type TypeRequestLikeKey = 'request' | 'downloadFile' | 'uploadFile';
 
 type PromiseFunc<P extends string, T extends (...args: any[]) => any> = (
@@ -39,10 +42,10 @@ type RequestTaskExtension<
   progress(cb: (...args: any[]) => any): void;
 };
 
-export type TypeJGBApi<
-  K extends keyOfWx = keyOfWx,
-  T extends TypeOfWx = TypeOfWx
-> = { [P in K]: PromiseFunc<P, T[P]> };
+// export type TypeJGBApi<
+//   K extends keyOfWx = keyOfWx,
+//   T extends TypeOfWx = TypeOfWx
+// > = { [P in K]: PromiseFunc<P, T[P]> };
 
 export interface IJGBIntercept {
   intercept(event: keyOfWx, fn: IInterceptFn): void;
@@ -60,6 +63,7 @@ export type IInterceptFn = (
   options: any
 ) => any;
 
-export var jgb: TypeJGBApi & IJGBIntercept;
+// export var jgb: TypeJGBApi & IJGBIntercept;
 
-// export var jgb:TypePromiseApi & TypeSyncApi;
+export var jgb: TypePromiseApi & TypeSyncApi & IJGBIntercept;
+
