@@ -38,6 +38,7 @@ export default function expand(
   };
 
   function init(opts: any, ctx: any = {}) {
+    const entryIntercepts = intercepts.get(interceptEntry) || [];
     opts = Mixin(
       opts,
       mergeMixins([
@@ -46,12 +47,29 @@ export default function expand(
           [interceptEntry]() {
             // intercept use Object.defineProperty
             // so Intercept invoke must be init after first lifycycle
-            Intercept(ctx, intercepts);
+            // but will miss interceptEntry functions
+            Intercept(this, intercepts);
           }
         }
       ])
     );
-    delete opts.constructor;
+    const interceptEntryFn = opts[interceptEntry];
+    opts[interceptEntry] = function(...data: any[]) {
+      const self = this;
+      return interceptEntryFn.apply(
+        self,
+        entryIntercepts.reduce((prevValue, invoke) => {
+          return invoke.apply(self, prevValue);
+        }, data)
+      );
+    };
+
+    let tempOpts: any = opts;
+    while (tempOpts && tempOpts !== Object.prototype) {
+      delete tempOpts.constructor;
+      tempOpts = Object.getPrototypeOf(tempOpts);
+    }
+
     fn(opts);
   }
 

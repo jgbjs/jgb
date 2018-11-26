@@ -39,10 +39,27 @@ type RequestTaskExtension<
   progress(cb: (...args: any[]) => any): void;
 };
 
-export type TypeJGBApi<K extends keyOfWx = keyOfWx, T extends TypeOfWx = TypeOfWx> = {
-  [P in K]: PromiseFunc<P, T[P]>
-};
+export type TypeJGBApi<
+  K extends keyOfWx = keyOfWx,
+  T extends TypeOfWx = TypeOfWx
+> = { [P in K]: PromiseFunc<P, T[P]> };
 
-export var jgb: TypeJGBApi;
+export interface IJGBIntercept {
+  intercept(event: keyOfWx, fn: IInterceptFn): void;
+  intercept(event: keyOfWx, status: IInterceptStatus, fn: IInterceptFn): void;
+}
+
+export type IInterceptStatus = 'fail' | 'success' | 'complete' | 'begin';
+
+export type IInterceptFn = (
+  /** 返回值  */
+  result: any,
+  /** 状态  */
+  status: IInterceptStatus,
+  /** 调用方法参数  */
+  options: any
+) => any;
+
+export var jgb: TypeJGBApi & IJGBIntercept;
 
 // export var jgb:TypePromiseApi & TypeSyncApi;

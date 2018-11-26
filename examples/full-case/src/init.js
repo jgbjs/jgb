@@ -14,5 +14,5 @@ JPage.mixin({
 
 JPage.intercept('onShareAppMessage', data => {
   console.log('intercept onShareAppMessage', data);
-  return data;
+  return [data];
 });

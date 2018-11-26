@@ -291,10 +291,10 @@ export default class BabelAsset extends Asset {
 
       const generated: any = generate(this.ast, opts, this.contents);
       code = generated.code;
-      if (generated.rawMappings) {
-        const rawMap = new SourceMap(generated.rawMappings, {
-          [this.relativeName]: this.contents
-        });
+      if (generated.map) {
+        generated.map.sources = [pathToUnixType(this.relativeName)];
+        generated.map.sourcesContent = [this.contents];
+        const rawMap = await new SourceMap().addMap(generated.map)
 
         // Check if we already have a source map (e.g. from TypeScript or CoffeeScript)
         // In that case, we need to map the original source map to the babel generated one.
