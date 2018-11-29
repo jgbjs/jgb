@@ -1,14 +1,14 @@
-import { JPage } from 'jgb-weapp';
+import { JPage } from "jgb-weapp";
 
 interface TsClass extends JPage {}
 
-interface IPageData extends wx.IData {
+interface IPageData extends IAnyObject {
   carInfo: any;
   ProductInfo?: any;
 }
 
 @testable
-class TsClass {
+class TsClass implements JPage {
   data: IPageData = {
     filterProducts: [],
     scrollTop: 0,
@@ -20,20 +20,20 @@ class TsClass {
     hiddenGotop: true,
     tabFilters: [
       {
-        name: '综合排序',
-        className: 'current'
+        name: "综合排序",
+        className: "current"
       },
       {
-        name: '适配轮胎',
-        className: ''
+        name: "适配轮胎",
+        className: ""
       },
       {
-        name: '',
-        className: ''
+        name: "",
+        className: ""
       },
       {
-        name: '筛选',
-        className: ''
+        name: "筛选",
+        className: ""
       }
     ],
     filterOpts: {
@@ -58,7 +58,7 @@ class TsClass {
 
   @readonly
   name() {
-    return 'asdfiasdf';
+    return "asdfiasdf";
   }
 }
 

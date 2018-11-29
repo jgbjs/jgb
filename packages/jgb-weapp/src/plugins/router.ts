@@ -1,3 +1,4 @@
+import { BaseCallback } from '../../types/common';
 import { IPlugin } from '../../types/plugins';
 import { ILocation } from '../../types/router';
 import { safeNavigate, safeRedirect } from '../utils/navigate';
@@ -56,9 +57,9 @@ export const Router = _router;
 
 function push(
   location: ILocation,
-  complete?: wx.BaseCallback,
-  fail?: wx.BaseCallback,
-  success?: wx.BaseCallback
+  complete?: BaseCallback,
+  fail?: BaseCallback,
+  success?: BaseCallback
 ) {
   const url = parseUrl(location);
   const params = { url, complete, fail, success };
@@ -75,9 +76,9 @@ function push(
 
 function replace(
   location: ILocation,
-  complete?: wx.BaseCallback,
-  fail?: wx.BaseCallback,
-  success?: wx.BaseCallback
+  complete?: BaseCallback,
+  fail?: BaseCallback,
+  success?: BaseCallback
 ) {
   const url = parseUrl(location);
   safeRedirect({

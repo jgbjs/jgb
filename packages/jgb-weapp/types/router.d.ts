@@ -1,3 +1,5 @@
+import { BaseCallback } from "./common";
+
 export type ILocation =
   | string
   | {
@@ -11,16 +13,16 @@ export namespace Router {
 
   export function replace(
     location: ILocation,
-    complete?: wx.BaseCallback,
-    fail?: wx.BaseCallback,
-    success?: wx.BaseCallback
+    complete?: BaseCallback,
+    fail?: BaseCallback,
+    success?: BaseCallback
   ): void;
 
   export function push(
     location: ILocation,
-    complete?: wx.BaseCallback,
-    fail?: wx.BaseCallback,
-    success?: wx.BaseCallback
+    complete?: BaseCallback,
+    fail?: BaseCallback,
+    success?: BaseCallback
   ): void;
 
   export function go(delta: number): void;

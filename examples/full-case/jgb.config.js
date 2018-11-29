@@ -1,7 +1,7 @@
 const Path = require('path')
 
 module.exports = {
-  // entryFiles: ['app.js'],
+  entryFiles: ['app.ts', 'app.wxss', 'app.json'],
   // entryFiles: ['pages/weapp/weapp.ts'],
   cache: false,
   alias: {

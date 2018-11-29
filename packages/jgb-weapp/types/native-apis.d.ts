@@ -62,24 +62,24 @@ export interface INoPromiseApis {
   pageScrollTo: true;
   createSelectorQuery: true;
   createCanvasContext: true;
-  createContext: true;
-  drawCanvas: true;
-  hideKeyboard: true;
+  // createContext: true;
+  // drawCanvas: true;
+  // hideKeyboard: true;
   stopPullDownRefresh: true;
   createIntersectionObserver: true;
 
   // 拓展接口
-  arrayBufferToBase64: true;
-  base64ToArrayBuffer: true;
+  // arrayBufferToBase64: true;
+  // base64ToArrayBuffer: true;
 
   getUpdateManager: true;
   createWorker: true;
 }
-
 export interface IOtherApis {
   // 网络
+  request: true;
   uploadFile: true;
-  // /* downloadFile: true;
+  downloadFile: true;
   connectSocket: true;
   sendSocketMessage: true;
   closeSocket: true;

@@ -1,58 +1,68 @@
 /// <reference types="miniprogram-api-typings" />
 
-import { IOnAndSyncApis, IOtherApis, INoPromiseApis } from './native-apis';
+import { INoPromiseApis, IOnAndSyncApis, IOtherApis } from "./native-apis";
 
 type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any
   ? A
   : never;
 
-type TypeOfWx = typeof wx;
+type ArgumentType<F extends Function> = F extends (args: infer A) => any
+  ? A
+  : never;
 
-interface JGB extends TypeOfWx {}
+type SuccessArgumentType<F> = F extends (
+  res: {
+    success?: (res?: infer U) => void;
+  }
+) => void
+  ? U
+  : never;
+
+type TypeOfWx = typeof wx;
 
 type keyOfWx = keyof TypeOfWx;
 
 type PromiseApiKey = keyof IOtherApis;
 
-type SyncApiKey = keyof INoPromiseApis & keyof IOnAndSyncApis;
+type NoPromiseApiKey = keyof INoPromiseApis;
+
+type SyncApiKey = keyof IOnAndSyncApis;
 
 type TypePromiseApi<
   K extends PromiseApiKey = PromiseApiKey,
   T extends TypeOfWx = TypeOfWx
 > = { [P in K]: PromiseFunc<P, T[P]> };
 
+type TypeNoPromiseApi<
+  K extends NoPromiseApiKey = NoPromiseApiKey,
+  T extends TypeOfWx = TypeOfWx
+> = { [P in K]: T[P] };
+
 type TypeSyncApi<
   K extends SyncApiKey = SyncApiKey,
   T extends TypeOfWx = TypeOfWx
-> = { [P in K]: PromiseFunc<P, T[P]> };
+> = { [P in K]: T[P] };
 
-type TypeRequestLikeKey = 'request' | 'downloadFile' | 'uploadFile';
+type TypeRequestLikeKey = "request" | "downloadFile" | "uploadFile";
 
-type PromiseFunc<P extends string, T extends (...args: any[]) => any> = (
-  ...args: ArgumentTypes<T>
+type PromiseFunc<P extends string, T extends (args: any) => any> = (
+  args?: ArgumentType<T>
 ) => P extends TypeRequestLikeKey
-  ? RequestTaskExtension<Promise<ReturnType<T>>>
-  : Promise<ReturnType<T>>;
+  ? RequestTaskExtension<Promise<SuccessArgumentType<T>>, P>
+  : Promise<SuccessArgumentType<T>>;
 
+/** 扩展类似请求任务的方法 */
 type RequestTaskExtension<
   T extends Promise<any>,
-  K extends TypeRequestLikeKey = 'request'
-> = T & {
-  abort(cb: () => any): void;
-  progress(cb: (...args: any[]) => any): void;
-};
-
-// export type TypeJGBApi<
-//   K extends keyOfWx = keyOfWx,
-//   T extends TypeOfWx = TypeOfWx
-// > = { [P in K]: PromiseFunc<P, T[P]> };
+  K extends TypeRequestLikeKey
+> = T & ReturnType<TypeOfWx[TypeRequestLikeKey]>;
 
 export interface IJGBIntercept {
   intercept(event: keyOfWx, fn: IInterceptFn): void;
   intercept(event: keyOfWx, status: IInterceptStatus, fn: IInterceptFn): void;
 }
 
-export type IInterceptStatus = 'fail' | 'success' | 'complete' | 'begin';
+export type IInterceptStatus = "fail" | "success" | "complete" | "begin";
 
 export type IInterceptFn = (
   /** 返回值  */
@@ -63,7 +73,4 @@ export type IInterceptFn = (
   options: any
 ) => any;
 
-// export var jgb: TypeJGBApi & IJGBIntercept;
-
-export var jgb: TypePromiseApi & TypeSyncApi & IJGBIntercept;
-
+export var jgb: TypePromiseApi & TypeNoPromiseApi & TypeSyncApi & IJGBIntercept;
