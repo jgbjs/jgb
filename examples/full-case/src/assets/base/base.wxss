@@ -1,0 +1,5 @@
+@color: #fff;
+
+.base-color {
+  color: @color;
+}

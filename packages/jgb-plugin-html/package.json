@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-html",
-  "version": "1.4.2",
+  "version": "1.4.3-alpha.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -12,12 +12,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
-    "watch": "yarn run build --watch"
+    "watch": "yarn run build --watch",
+    "prepublish": "yarn run clean && yarn run build"
   },
   "dependencies": {
     "chalk": "^2.4.1",
     "htmlnano": "^0.1.10",
-    "jgb-shared": "^1.4.2",
+    "jgb-shared": "^1.4.3-alpha.0",
     "posthtml": "^0.11.3",
     "posthtml-parser": "^0.4.1",
     "posthtml-render": "^1.1.4",

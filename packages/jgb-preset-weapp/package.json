@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-weapp",
-  "version": "1.4.2",
+  "version": "1.4.3-alpha.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -12,17 +12,18 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
-    "watch": "yarn run build --watch"
+    "watch": "yarn run build --watch",
+    "prepublish": "yarn run clean && yarn run build"
   },
   "dependencies": {
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",
-    "jgb-plugin-babel": "^1.4.2",
-    "jgb-plugin-css": "^1.4.2",
-    "jgb-plugin-html": "^1.4.2",
-    "jgb-plugin-json": "^1.4.2",
-    "jgb-shared": "^1.4.2",
+    "jgb-plugin-babel": "^1.4.3-alpha.0",
+    "jgb-plugin-css": "^1.4.3-alpha.0",
+    "jgb-plugin-html": "^1.4.3-alpha.0",
+    "jgb-plugin-json": "^1.4.3-alpha.0",
+    "jgb-shared": "^1.4.3-alpha.0",
     "tslib": "^1.9.3"
   },
   "devDependencies": {

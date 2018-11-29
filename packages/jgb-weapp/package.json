@@ -1,6 +1,6 @@
 {
   "name": "jgb-weapp",
-  "version": "1.4.2",
+  "version": "1.4.3-alpha.0",
   "main": "lib/index.js",
   "license": "MIT",
   "typings": "types/index.d.ts",
@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
-    "watch": "yarn run build --watch"
+    "watch": "yarn run build --watch",
+    "prepublish": "yarn run clean && yarn run build"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.115",
@@ -24,8 +25,8 @@
     "typescript": "3.0.1"
   },
   "dependencies": {
-    "@tuhu/dt-weapp": "^1.2.3",
     "lodash": "^4.17.10",
+    "miniprogram-api-typings": "^2.4.1",
     "tslib": "^1.9.3"
   },
   "gitHead": "5f20f17043cc0131daab77646f8431ea87431fc5"
