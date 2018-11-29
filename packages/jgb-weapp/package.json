@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
-    "watch": "yarn run build --watch"
+    "watch": "yarn run build --watch",
+    "prepublish": "yarn run clean && yarn run build"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.115",
