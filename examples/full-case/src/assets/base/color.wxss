@@ -1,0 +1,40 @@
+/*color*/
+@colorMain: #DF3348;
+@colorMainDisabled: #EF99A3;
+@bgColorMain: #DF3348;
+
+@tuhuColorPrimary: #DF3348;
+@bgColorPrimay: #DF3348;
+@bgColorSuccess: #28A76D;
+@colorPrimaryDisabled: #EF99A3;
+@colorPrimary: #527DB0;
+@colorSuccess: #47AB0F;
+@colorWarning: #F57C33;
+@colorDanger: #DF3348;
+@colorReminder: #FDFFDF;
+@white: #FFFFFF;
+
+/*text color*/
+@textColorTitle: #333333;
+@textColorSubTitle: #666666;
+@textColorTips: #999999;
+@textColorIcon: #BFBFBF;
+
+ /*border color*/
+@borderBtnDefault: #CCCCCC;
+@borderColor: #EEEEEE;
+@borderGrayColor: #D9D9D9;
+/* background color*/
+@backgroundColor: #F8F8F8;
+
+/*中性色, 黑色mixin*/
+@colorDark: rgba(0,0,0, 1);
+@colorDarkHex100: rgba(0,0,0, 0);
+@colorDarkHex85: rgba(0,0,0, 0.85);
+@colorDarkHex65: rgba(0,0,0, 0.65);
+@colorDarkHex45: rgba(0,0,0, 0.45);
+@colorDarkHex25: rgba(0,0,0, 0.25);
+@colorDarkHex15: rgba(0,0,0, 0.15);
+@colorDarkHex08: rgba(0,0,0, 0.08);
+@colorDarkHex04: rgba(0,0,0, 0.04);
+@colorDarkHex02: rgba(0,0,0, 0.02);

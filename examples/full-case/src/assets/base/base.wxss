@@ -1,5 +1,8 @@
+@import (reference) "./color.wxss";
+
 @color: #fff;
 
 .base-color {
-  color: @color;
+  color: @colorMain;
+  background-color: @color;
 }
