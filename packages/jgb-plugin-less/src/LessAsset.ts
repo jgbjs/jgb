@@ -1,19 +1,19 @@
-import CssAsset from 'jgb-plugin-css/lib/CssAsset';
-import { safeLocalRequire } from 'jgb-shared';
-import * as Less from 'less';
-import { promisify } from 'util';
+import CssAsset from "jgb-plugin-css/lib/CssAsset";
+import { safeLocalRequire } from "jgb-shared";
+import * as Less from "less";
+import { promisify } from "util";
 
 const importOptionReg = /@import(?:\s)+(?:\((less|css|multiple|once|inline|reference|optional)\)){0,1}/;
 
 export default class LessAsset extends CssAsset {
   async parse(code: string) {
     // less should be installed locally in the module that's being required
-    const less = await safeLocalRequire('less', this.name, () => Less);
+    const less = await safeLocalRequire("less", this.name, () => Less);
     const render = promisify(less.render.bind(less));
 
     const opts =
-      (await this.getConfig(['.lessrc', '.lessrc.js'], {
-        packageKey: 'less'
+      (await this.getConfig([".lessrc", ".lessrc.js"], {
+        packageKey: "less"
       })) || {};
     opts.filename = this.name;
     opts.plugins = (opts.plugins || []).concat(urlPlugin(this));
@@ -27,8 +27,8 @@ export default class LessAsset extends CssAsset {
     });
 
     const lessAst = await render(code, opts);
-    CssAsset.outExt = LessAsset.outExt
-    return await super.parse(lessAst.css || '');
+    CssAsset.outExt = LessAsset.outExt;
+    return await super.parse(lessAst.css || "");
   }
 
   async generate() {
@@ -53,6 +53,10 @@ function urlPlugin(asset: LessAsset) {
             );
           }
           return node;
+        },
+        visitImport: (node: any) => {
+          asset.addDependency(node.path.value);
+          return node;
         }
       });
 
@@ -63,7 +67,7 @@ function urlPlugin(asset: LessAsset) {
 }
 
 function ignoreDependency(value: string) {
-  if (value.startsWith('data:')) {
+  if (value.startsWith("data:")) {
     return true;
   }
 
