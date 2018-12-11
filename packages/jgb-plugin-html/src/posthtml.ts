@@ -42,7 +42,6 @@ export async function getConfig(asset: Asset) {
   const { source, target } = asset.options;
   // 但两个都指定值且不相同时
   const shouldAddTransform = source && target && source !== target;
-
   if (!config /* && !asset.options.minify */) {
     if (shouldAddTransform) {
       const selfPlugins = {

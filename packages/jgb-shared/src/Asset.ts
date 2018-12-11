@@ -41,13 +41,19 @@ export default class Asset {
   cacheData: any = {};
 
   distPath: string;
-  /** 某些插件会自动注入compiler */
+  /** 在addAssetsType会自动注入compiler */
   parentCompiler: ICompiler;
 
   constructor(public name: string, public options: IInitOptions) {
     this.basename = path.basename(name);
     this.relativeName = path.relative(options.sourceDir, name);
     this.resolver = new Resolver(options);
+  }
+
+  get compiler() {
+    if (this.parentCompiler) {
+      return this.parentCompiler;
+    }
   }
 
   invalidate() {
