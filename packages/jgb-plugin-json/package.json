@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-json",
-  "version": "1.4.3-alpha.1",
+  "version": "1.4.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -16,9 +16,11 @@
     "prepublish": "yarn run clean && yarn run build"
   },
   "dependencies": {
+    "@types/json5": "^0.0.30",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
-    "jgb-shared": "^1.4.3-alpha.1",
+    "jgb-shared": "^1.4.3",
+    "json5": "^2.1.0",
     "tslib": "^1.9.3"
   },
   "devDependencies": {

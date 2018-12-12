@@ -86,12 +86,18 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     }
   }
 
+  /**
+   * addAssetsType 时会自动添加parentCompiler
+   * @param exts 
+   * @param asset 
+   */
   addAssetsType(exts: string | string[], asset: string | TypeAsset) {
     [].concat(exts).forEach(ext => {
       if (typeof asset === 'string') {
         const assetTemp = require(asset);
         asset = (assetTemp.default || assetTemp) as TypeAsset;
       }
+      asset.prototype.parentCompiler = this;
       this.extensions.set(ext.toLowerCase(), asset);
     });
   }
