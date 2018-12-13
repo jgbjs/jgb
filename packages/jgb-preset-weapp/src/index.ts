@@ -6,6 +6,7 @@ import JsonPlugin from 'jgb-plugin-json';
 import JsonAsset from 'jgb-plugin-json/lib/JsonAsset';
 import { declare, IInitOptions } from 'jgb-shared/lib';
 import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
+import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
 
 interface IPluginConfig {
@@ -110,7 +111,10 @@ async function collectPageJson({
         pageJson.usingComponents[key] = relativeRequire;
         if (realName) {
           // alias
-          components.push(realName);
+          const componentPath = pathToUnixType(
+            absolutePath.replace(/\.(\w)+/, '')
+          );
+          components.push(componentPath);
         }
 
         if (absolutePath.includes('node_modules')) {
