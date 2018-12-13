@@ -1,4 +1,6 @@
 import { declare } from 'jgb-shared/lib';
+// @ts-ignore
+import * as pkg from '../package.json';
 import LessAsset from './LessAsset';
 
 const defaultExts = ['.less'];
@@ -9,4 +11,5 @@ export default declare((compiler, pluginConfig = {}) => {
     LessAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, LessAsset);
+  return pkg.name
 });

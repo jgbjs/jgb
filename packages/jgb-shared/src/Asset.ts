@@ -16,7 +16,7 @@ import WorkerFarm from './workerfarm/WorkerFarm';
 const DEFAULT_NPM_DIR = 'npm';
 const REG_NODE_MODULES = /(\/node_modules\/|\/npm\/)/g;
 
-const NODE_MODULES = 'node_modules'
+const NODE_MODULES = 'node_modules';
 
 const cache = new Map();
 
@@ -55,6 +55,9 @@ export default class Asset {
     this.resolver = resolver || new Resolver(options);
   }
 
+  /**
+   * 获取cli的Compiler
+   */
   get compiler() {
     if (this.parentCompiler) {
       return this.parentCompiler;
@@ -255,7 +258,7 @@ export default class Asset {
    * 生成文件dist路径
    */
   generateDistPath(sourcePath: string, ext: string = '') {
-    const cacheKey = `${sourcePath}${ext}`
+    const cacheKey = `${sourcePath}${ext}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }

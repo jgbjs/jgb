@@ -1,4 +1,6 @@
 import { declare } from 'jgb-shared/lib';
+// @ts-ignore
+import * as pkg from '../package.json';
 import CssAsset from './CssAsset';
 
 const defaultExts = ['.css'];
@@ -9,4 +11,5 @@ export default declare((compiler, pluginConfig = {}) => {
     CssAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, CssAsset);
+  return pkg.name;
 });
