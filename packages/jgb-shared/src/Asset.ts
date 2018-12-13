@@ -255,8 +255,9 @@ export default class Asset {
    * 生成文件dist路径
    */
   generateDistPath(sourcePath: string, ext: string = '') {
-    if (cache.has(sourcePath)) {
-      return cache.get(sourcePath);
+    const cacheKey = `${sourcePath}${ext}`
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
     }
 
     const alias = this.options.alias;
@@ -323,7 +324,7 @@ export default class Asset {
       distPath = distPath.replace(extName, ext);
     }
 
-    cache.set(sourcePath, distPath);
+    cache.set(cacheKey, distPath);
     return distPath;
   }
 
