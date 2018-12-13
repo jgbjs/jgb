@@ -2,6 +2,7 @@ import * as glob from 'fast-glob';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
 import * as isGlob from 'is-glob';
+import { IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import { md5, objectHash } from 'jgb-shared/lib/utils';
 import * as mkdir from 'mkdirp';
@@ -10,16 +11,19 @@ import { promisify } from 'util';
 import * as VError from 'verror';
 import * as pkg from '../package.json';
 
+type optionsKey = keyof IInitOptions;
+
 // These keys can affect the output, so if they differ, the cache should not match
-const OPTION_KEYS: string[] = [
+const OPTION_KEYS: optionsKey[] = [
   'alias',
   'target',
+  'source',
   'presets',
-  'target',
-  // 'publicURL',
-  // 'minify',
-  // 'hmr',
-  // 'scopeHoist'
+  'plugins',
+  'minify',
+  'outDir',
+  'sourceDir',
+  'rootDir'
 ];
 
 const mkdirp = promisify(mkdir);
@@ -31,7 +35,7 @@ export default class FSCache {
   invalidated = new Set();
   optionsHash: any;
 
-  constructor(options: any) {
+  constructor(options: IInitOptions) {
     this.dir = path.resolve(options.cacheDir || '.cache');
     const hash = OPTION_KEYS.reduce((p: any, k) => ((p[k] = options[k]), p), {
       version: pkg.version
@@ -88,27 +92,29 @@ export default class FSCache {
     return stat.mtime.getTime();
   }
 
-  async writeDepMtimes(data: any) {
+  async writeDepMtimes(data: IPipelineProcessed) {
     // Write mtimes for each dependent file that is already compiled into this asset
     const dependencies = data.dependencies;
 
     if (dependencies instanceof Map) {
-      for (const [key, dep] of dependencies) {
-        if (dep && dep.includedInParent) {
-          try {
-            dep.mtime = this.getLastModifiedSync(dep.name);
-          } catch (error) {
-            logger.error(VError.fullStack(error));
-          }
+      // @ts-ignore
+      dependencies = dependencies.values();
+    }
+
+    for (const dep of new Set(dependencies)) {
+      if (dep && dep.includedInParent) {
+        try {
+          dep.mtime = this.getLastModifiedSync(dep.name);
+        } catch (error) {
+          logger.error(VError.fullStack(error));
         }
       }
     }
   }
 
-  async write(filename: string, data: any) {
+  async write(filename: string, data: IPipelineProcessed) {
     try {
       await this.ensureDirExists();
-      await this.writeDepMtimes(data);
       const cacheFile = await this.getCacheFile(filename);
       if (data.dependencies instanceof Map) {
         data.dependencies = [...data.dependencies].map(([fileName, asset]) => {
@@ -119,6 +125,7 @@ export default class FSCache {
           return [asset.name, { ...asset, asset: null }];
         });
       }
+      await this.writeDepMtimes(data);
       await fsExtra.writeFile(cacheFile, JSON.stringify(data));
       this.invalidated.delete(filename);
     } catch (err) {
