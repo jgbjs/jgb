@@ -3,32 +3,31 @@
  * https://github.com/NervJS/taro/blob/a16bb2cd0e9bbc44562877fc8476ff797c688b9c/packages/taro-weapp/src/native-api.js
  */
 import { IEventFunction } from '../../types/eventbus';
+import { IInterceptFn, IInterceptStatus } from '../../types/jgb-api';
 import PromiseTask from '../utils/task';
 import { noPromiseApis, onAndSyncApis, otherApis } from './native-apis';
 
-const intercepts = new Map<string, IEventFunction[]>();
+type interceptValue = [IEventFunction, IInterceptStatus];
 
-export type IInterceptStatus = 'fail' | 'success' | 'complete' | 'begin';
-
-export type IInterceptFn = (
-  /** 返回值  */
-  result: any,
-  /** 状态  */
-  status: IInterceptStatus,
-  /** 调用方法参数  */
-  options: any
-) => any;
+const intercepts = new Map<string, interceptValue[]>();
 
 function getIntercept(key: string) {
   return (result: any, status: IInterceptStatus, options?: any) => {
-    const target = intercepts.get(key);
+    const value = intercepts.get(key);
 
-    if (!target || target.length === 0) {
+    if (!value || value.length === 0) {
       return result;
     }
 
-    target.reduce((r: any, task) => {
-      return task(r, status, options);
+    value.reduce((r: any, iValue) => {
+      const [task, requiredStatus] = iValue;
+      if (!requiredStatus) {
+        return task(r, status, options);
+      }
+      if(requiredStatus === status) {
+        return task(r, status, options);
+      }
+      return r;
     }, result);
     return result;
   };
@@ -114,7 +113,7 @@ export default function initNativeApi(jgb: any = {}) {
         }
 
         const fns = intercepts.get(event) || [];
-        fns.push(fn);
+        fns.push([fn, status]);
         intercepts.set(event, fns);
       };
     }

@@ -48,6 +48,7 @@ export default class Pipeline {
       // @ts-ignore
       logger.error(`
       file: ${asset.name}
+      errMsg: ${err.message}
       ${err.stack}
       `)
     }

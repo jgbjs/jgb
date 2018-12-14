@@ -2,6 +2,7 @@ import { IEventFunction } from '../types/eventbus';
 import JBase, { event } from './JBase';
 import expand, { INIT } from './utils/expand';
 
+// @ts-ignore
 @expand(Component, 'created')
 export default class JComponent {
   static mixin: (obj: any) => void;

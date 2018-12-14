@@ -1,9 +1,10 @@
-import { promisify } from './index';
+import { NavigateToOptions } from "../../types/common";
+import { promisify } from "./index";
 
-type INavigateMethod = 'switchTab' | 'reLaunch' | 'navigateTo' | 'redirectTo';
+type INavigateMethod = "switchTab" | "reLaunch" | "navigateTo" | "redirectTo";
 
 function safeCall(fn: any, data: any = void 0) {
-  if (typeof fn !== 'function') {
+  if (typeof fn !== "function") {
     return;
   }
   fn(data);
@@ -11,7 +12,7 @@ function safeCall(fn: any, data: any = void 0) {
 
 async function iterateCall(
   methods: INavigateMethod[],
-  params: wx.NavigateToOptions
+  params: NavigateToOptions
 ) {
   const { success, fail, complete } = params;
   const lastMethod = methods[methods.length - 1];
@@ -33,10 +34,10 @@ async function iterateCall(
   safeCall(complete);
 }
 
-export async function safeNavigate(params: wx.NavigateToOptions) {
-  await iterateCall(['navigateTo', 'redirectTo', 'switchTab'], params);
+export async function safeNavigate(params: NavigateToOptions) {
+  await iterateCall(["navigateTo", "redirectTo", "switchTab"], params);
 }
 
-export async function safeRedirect(params: wx.NavigateToOptions) {
-  await iterateCall(['redirectTo', 'switchTab'], params);
+export async function safeRedirect(params: NavigateToOptions) {
+  await iterateCall(["redirectTo", "switchTab"], params);
 }

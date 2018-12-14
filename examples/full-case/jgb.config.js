@@ -1,7 +1,8 @@
 const Path = require('path')
 
 module.exports = {
-  // entryFiles: ['app.js'],
+  // entryFiles: ['assets/index.wxss'],
+  entryFiles: ['app.ts', 'app.wxss', 'app.json'],
   // entryFiles: ['pages/weapp/weapp.ts'],
   cache: false,
   alias: {
@@ -11,7 +12,7 @@ module.exports = {
     '@/utils': './src/utils',
     "@/src": './src',
     '@alias': './aliasTest',
-    '@alias-test': Path.resolve('../alias-test/src/index.js'),
+    '@alias-test': Path.resolve('../alias-test/src/'),
     '@navbar': {
       path: './node_modules/miniprogram-navigation-bar',
       dist: 'pages/aliasComponent/'

@@ -2,7 +2,8 @@ import {
   INoPromiseApis,
   IOnAndSyncApis,
   IOtherApis
-} from '../../types/native-apis';
+} from "../../types/native-apis";
+
 export const onAndSyncApis: IOnAndSyncApis = {
   onSocketOpen: true,
   onSocketError: true,
@@ -67,15 +68,15 @@ export const noPromiseApis: INoPromiseApis = {
   pageScrollTo: true,
   createSelectorQuery: true,
   createCanvasContext: true,
-  createContext: true,
-  drawCanvas: true,
-  hideKeyboard: true,
+  // createContext: true,
+  // drawCanvas: true,
+  // hideKeyboard: true,
   stopPullDownRefresh: true,
   createIntersectionObserver: true,
 
   // 拓展接口
-  arrayBufferToBase64: true,
-  base64ToArrayBuffer: true,
+  // arrayBufferToBase64: true,
+  // base64ToArrayBuffer: true,
 
   getUpdateManager: true,
   createWorker: true
@@ -83,6 +84,7 @@ export const noPromiseApis: INoPromiseApis = {
 
 export const otherApis: IOtherApis = {
   // 网络
+  request: true,
   uploadFile: true,
   downloadFile: true,
   connectSocket: true,
@@ -200,9 +202,9 @@ export const otherApis: IOtherApis = {
   checkSession: true,
   authorize: true,
   getUserInfo: true,
-  checkIsSupportFacialRecognition: true,
-  startFacialRecognitionVerify: true,
-  startFacialRecognitionVerifyAndUploadVideo: true,
+  // checkIsSupportFacialRecognition: true,
+  // startFacialRecognitionVerify: true,
+  // startFacialRecognitionVerifyAndUploadVideo: true,
   requestPayment: true,
   showShareMenu: true,
   hideShareMenu: true,

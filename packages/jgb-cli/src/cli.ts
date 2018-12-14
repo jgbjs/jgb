@@ -16,8 +16,8 @@ program
   .option('-s, --source <source>', 'set the origin project type', /^(wx)$/)
   .option(
     '-t, --target <target>',
-    'set the build type, either "wx", "my" or "swan". defaults to "wx"',
-    /^(wx|my|swan)$/
+    'set the build type, either "wx", "aliapp" or "swan". defaults to "wx"',
+    /^(wx|aliapp|swan)$/
   )
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')

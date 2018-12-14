@@ -1,6 +1,6 @@
-import { JApp, JPage, JComponent } from './jgb';
-import { Router } from './router';
-import { TypeJGBApi } from './jgb-api';
+import { JApp, JComponent, JPage } from "./jgb";
+import { jgb } from "./jgb-api";
+import { Router } from "./router";
 
 export type IUsePlugin = (res: IPlugin) => void;
 
@@ -9,7 +9,7 @@ export type InstallPlugin = (
     JApp: typeof JApp;
     JPage: typeof JPage;
     JComponent: typeof JComponent;
-    jgb: TypeJGBApi;
+    jgb: typeof jgb;
   }
 ) => void;
 

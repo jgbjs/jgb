@@ -1,4 +1,5 @@
 import { Asset, IInitOptions } from 'jgb-shared/lib';
+import * as json5 from 'json5';
 import * as path from 'path';
 
 export default class JsonAsset extends Asset {
@@ -9,7 +10,7 @@ export default class JsonAsset extends Asset {
   static outExt = '.json';
 
   async parse(code: string) {
-    return code ? JSON.parse(code) : {};
+    return code ? json5.parse(code) : {};
   }
 
   async pretransform() {
@@ -39,12 +40,6 @@ export default class JsonAsset extends Asset {
       code,
       ext: JsonAsset.outExt
     };
-  }
-
-  get compiler() {
-    if (this.parentCompiler) {
-      return this.parentCompiler;
-    }
   }
 
   async collectPageJson(page: any) {

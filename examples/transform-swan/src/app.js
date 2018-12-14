@@ -1,8 +1,8 @@
 
-const systemInfo = wx.getSystemInfoSync()
-
 App({
   onLaunch() {
+    const systemInfo = wx.getSystemInfoSync()
+
     wx.getStorage({
       key: 'test',
       success(res) {

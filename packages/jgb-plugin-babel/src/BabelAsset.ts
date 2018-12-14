@@ -5,8 +5,14 @@ import traverse from 'babel-traverse';
 // import * as t from 'babel-types';
 import * as babylon from 'babylon';
 import * as walk from 'babylon-walk';
+import * as fs from 'fs';
 import { Asset, IInitOptions } from 'jgb-shared/lib';
+import { logger } from 'jgb-shared/lib/Logger';
+import SourceMap from 'jgb-shared/lib/SourceMap';
+import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
+import * as path from 'path';
+import { promisify } from 'util';
 import babel, { getConfig } from './babel';
 import npmHack from './npmHack';
 import terser from './terser';
@@ -27,7 +33,7 @@ const DATA_URL_RE = /^data:[^;]+(?:;charset=[^;]+)?;base64,(.*)/;
 export default class BabelAsset extends Asset {
   constructor(fileName: string, options: IInitOptions) {
     super(fileName, options);
-    this.cacheData.env = {}
+    this.cacheData.env = {};
   }
 
   babelConfig: any;
@@ -35,6 +41,7 @@ export default class BabelAsset extends Asset {
   outputCode: string;
   waitResolveCollectDependencies: Array<Promise<any>> = [];
   isAstDirty = false;
+  sourceMap: any;
 
   static outExt = '.js';
 
@@ -84,13 +91,15 @@ export default class BabelAsset extends Asset {
   }
 
   mightHaveDependencies() {
-    return (
-      !/.js$/.test(this.name) ||
-      IMPORT_RE.test(this.contents) ||
-      GLOBAL_RE.test(this.contents) ||
-      SW_RE.test(this.contents) ||
-      WORKER_RE.test(this.contents)
-    );
+    return true
+    // return (
+    //   !/.js$/.test(this.name) ||
+    //   IMPORT_RE.test(this.contents) ||
+    //   GLOBAL_RE.test(this.contents) ||
+    //   SW_RE.test(this.contents) ||
+    //   WORKER_RE.test(this.contents) ||
+    //   this.isAstDirty
+    // );
   }
 
   async parse(code: string): Promise<Babel.types.File> {
@@ -143,7 +152,7 @@ export default class BabelAsset extends Asset {
    * 替换env环境变量
    */
   async pretransform() {
-    // await this.loadSourceMap();
+    await this.loadSourceMap();
     await babel(this);
 
     // Inline environment variables
@@ -205,23 +214,113 @@ export default class BabelAsset extends Asset {
     }
   }
 
+  async loadSourceMap() {
+    // Get original sourcemap if there is any
+    const match = this.contents.match(SOURCEMAP_RE);
+    if (match) {
+      this.contents = this.contents.replace(SOURCEMAP_RE, '');
+
+      const url = match[1];
+      const dataURLMatch = url.match(DATA_URL_RE);
+
+      try {
+        let json;
+        let filename;
+        if (dataURLMatch) {
+          filename = this.name;
+          json = Buffer.from(dataURLMatch[1], 'base64').toString();
+        } else {
+          filename = path.join(path.dirname(this.name), url);
+          json = await promisify(fs.readFile)(filename);
+
+          // Add as a dep so we watch the source map for changes.
+          this.addDependency(filename, { includedInParent: true });
+        }
+
+        this.sourceMap = JSON.parse(json);
+
+        // Attempt to read missing source contents
+        if (!this.sourceMap.sourcesContent) {
+          this.sourceMap.sourcesContent = [];
+        }
+
+        const missingSources = this.sourceMap.sources.slice(
+          this.sourceMap.sourcesContent.length
+        );
+        if (missingSources.length) {
+          const contents = await Promise.all(
+            missingSources.map(async source => {
+              try {
+                const sourceFile = path.join(
+                  path.dirname(filename),
+                  this.sourceMap.sourceRoot || '',
+                  source
+                );
+                const result = await promisify(fs.readFile)(sourceFile);
+                this.addDependency(sourceFile, { includedInParent: true });
+                return result;
+              } catch (err) {
+                logger.warning(
+                  `Could not load source file "${source}" in source map of "${
+                    this.relativeName
+                  }".`
+                );
+              }
+            })
+          );
+
+          this.sourceMap.sourcesContent = this.sourceMap.sourcesContent.concat(
+            contents
+          );
+        }
+      } catch (e) {
+        logger.warning(
+          `Could not load existing sourcemap of "${this.relativeName}".`
+        );
+      }
+    }
+  }
+
   async generate() {
     let code: string;
     if (this.isAstDirty) {
       const opts = {
-        sourceMaps: false,
-        sourceFileName: this.relativeName
+        sourceMaps: true,
+        sourceFileName: pathToUnixType(this.relativeName)
       };
 
-      const generated = generate(this.ast, opts, this.contents);
+      const generated: any = generate(this.ast, opts, this.contents);
       code = generated.code;
+      if (generated.map) {
+        generated.map.sources = [pathToUnixType(this.relativeName)];
+        generated.map.sourcesContent = [this.contents];
+        const rawMap = await new SourceMap().addMap(generated.map)
+
+        // Check if we already have a source map (e.g. from TypeScript or CoffeeScript)
+        // In that case, we need to map the original source map to the babel generated one.
+        this.sourceMap = !this.sourceMap
+          ? rawMap
+          : await new SourceMap().extendSourceMap(this.sourceMap, rawMap);
+      }
     } else {
       code = this.outputCode != null ? this.outputCode : this.contents;
     }
     code = npmHack(this.basename, code);
 
+    if (!this.sourceMap) {
+      this.sourceMap = new SourceMap().generateEmptyMap(
+        this.relativeName,
+        this.contents
+      );
+    }
+
+    if (!(this.sourceMap instanceof SourceMap)) {
+      this.sourceMap = await new SourceMap().addMap(this.sourceMap);
+    }
+
     return {
       code,
+      map: this.sourceMap,
       ext: BabelAsset.outExt
     };
   }
