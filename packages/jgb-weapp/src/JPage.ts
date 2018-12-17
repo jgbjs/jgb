@@ -10,10 +10,10 @@ export default class JPage extends JBase {
 
   /**
    * 滚动到指定元素
-   * @param id 元素id
+   * @param selector 选择器
    * @param ctx ctx作用域默认是当前页面
    */
-  async $scrollIntoView(id: string, ctx?: any) {
+  async $scrollIntoView(selector: string, ctx?: any) {
     let query = wx.createSelectorQuery();
     const getScrollTopPromise = new Promise<number>(resolve =>
       wx
@@ -30,12 +30,12 @@ export default class JPage extends JBase {
     }
 
     const getRectTopPromise = new Promise<number>(resolve => {
-      query.select(id).boundingClientRect(rect => {
+      query.select(selector).boundingClientRect(rect => {
         if (!rect) {
           return resolve(0);
         }
         resolve(rect.top);
-      });
+      }).exec();
     });
 
     const realTop = (await getScrollTopPromise) + (await getRectTopPromise);

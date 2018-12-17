@@ -1,4 +1,4 @@
-import { JPage } from "jgb-weapp";
+import { JPage } from 'jgb-weapp';
 
 interface TsClass extends JPage {}
 
@@ -10,7 +10,7 @@ interface IPageData extends IAnyObject {
 @testable
 class TsClass implements JPage {
   data: IPageData = {
-    filterProducts: [],
+    filterProducts: Array(200),
     scrollTop: 0,
     carInfo: null,
     showFixedFilter: false,
@@ -20,20 +20,20 @@ class TsClass implements JPage {
     hiddenGotop: true,
     tabFilters: [
       {
-        name: "综合排序",
-        className: "current"
+        name: '综合排序',
+        className: 'current'
       },
       {
-        name: "适配轮胎",
-        className: ""
+        name: '适配轮胎',
+        className: ''
       },
       {
-        name: "",
-        className: ""
+        name: '',
+        className: ''
       },
       {
-        name: "筛选",
-        className: ""
+        name: '筛选',
+        className: ''
       }
     ],
     filterOpts: {
@@ -54,11 +54,14 @@ class TsClass implements JPage {
     console.log(opts);
     console.log(this);
     console.log(this.name());
+    setTimeout(() => {
+      this.$scrollIntoView('#item-100')
+    }, 1000);
   }
 
   @readonly
   name() {
-    return "asdfiasdf";
+    return 'asdfiasdf';
   }
 }
 
