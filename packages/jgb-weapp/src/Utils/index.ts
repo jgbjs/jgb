@@ -43,6 +43,48 @@ export function Mixin(base: any, mixins: Set<any>) {
   return base;
 }
 
+// tslint:disable-next-line:no-empty
+export const noop = () => {};
+
+export const systemInfo = wx.getSystemInfoSync() as any;
+
+/**
+ * 比较版本
+ * v1 === v2 return 0
+ * v1 > v2 return 1
+ * v1 < v2 return -1
+ * @returns
+ */
+export function compareVersion(v1: string, v2: string) {
+  const v1Arr = v1.split('.');
+  const v2Arr = v2.split('.');
+  const len = Math.max(v1.length, v2.length);
+
+  while (v1.length < len) {
+    v1Arr.push('0');
+  }
+  while (v2.length < len) {
+    v2Arr.push('0');
+  }
+
+  for (let i = 0; i < len; i++) {
+    const num1 = parseInt(v1Arr[i], 10);
+    const num2 = parseInt(v2Arr[i], 10);
+
+    if (num1 > num2) {
+      return 1;
+    } else if (num1 < num2) {
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+export function isSupportVersion(version: string) {
+  return compareVersion(systemInfo.SDKVersion, version) >= 0;
+}
+
 export function Intercept(
   base: any,
   intercepts: Map<string, IEventFunction[]>

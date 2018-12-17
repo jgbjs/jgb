@@ -1,0 +1,10 @@
+.wrapper {
+  height: 1500px;
+}
+
+.item {
+  height: 80rpx;
+  width: 90%;
+  margin: 10rpx auto;
+  background-color: #ccc;
+}
