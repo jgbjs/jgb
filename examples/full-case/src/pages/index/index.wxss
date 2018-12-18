@@ -1,4 +1,10 @@
 @import '../../utils/index.wxss';
+
 view {
   color: #f0f;
+}
+
+.lottie-wrap {
+  width: 100%;
+  height: 300px;
 }

@@ -12,7 +12,7 @@ export interface ICompiler extends AwaitEventEmitter {
 }
 
 /** 返回pluginName  */
-export type IPluginRegister = (compiler: ICompiler, config: any) => string;
+export type IPluginRegister = (compiler: ICompiler, config: any) => string | void;
 
 const loadedPlugins = new Set();
 
