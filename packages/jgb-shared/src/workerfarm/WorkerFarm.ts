@@ -19,13 +19,14 @@ export default class WorkerFarm extends EventEmitter {
   run: (asset: Asset | string, distPath: string) => any;
   ending: boolean;
   bundlerOptions: any;
+  startPrefTime: any;
 
   constructor(options: any, farmOptions: any = {}) {
     super();
 
     this.options = Object.assign(
       {
-        maxConcurrentWorkers: 1, // WorkerFarm.getNumWorkers(),
+        maxConcurrentWorkers: WorkerFarm.getNumWorkers(),
         maxConcurrentCallsPerWorker: WorkerFarm.getConcurrentCallsPerWorker(),
         forcedKillTime: 500,
         warmWorkers: true,
@@ -39,6 +40,7 @@ export default class WorkerFarm extends EventEmitter {
     this.run = this.mkhandle('run');
 
     this.init(options);
+    this.startPref();
   }
 
   /**
@@ -153,10 +155,8 @@ export default class WorkerFarm extends EventEmitter {
     }
 
     if (this.workers.size < this.options.maxConcurrentWorkers) {
-      this.prefStartChild();
+      this.startChild();
     }
-
-    this.prefCpuUsage();
 
     // 能够工作并且任务量最少优先的worker
     const workers = [...this.workers.values()]
@@ -175,44 +175,6 @@ export default class WorkerFarm extends EventEmitter {
         worker.call(this.callQueue.shift());
       }
     }
-  }
-
-  @debounce(100)
-  prefStartChild() {
-    if (this.cpuUsage > 0.8) {
-      return;
-    }
-    osUtil.cpuUsage((v: any) => {
-      this.cpuUsage = v;
-      if (v < 0.8 && this.workers.size < this.options.maxConcurrentWorkers) {
-        this.startChild();
-      }
-    });
-  }
-
-  @throttle(1000)
-  prefCpuUsage() {
-    // 优化cpu占用率
-    osUtil.cpuUsage((v: any) => {
-      this.cpuUsage = v;
-      // 满cpu需要暂停一个进程
-      if (v >= 0.99) {
-        const [worker] = this.workers.values();
-        worker.isStopping = true;
-      }
-
-      // cpu空闲可以开启进程
-      if (v <= 0.5) {
-        const stopedWorkers = [...this.workers.values()].filter(
-          worker => worker.isStopping
-        );
-        if (stopedWorkers.length) {
-          stopedWorkers[0].isStopping = false;
-        } else {
-          this.options.maxConcurrentWorkers++;
-        }
-      }
-    });
   }
 
   /**
@@ -277,6 +239,7 @@ export default class WorkerFarm extends EventEmitter {
 
   async end() {
     this.ending = true;
+    this.stopPref();
     await Promise.all(
       Array.from(this.workers.values()).map(worker => this.stopWorker(worker))
     );
@@ -293,6 +256,56 @@ export default class WorkerFarm extends EventEmitter {
 
     this.localWorker.init(bundlerOptions);
     this.startMaxWorkers();
+  }
+
+  /**
+   * 开启cpu占用优化
+   */
+  async startPref(time = 1000) {
+    this.startPrefTime = setTimeout(async () => {
+      const workers = [...this.workers.values()];
+      const cpu = await this.getCpuUsageAsync();
+      // 满cpu需要暂停一个进程
+      if (cpu >= 0.9) {
+        const noStoppedWorkers = workers.filter(w => !w.isStopping);
+        if (noStoppedWorkers.length > 1) {
+          const targetWorker = noStoppedWorkers.pop();
+          logger.info(
+            `current cpu: ${Number(cpu.toFixed(2)) * 100}%. stop a worker ${
+              targetWorker.id
+            }`
+          );
+          targetWorker.isStopping = true;
+        }
+      }
+      // cpu空闲可以开启执行更多任务
+      if (cpu <= 0.5 && this.cpuUsage <= 0.5) {
+        const stopedWorkers = workers.filter(worker => worker.isStopping);
+        if (stopedWorkers.length) {
+          const targetWorker = stopedWorkers[0];
+          logger.info(
+            `current cpu: ${cpu}. start a stopped worker ${targetWorker.id}`
+          );
+          targetWorker.isStopping = false;
+        }
+      }
+      this.cpuUsage = cpu;
+      this.startPref(time * 1.2);
+    }, time);
+  }
+  getCpuUsageAsync(): Promise<number> {
+    return new Promise(resolve => {
+      osUtil.cpuUsage((v: number) => {
+        resolve(v);
+      });
+    });
+  }
+
+  /**
+   * 停止cpu占用优化
+   */
+  stopPref() {
+    clearTimeout(this.startPrefTime);
   }
 
   persistBundlerOptions() {
@@ -337,6 +350,13 @@ export default class WorkerFarm extends EventEmitter {
     }
 
     return shared;
+  }
+
+  static getSharedResolver() {
+    if (shared) {
+      const core = shared.options.core;
+      return core && core.resolver;
+    }
   }
 
   /**

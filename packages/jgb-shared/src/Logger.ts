@@ -1,5 +1,4 @@
 import chalk, { Chalk } from 'chalk';
-import { Console } from 'console';
 import WorkerFarm from './workerfarm/WorkerFarm';
 
 export type LogTypeColor = '编译';

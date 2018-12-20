@@ -1,4 +1,6 @@
 import { declare } from 'jgb-shared/lib';
+// @ts-ignore
+import * as pkg from '../package.json';
 import JsonAsset from './JsonAsset';
 
 const defaultExts = ['.json'];
@@ -10,4 +12,5 @@ export default declare((compiler, pluginConfig = {}) => {
   }
   JsonAsset.prototype.parentCompiler = compiler;
   compiler.addAssetsType(exts, JsonAsset);
+  return pkg.name;
 });

@@ -199,10 +199,10 @@ minimatch@^3.0.4:
   dependencies:
     brace-expansion "^1.1.7"
 
-miniprogram-api-typings@^2.4.1:
-  version "2.4.1"
-  resolved "http://registry.npm.taobao.org/miniprogram-api-typings/download/miniprogram-api-typings-2.4.1.tgz#8b6c8b281664279879548a95de1e3677cf5ad0f4"
-  integrity sha1-i2yLKBZkJ5h5VIqV3h42d89a0PQ=
+miniprogram-api-typings@2.4.2-1:
+  version "2.4.2-1"
+  resolved "http://registry.npm.taobao.org/miniprogram-api-typings/download/miniprogram-api-typings-2.4.2-1.tgz#473189225daa47d586506e53728d0d10ba872d4f"
+  integrity sha1-RzGJIl2qR9WGUG5Tco0NELqHLU8=
 
 once@^1.3.0:
   version "1.4.0"

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
 import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
 import Logger, { logger, LogType } from 'jgb-shared/lib/Logger';
-import { normalizeAlias } from 'jgb-shared/lib/utils/index';
+import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
 import { promisify } from 'util';
@@ -115,7 +115,8 @@ export default class Core extends AwaitEventEmitter {
     }
 
     this.farm = WorkerFarm.getShared(this.options, {
-      workerPath: require.resolve('./worker')
+      workerPath: require.resolve('./worker'),
+      core: this
     });
 
     for (const entry of new Set(this.entryFiles)) {
@@ -131,6 +132,7 @@ export default class Core extends AwaitEventEmitter {
     logger.info(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
 
     await this.emit('end-build');
+    this.farm.stopPref();
 
     if (!this.options.watch) {
       await this.stop();
@@ -335,9 +337,11 @@ function aliasResolve(options: IInitOptions, root: string) {
       const aliasPath = aliasValue.path;
       if (!Path.isAbsolute(aliasPath)) {
         if (aliasPath.startsWith('.')) {
-          aliasValue.path = Path.resolve(root, aliasPath);
+          aliasValue.path = pathToUnixType(Path.resolve(root, aliasPath));
         } else {
-          aliasValue.path = Path.resolve(root, 'node_modules', aliasPath);
+          aliasValue.path = pathToUnixType(
+            Path.resolve(root, 'node_modules', aliasPath)
+          );
         }
       }
 

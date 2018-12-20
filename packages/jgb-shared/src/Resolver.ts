@@ -1,10 +1,10 @@
-import * as debug from "debug";
-import * as fs from "fs";
-import * as fsExtra from "fs-extra";
-import * as path from "path";
-import { promisify } from "util";
-import { IAliasValue, IInitOptions } from "../typings/jgb-shared";
-import { normalizeAlias } from "./utils";
+import * as debug from 'debug';
+import * as fs from 'fs';
+import * as fsExtra from 'fs-extra';
+import * as path from 'path';
+import { promisify } from 'util';
+import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
+import { normalizeAlias, pathToUnixType } from './utils';
 
 // debug.enable('*');
 
@@ -42,14 +42,14 @@ export default class Resolver {
       exts = [parentExt, ...exts.filter(ext => ext !== parentExt)];
     }
 
-    exts.unshift("");
+    exts.unshift('');
 
     // Resolve the module directory or local file path
     const module = await this.resolveModule(fileName, parent);
     const dir = parent ? path.dirname(parent) : process.cwd();
     let resolved;
 
-    if ("moduleDir" in module && module.moduleDir) {
+    if ('moduleDir' in module && module.moduleDir) {
       resolved = await this.loadNodeModules(module, exts);
     } else if (module.filePath) {
       resolved = await this.loadRelative(module.filePath, exts);
@@ -69,7 +69,7 @@ export default class Resolver {
   }
 
   getCacheKey(fileName: string, parent: any) {
-    return (parent ? path.dirname(parent) : "") + ":" + fileName;
+    return (parent ? path.dirname(parent) : '') + ':' + fileName;
   }
 
   async resolveModule(fileName: string, parent: any) {
@@ -118,20 +118,20 @@ export default class Resolver {
 
     while (dir !== root) {
       // Skip node_modules directories
-      if (path.basename(dir) === "node_modules") {
+      if (path.basename(dir) === 'node_modules') {
         dir = path.dirname(dir);
       }
 
       try {
         // First, check if the module directory exists. This prevents a lot of unnecessary checks later.
-        const moduleDir = path.join(dir, "node_modules", parts[0]);
+        const moduleDir = path.join(dir, 'node_modules', parts[0]);
         const stats = await promisify(fs.stat)(moduleDir);
         if (stats.isDirectory()) {
           return {
             moduleName: parts[0],
             subPath: parts[1],
             moduleDir,
-            filePath: path.join(dir, "node_modules", filename)
+            filePath: path.join(dir, 'node_modules', filename)
           };
         }
       } catch (err) {
@@ -217,7 +217,7 @@ export default class Resolver {
 
   getPackageEntries(pkg: any) {
     let browser = this.getBrowserField(pkg);
-    if (browser && typeof browser === "object" && browser[pkg.name]) {
+    if (browser && typeof browser === 'object' && browser[pkg.name]) {
       browser = browser[pkg.name];
     }
 
@@ -225,11 +225,11 @@ export default class Resolver {
     // we use the "browser" or "module" field to get the full dependency tree if available.
     // If this is a linked module with a `source` field, use that as the entry point.
     return [pkg.source, browser, pkg.main, pkg.module]
-      .filter(entry => typeof entry === "string")
+      .filter(entry => typeof entry === 'string')
       .map(main => {
         // Default to index file if no main field find
-        if (!main || main === "." || main === "./") {
-          main = "index";
+        if (!main || main === '.' || main === './') {
+          main = 'index';
         }
 
         return path.resolve(pkg.pkgdir, main);
@@ -264,32 +264,32 @@ export default class Resolver {
     }
 
     // Fall back to an index file inside the directory.
-    return await this.loadAsFile(path.join(dir, "index"), extensions, pkg);
+    return await this.loadAsFile(path.join(dir, 'index'), extensions, pkg);
   }
 
   resolveFilename(fileName: string, dir: string) {
     try {
       switch (fileName[0]) {
-        case "/":
+        case '/':
           if (fsExtra.existsSync(fileName)) {
             return fileName;
           }
           // Absolute path. Resolve relative to project root.
           return path.resolve(this.options.sourceDir, fileName.slice(1));
 
-        case "~":
+        case '~':
           // Tilde path. Resolve relative to nearest node_modules directory,
           // or the project root - whichever comes first.
           while (
             dir !== this.options.rootDir &&
-            path.basename(path.dirname(dir)) !== "node_modules"
+            path.basename(path.dirname(dir)) !== 'node_modules'
           ) {
             dir = path.dirname(dir);
           }
 
           return path.join(dir, fileName.slice(1));
 
-        case ".":
+        case '.':
           // Relative path.
           return path.resolve(dir, fileName);
 
@@ -321,19 +321,28 @@ export default class Resolver {
     );
   }
 
-  async loadResolveAlias(fileName: string, dir: string) {
+  /**
+   * resolve alias get relativepath
+   * @param fileName
+   * @param dir 如果有dir则返回相对路径，否则返回绝对路径
+   * @example
+   *  @/utils/index => ../utils/index
+   */
+  loadResolveAlias(fileName: string, dir?: string) {
+    fileName = pathToUnixType(fileName);
     for (const key of this.alias.keys()) {
-      if (fileName.startsWith(key)) {
+      if (fileName.includes(key)) {
         const target = this.alias.get(key);
-        /**
-         * @src: path.resolve('src')
-         *
-         * @src/abc => /src/abc
-         */
-        fileName = fileName.replace(key, normalizeAlias(target).path);
-        return this.resolveFilename(fileName, dir);
+        const normalizedAlias = normalizeAlias(target);
+        fileName = fileName.replace(key, normalizedAlias.path);
+        // if (dir) {
+        //   const relativePath = path.relative(dir, fileName);
+        //   return pathToUnixType(relativePath);
+        // }
+        return pathToUnixType(fileName);
       }
     }
+    return;
   }
 
   resolveAliases(fileName: string, pkg: any) {
@@ -359,12 +368,12 @@ export default class Resolver {
   }
 
   getBrowserField(pkg: any) {
-    const target = this.options.target || "browser";
-    return target === "browser" ? pkg.browser : null;
+    const target = this.options.target || 'browser';
+    return target === 'browser' ? pkg.browser : null;
   }
 
   getAlias(fileName: string, dir: string, aliases: any): string | null {
-    if (!fileName || !aliases || typeof aliases !== "object") {
+    if (!fileName || !aliases || typeof aliases !== 'object') {
       return null;
     }
 
@@ -373,8 +382,8 @@ export default class Resolver {
     // If fileName is an absolute path, get one relative to the package.json directory.
     if (path.isAbsolute(fileName)) {
       fileName = path.relative(dir, fileName);
-      if (fileName[0] !== ".") {
-        fileName = "./" + fileName;
+      if (fileName[0] !== '.') {
+        fileName = './' + fileName;
       }
 
       alias = this.lookupAlias(aliases, fileName, dir);
@@ -385,7 +394,7 @@ export default class Resolver {
         // If it didn't match, try only the module name.
         const parts = this.getModuleParts(fileName);
         alias = this.lookupAlias(aliases, parts[0], dir);
-        if (typeof alias === "string") {
+        if (typeof alias === 'string') {
           // Append the fileName back onto the aliased module.
           alias = path.join(alias, ...parts.slice(1));
         }
@@ -394,7 +403,7 @@ export default class Resolver {
 
     // If the alias is set to `false`, return an empty file.
     if (alias === false) {
-      return "";
+      return '';
     }
 
     return alias;
@@ -404,7 +413,7 @@ export default class Resolver {
     // First, try looking up the exact fileName
     const alias = aliases[fileName];
 
-    if (typeof alias === "string") {
+    if (typeof alias === 'string') {
       return this.resolveFilename(alias, dir);
     }
 
@@ -414,7 +423,7 @@ export default class Resolver {
   async findPackage(dir: string) {
     // Find the nearest package.json file within the current node_modules folder
     const root = path.parse(dir).root;
-    while (dir !== root && path.basename(dir) !== "node_modules") {
+    while (dir !== root && path.basename(dir) !== 'node_modules') {
       try {
         return await this.readPackage(dir);
       } catch (err) {
@@ -428,7 +437,7 @@ export default class Resolver {
   findPackageSync(dir: string) {
     // Find the nearest package.json file within the current node_modules folder
     const root = path.parse(dir).root;
-    while (dir !== root && path.basename(dir) !== "node_modules") {
+    while (dir !== root && path.basename(dir) !== 'node_modules') {
       try {
         return this.readPackageSync(dir);
       } catch (err) {
@@ -440,12 +449,12 @@ export default class Resolver {
   }
 
   async readPackage(dir: string) {
-    const file = path.join(dir, "package.json");
+    const file = path.join(dir, 'package.json');
     if (this.packageCache.has(file)) {
       return this.packageCache.get(file);
     }
 
-    const json = await promisify(fs.readFile)(file, { encoding: "utf8" });
+    const json = await promisify(fs.readFile)(file, { encoding: 'utf8' });
     const pkg = JSON.parse(json);
 
     pkg.pkgfile = file;
@@ -465,12 +474,12 @@ export default class Resolver {
   }
 
   readPackageSync(dir: string) {
-    const file = path.join(dir, "package.json");
+    const file = path.join(dir, 'package.json');
     if (this.packageCache.has(file)) {
       return this.packageCache.get(file);
     }
 
-    const json = fs.readFileSync(file, { encoding: "utf8" });
+    const json = fs.readFileSync(file, { encoding: 'utf8' });
     const pkg = JSON.parse(json);
 
     pkg.pkgfile = file;
@@ -479,7 +488,7 @@ export default class Resolver {
     // If the package has a `source` field, check if it is behind a symlink.
     // If so, we treat the module as source code rather than a pre-compiled module.
     if (pkg.source) {
-      const realpath = fs.readFileSync(file, { encoding: "utf8" });
+      const realpath = fs.readFileSync(file, { encoding: 'utf8' });
       if (realpath === file) {
         delete pkg.source;
       }
@@ -491,7 +500,7 @@ export default class Resolver {
 
   getModuleParts(name: string) {
     const parts = path.normalize(name).split(path.sep);
-    if (parts[0].charAt(0) === "@") {
+    if (parts[0].charAt(0) === '@') {
       // Scoped module (e.g. @scope/module). Merge the first two parts back together.
       parts.splice(0, 2, `${parts[0]}/${parts[1]}`);
     }
