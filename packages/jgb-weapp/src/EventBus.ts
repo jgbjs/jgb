@@ -2,31 +2,70 @@ import { IEventBus, IEventFunction } from '../types/eventbus';
 
 const STORE = Symbol('stores');
 
+let uuid = 0;
+
+function getNewUUID() {
+  return uuid++;
+}
+
+interface IStoreModel {
+  ctx: any;
+  identifyId: number;
+  cb: IEventFunction;
+}
+
 class EventBus implements IEventBus {
-  [STORE] = new Map();
-  on(event: string, fn: IEventFunction, ctx?: any) {
+  [STORE] = new Map<string, IStoreModel[]>();
+  on(events: any, fn: IEventFunction, ctx?: any): any {
     if (typeof fn !== 'function') {
       console.error('fn must be a function');
       return;
     }
 
-    const stores = this[STORE].get(event) || [];
+    if (Array.isArray(events)) {
+      const identifyIdArr: number[] = [];
+      for (const event of new Set(events)) {
+        identifyIdArr.push(...this.on(event, fn, ctx));
+      }
+      return identifyIdArr;
+    }
+
+    const stores = this[STORE].get(events) || [];
+    const identifyId = getNewUUID();
     stores.push({
       ctx,
+      identifyId,
       cb: fn
     });
 
-    this[STORE].set(event, stores);
+    this[STORE].set(events, stores);
+    return identifyId;
   }
 
-  once(event: string, fn: IEventFunction, ctx?: any) {
-    this.on(event, fn, ctx);
+  once(events: string | string[], fn: IEventFunction, ctx?: any) {
+    if (Array.isArray(events)) {
+      const identifyIdArr: number[] = [];
+      for (const event of new Set(events)) {
+        identifyIdArr.push(...this.once(event, fn, ctx));
+      }
+      return identifyIdArr;
+    }
+
+    this.on(events);
+
+    this.indentifyIdOff(identifyIdArr);
     this.on(event, () => {
       this.off(event, fn);
     });
+    return identifyIdArr;
   }
 
-  emit(event: string, ...args: any[]) {
+  emit(event: string | string[], ...args: any[]) {
+    if (Array.isArray(event)) {
+      event.forEach(ev => this.emit(ev, ...args));
+      return;
+    }
+
     let store = this[STORE].get(event);
     if (store) {
       store = store.slice(0);
@@ -36,7 +75,14 @@ class EventBus implements IEventBus {
     }
   }
 
-  async emitAsync(event: string, ...args: any[]) {
+  async emitAsync(event: string | string[], ...args: any[]) {
+    if (Array.isArray(event)) {
+      for (const ev of new Set(event)) {
+        await this.emitAsync(ev, ...args);
+      }
+      return;
+    }
+
     const store = this[STORE].get(event);
     if (!store) {
       return;
@@ -51,10 +97,19 @@ class EventBus implements IEventBus {
     await Promise.all(tasks);
   }
 
-  off(event?: string, fn?: IEventFunction) {
+  private indentifyIdOff(events: number | number[]) {
+    const values = this[STORE].values();
+  }
+
+  off(event?: string | number | number[], fn?: IEventFunction) {
     if (!event) {
       this[STORE] = new Map();
     }
+
+    if (typeof event !== 'string') {
+      return this.indentifyIdOff(event);
+    }
+
     const store = this[STORE].get(event);
     if (!store) {
       return;
