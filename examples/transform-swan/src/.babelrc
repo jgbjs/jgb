@@ -1,0 +1,16 @@
+{
+  "presets": ["env"],
+  "env": {
+    "debug": {
+      "sourceMap": "inline",
+      "retainLines": true
+    }
+  },
+  "plugins": [
+    "lodash",
+    "transform-object-rest-spread",
+    "transform-node-env-inline",
+    "transform-inline-environment-variables",
+    "inline-package-json"
+  ]
+}

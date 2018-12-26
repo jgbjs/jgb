@@ -9,7 +9,7 @@ export async function parse(code: string, asset: Asset) {
     config = {};
   }
   config = Object.assign(
-    { lowerCaseAttributeNames: true, recognizeSelfClosing: true },
+    { lowerCaseAttributeNames: false, recognizeSelfClosing: true },
     config
   );
   return posthtmlParse(code, config);
