@@ -87,9 +87,7 @@ export default class Core extends AwaitEventEmitter {
   }
 
   async init() {
-    await this.compiler.init(this.resolver);
-
-    await this.initHook();
+    await this.compiler.init(this.resolver);    
   }
 
   async start() {
@@ -98,6 +96,8 @@ export default class Core extends AwaitEventEmitter {
     if (this.farm) {
       return;
     }
+
+    await this.initHook();
 
     await this.emit('before-init');
 
