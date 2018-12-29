@@ -375,7 +375,7 @@ export default class Asset {
       const sourceMapString = map
         ? map.stringify(path.basename(prettyDistPath), '/')
         : '';
-      if (sourceMapString) {
+      if (!this.options.minify && sourceMapString) {
         await writeFile(
           distPath,
           code +
