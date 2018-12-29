@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-babel",
-  "version": "1.4.4-alpha.0",
+  "version": "1.4.4",
   "main": "lib/index.js",
   "typings": "typings/index.d.ts",
   "license": "MIT",
@@ -20,7 +20,7 @@
   "dependencies": {
     "babel-code-frame": "^6.26.0",
     "babel-core": "^6.26.3",
-    "babel-plugin-transform-miniprogram": "^0.3.2",
+    "babel-plugin-transform-miniprogram": "^0.4.1",
     "babel-preset-env": "^1.7.0",
     "babel-traverse": "^6.26.0",
     "babylon": "^6.18.0",
@@ -28,7 +28,7 @@
     "browserslist": "^4.0.1",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
-    "jgb-shared": "^1.4.4-alpha.0",
+    "jgb-shared": "^1.4.4",
     "node-libs-browser": "^2.1.0",
     "semver": "^5.5.0",
     "terser": "^3.8.1",

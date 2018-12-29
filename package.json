@@ -10,6 +10,7 @@
   },
   "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
+    "start": "yarn run bootstrap",
     "bootstrap": "lerna bootstrap",
     "build:all": "yarn run build",
     "build": "tsc -b packages/jgb-shared packages/jgb-cli packages/jgb-plugin-babel packages/jgb-plugin-css packages/jgb-plugin-html packages/jgb-plugin-json packages/jgb-plugin-less packages/jgb-plugin-typescript packages/jgb-preset-aliapp packages/jgb-preset-weapp",

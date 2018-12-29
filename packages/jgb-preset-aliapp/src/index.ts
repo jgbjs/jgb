@@ -162,7 +162,7 @@ async function collectPageJson({
 
         if (absolutePath.includes('node_modules')) {
           // npm
-          const result = await findPackage(Path.dirname(absolutePath));
+          const result = await findPackage(this, Path.dirname(absolutePath));
           if (!result) {
             continue;
           }
@@ -200,23 +200,18 @@ async function collectPageJson({
       dependences.add(dep);
     }
   }
+}
 
-  async function findPackage(dir: string) {
-    // Find the nearest package.json file within the current node_modules folder
-    const root = Path.parse(dir).root;
-    while (dir !== root && Path.basename(dir) !== 'node_modules') {
-      try {
-        const pkg = await ctx.resolver.findPackage(dir);
-        return {
-          dir,
-          pkg
-        };
-      } catch (err) {
-        // ignore
-      }
-
-      dir = Path.dirname(dir);
-    }
+async function findPackage(ctx: JsonAsset, dir: string) {
+  // Find the nearest package.json file within the current node_modules folder
+  try {
+    const pkg = await ctx.resolver.findPackage(dir);
+    return {
+      pkg,
+      dir: pkg.pkgdir
+    };
+  } catch (err) {
+    // ignore
   }
 }
 
