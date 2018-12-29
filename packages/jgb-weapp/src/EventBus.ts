@@ -1,6 +1,6 @@
 import { IEventBus, IEventFunction } from '../types/eventbus';
 
-const STORE = Symbol('stores');
+export const STORE = Symbol('stores');
 
 let uuid = 0;
 
@@ -42,22 +42,25 @@ class EventBus implements IEventBus {
     return identifyId;
   }
 
-  once(events: string | string[], fn: IEventFunction, ctx?: any) {
+  once(events: any, fn: IEventFunction, ctx?: any) {
+    const identifyIdArr: number[] = [];
     if (Array.isArray(events)) {
-      const identifyIdArr: number[] = [];
+      // tslint:disable-next-line:no-shadowed-variable
       for (const event of new Set(events)) {
         identifyIdArr.push(...this.once(event, fn, ctx));
       }
       return identifyIdArr;
     }
 
-    this.on(events);
+    const event = events;
 
-    this.indentifyIdOff(identifyIdArr);
-    this.on(event, () => {
-      this.off(event, fn);
+    const identifyId = this.on(event, fn);
+
+    const offId = this.on(event, () => {
+      this.indentifyIdOff([identifyId, offId]);
     });
-    return identifyIdArr;
+
+    return identifyId;
   }
 
   emit(event: string | string[], ...args: any[]) {
@@ -99,6 +102,15 @@ class EventBus implements IEventBus {
 
   private indentifyIdOff(events: number | number[]) {
     const values = this[STORE].values();
+    const ids = [].concat(events);
+    for (const value of values) {
+      value.forEach((v, i) => {
+        const id = v.identifyId;
+        if (ids.includes(id)) {
+          value.splice(i, 1);
+        }
+      });
+    }
   }
 
   off(event?: string | number | number[], fn?: IEventFunction) {
