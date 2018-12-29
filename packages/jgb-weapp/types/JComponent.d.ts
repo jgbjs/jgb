@@ -222,13 +222,13 @@ export interface IJComponent {
   createSelectorQuery: wx.Wx["createSelectorQuery"];
   /**
    * 使用选择器选择组件实例节点，
-   * 返回匹配到的第一个组件实例对象（会被 wx://JComponent-export 影响）
+   * 返回匹配到的第一个组件实例对象（会被 wx://component-export 影响）
    *
    * @param {string} selector
    * @returns {*}
    * @memberof IJComponent
    */
-  selectJComponent(selector: string): any;
+  selectComponent(selector: string): any;
   /**
    * 	使用选择器选择组件实例节点，
    *  返回匹配到的全部组件实例对象组成的数组
@@ -237,7 +237,7 @@ export interface IJComponent {
    * @returns {*}
    * @memberof IJComponent
    */
-  selectAllJComponents(selector: string): any;
+  selectAllComponents(selector: string): any;
   /**
    * 获取所有这个关系对应的所有关联节点
    *
