@@ -49,6 +49,7 @@ interface IJPageConstructor<P extends JPage = JPage> {
   ): void;
   mixin(obj: any): void;
   intercept(event: string, fn: IEventFunction): void;
+  intercept(fn: IEventFunction): void;
 }
 
 export var JPage: IJPageConstructor;

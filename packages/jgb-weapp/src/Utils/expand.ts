@@ -21,7 +21,10 @@ export default function expand(
   interceptEntry: string
 ) {
   let mixins: any[] = [];
+  /** 拦截单个方法  */
   const intercepts = new Map<string, IEventFunction[]>();
+  /** 拦截整个opts  */
+  const globalIntercepts = new Set<IEventFunction>();
 
   return (constructor: any) => {
     if (typeof constructor !== 'function') {
@@ -70,7 +73,7 @@ export default function expand(
       tempOpts = Object.getPrototypeOf(tempOpts);
     }
 
-    fn(opts);
+    fn(interceptOptions(opts));
   }
 
   // pref: 防止过多页面及mixins需要Mixin，先做一边Mixin
@@ -93,9 +96,25 @@ export default function expand(
     mixins.push(obj);
   }
 
-  function intercept(event: string, ifn: IEventFunction) {
-    const fns = intercepts.get(event) || [];
-    fns.push(ifn);
-    intercepts.set(event, fns);
+  function intercept(event: string | IEventFunction, ifn: IEventFunction) {
+    if (typeof event === 'string') {
+      const fns = intercepts.get(event) || [];
+      fns.push(ifn);
+      intercepts.set(event, fns);
+      return;
+    }
+
+    globalIntercepts.add(event);
+  }
+
+  function interceptOptions(opts: any) {
+    const fns = [...globalIntercepts];
+    if (fns.length === 0) {
+      return opts;
+    }
+    // tslint:disable-next-line:no-shadowed-variable
+    return fns.reduce((prevValue, fn) => {
+      return fn.call(this, prevValue);
+    }, opts);
   }
 }
