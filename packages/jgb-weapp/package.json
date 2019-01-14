@@ -1,6 +1,6 @@
 {
   "name": "jgb-weapp",
-  "version": "1.4.4",
+  "version": "1.4.5-alpha.1",
   "main": "lib/index.js",
   "license": "MIT",
   "typings": "types/index.d.ts",
@@ -13,13 +13,16 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
-    "prepublish": "yarn run clean && yarn run build"
+    "prepublish": "yarn run clean && yarn run build && yarn run test",
+    "test": "jest --env=node --colors --coverage test"
   },
   "devDependencies": {
+    "@types/jest": "^23.3.10",
     "@types/lodash": "^4.14.115",
     "@types/lodash-es": "^4.17.1",
     "@types/node": "^10.5.4",
     "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
     "typescript": "3.0.1"

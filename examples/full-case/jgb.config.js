@@ -1,7 +1,7 @@
 const Path = require('path')
 
 module.exports = {
-  // entryFiles: ['pages/index/index.json'],
+  // entryFiles: ['pages/index/index.js'],
   // entryFiles: ['assets/index.wxss'],
   entryFiles: ['app.ts', 'app.wxss', 'app.json'],
   // entryFiles: ['pages/weapp/weapp.ts'],
@@ -9,6 +9,7 @@ module.exports = {
   alias: {
     '@/components': './src/components',
     '@components': './components/',
+    'flyio': './node_modules/flyio/dist/npm/wx.js',
     // 'lodash': 'lodash-es',
     '@/utils': './src/utils',
     "@/src": './src',

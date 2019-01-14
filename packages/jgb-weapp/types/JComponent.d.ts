@@ -1,5 +1,5 @@
-import { DefaultData, DefaultMethods } from "./common";
-import { IEventBus, IEventFunction, INewEventBus } from "./eventbus";
+import { DefaultData, DefaultMethods } from './common';
+import { IEventBus, IEventFunction, INewEventBus } from './eventbus';
 type DefaultProps = Record<string, any>;
 
 type Prop<T> = (() => T) | { new (...args: any[]): T & object };
@@ -20,7 +20,7 @@ type ArrayPropsDefinition<T> = Array<keyof T>;
 
 type PropsDefinition<T> = ArrayPropsDefinition<T> | RecordPropsDefinition<T>;
 
- type CombinedJComponentInstance<
+type CombinedJComponentInstance<
   Instance extends JComponent,
   Data,
   Method,
@@ -28,7 +28,7 @@ type PropsDefinition<T> = ArrayPropsDefinition<T> | RecordPropsDefinition<T>;
 > = { data: Data } & Instance &
   Method & { properties: Props } & { data: Props };
 
- type ThisTypedJComponentOptionsWithArrayProps<
+type ThisTypedJComponentOptionsWithArrayProps<
   P extends JComponent,
   Data,
   Methods,
@@ -45,7 +45,7 @@ type PropsDefinition<T> = ArrayPropsDefinition<T> | RecordPropsDefinition<T>;
 /**
  * JComponent 实现的接口对象
  */
- interface JComponentOptions<
+interface JComponentOptions<
   P extends JComponent = JComponent,
   Data = DefaultData<P>,
   Methods = DefaultMethods<P>,
@@ -123,7 +123,7 @@ type PropsDefinition<T> = ArrayPropsDefinition<T> | RecordPropsDefinition<T>;
   relations?: {
     [key: string]: {
       /** 目标组件的相对关系  */
-      type: "parent" | "child" | "ancestor" | "descendant";
+      type: 'parent' | 'child' | 'ancestor' | 'descendant';
       /** 关系生命周期函数，当关系被建立在页面节点树中时触发，触发时机在组件attached生命周期之后 */
       linked?: (target: any) => void;
       /** 关系生命周期函数，当关系在页面节点树中发生改变时触发，触发时机在组件moved生命周期之后  */
@@ -173,13 +173,14 @@ type PropsDefinition<T> = ArrayPropsDefinition<T> | RecordPropsDefinition<T>;
 /**
  * JComponent的构造方法
  */
- type IJComponentConstructor<P extends JComponent = JComponent> = <
-  Data = Record<string, any>,
-  Methods = object,
-  Props = object
->(
-  opts: ThisTypedJComponentOptionsWithArrayProps<P, Data, Methods, Props>
-) => void;
+interface IJComponentConstructor<P extends JComponent = JComponent> {
+  <Data = Record<string, any>, Methods = object, Props = object>(
+    opts: ThisTypedJComponentOptionsWithArrayProps<P, Data, Methods, Props>
+  ): any;
+  mixin(obj: any): void;
+  intercept(event: string, fn: IEventFunction): void;
+  intercept(fn: IEventFunction): void;
+}
 
 export interface IJComponent {
   /**
@@ -219,16 +220,16 @@ export interface IJComponent {
    * @returns {wx.SelectQuery}
    * @memberof IJComponent
    */
-  createSelectorQuery: wx.Wx["createSelectorQuery"];
+  createSelectorQuery: wx.Wx['createSelectorQuery'];
   /**
    * 使用选择器选择组件实例节点，
-   * 返回匹配到的第一个组件实例对象（会被 wx://JComponent-export 影响）
+   * 返回匹配到的第一个组件实例对象（会被 wx://component-export 影响）
    *
    * @param {string} selector
    * @returns {*}
    * @memberof IJComponent
    */
-  selectJComponent(selector: string): any;
+  selectComponent(selector: string): any;
   /**
    * 	使用选择器选择组件实例节点，
    *  返回匹配到的全部组件实例对象组成的数组
@@ -237,7 +238,7 @@ export interface IJComponent {
    * @returns {*}
    * @memberof IJComponent
    */
-  selectAllJComponents(selector: string): any;
+  selectAllComponents(selector: string): any;
   /**
    * 获取所有这个关系对应的所有关联节点
    *
@@ -248,6 +249,6 @@ export interface IJComponent {
   getRelationNodes(relationKey: string): any;
 }
 
- interface JComponent extends IJComponent {}
+interface JComponent extends IJComponent {}
 
 export let JComponent: IJComponentConstructor;
