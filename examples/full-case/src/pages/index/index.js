@@ -1,4 +1,5 @@
 import testUtil from '@/utils/index';
+import fly from 'flyio';
 
 Page({
   data: {
@@ -6,5 +7,9 @@ Page({
   },
   onLoad() {
     testUtil(1);
+    
+  },
+  request() {
+    fly.request('https://baidu.com/')
   }
 });

@@ -11,6 +11,7 @@
     "debug": "jgb-debug"
   },
   "dependencies": {
+    "flyio": "^0.6.9",
     "jgb-cli": "^1.4.5-alpha.0",
     "jgb-plugin-babel": "^1.4.5-alpha.0",
     "jgb-plugin-css": "^1.4.5-alpha.0",

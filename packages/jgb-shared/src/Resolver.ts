@@ -324,12 +324,15 @@ export default class Resolver {
   /**
    * resolve alias get relativepath
    * @param fileName
-   * @param dir 如果有dir则返回相对路径，否则返回绝对路径
+   * @param dir
    * @example
    *  @/utils/index => ../utils/index
    */
   loadResolveAlias(fileName: string, dir?: string) {
     fileName = pathToUnixType(fileName);
+    if (path.isAbsolute(fileName)) {
+      return fileName;
+    }
     for (const key of this.alias.keys()) {
       if (fileName.includes(key)) {
         const target = this.alias.get(key);
