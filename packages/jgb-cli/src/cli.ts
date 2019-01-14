@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
-import { builder, clean, init } from './command';
+import { builder, clean, create, init } from './command';
 
 program.version((pkg as any).version, '-v, --version');
 
@@ -17,7 +17,7 @@ program
   .option(
     '-t, --target <target>',
     'set the build type, either "wx", "aliapp" or "swan". defaults to "wx"',
-    /^(wx|aliapp|swan)$/
+    /^(wx|aliapp|swan|my)$/
   )
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')
@@ -70,6 +70,19 @@ program
     );
     console.log('  $ jgb init username/repo my-project');
     console.log();
+  });
+
+program
+  .command('create <template-name> [folder-name]')
+  .description('create new page or component from jgb_templates')
+  .action(create)
+  .usage('<template-name> [folder-name]')
+  .option('--template', 'create template files')
+  .on('--help', () => {
+    console.log(' Example:');
+    console.log();
+    console.log(chalk.gray('   # create template files'));
+    console.log(` $ jgb create custom-page --template`);
   });
 
 program.parse(process.argv);
