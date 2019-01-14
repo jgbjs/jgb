@@ -84,6 +84,8 @@ interface IAliAppJson {
   tabBar?: IAliAppTabBar;
 }
 
+const EXT_REGEX = /\.(\w)+$/;
+
 export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
   if (pluginConfig && pluginConfig.coreOptions) {
     const entryFiles = []
@@ -153,7 +155,7 @@ async function collectPageJson({
         absolutePath
       } = await ctx.resolveAliasName(value);
       if (distPath && relativeRequirePath) {
-        const relativeRequire = relativeRequirePath.replace(/\.(\w)+/, '');
+        const relativeRequire = relativeRequirePath.replace(EXT_REGEX, '');
         pageJson.usingComponents[key] = relativeRequire;
         if (realName) {
           // alias
@@ -181,7 +183,7 @@ async function collectPageJson({
             }
           } else {
             // only resolve
-            components.push(absolutePath.replace(/\.(\w)+/, ''));
+            components.push(absolutePath.replace(EXT_REGEX, ''));
           }
         }
         continue;
