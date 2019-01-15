@@ -1,4 +1,5 @@
 node_modules
+converage
 lib
 dist
 lerna-*

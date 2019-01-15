@@ -15,25 +15,29 @@ interface IAppTabBar {
   color: string;
   selectedColor: string;
   backgroundColor: string;
-  borderStyle: string;
+  borderStyle?: string;
   list: IAppJsonTabarListConfg[];
-  position: string;
+  position?: string;
+  custom?: boolean;
 }
 
 interface IAppJson {
   pages: string[];
-  window: IAppWindowJson;
-  tabBar: IAppTabBar;
-  subPackages: Array<{
+  window?: IAppWindowJson;
+  tabBar?: IAppTabBar;
+  subPackages?: Array<{
     root: string;
     pages: string[];
   }>;
 }
 
 interface IAppWindowJson {
+  navigationBarBackgroundColor?: string;
+  navigationBarTextStyle?: string;
   navigationBarTitleText?: string;
   enablePullDownRefresh?: boolean;
-  titleBarColor?: string;
+  backgroundColor?: string;
+  onReachBottomDistance?: number;
 }
 
 interface IPageJson extends IAppWindowJson {
@@ -46,8 +50,8 @@ interface IPageJson extends IAppWindowJson {
 interface IAppJsonTabarListConfg {
   pagePath: string;
   text: string;
-  iconPath: string;
-  selectedIconPath: string;
+  iconPath?: string;
+  selectedIconPath?: string;
 }
 
 interface IAliAppTabBar {
@@ -58,6 +62,7 @@ interface IAliAppTabBar {
 }
 
 interface IAliAppJsonTabarItemConfig {
+  [key: string]: string;
   pagePath?: string;
   name?: string;
   icon?: string;
@@ -270,13 +275,34 @@ type WeappTabBarItemName = keyof IAppJsonTabarListConfg;
 
 type WeappPageJsonName = keyof IPageJson;
 
-const windowNameMapping: { [key in WeappPageJsonName]: string } = {
+const windowNameMapping: { [key in WeappPageJsonName]?: string } = {
   navigationBarTitleText: 'defaultTitle',
   enablePullDownRefresh: 'pullRefresh',
-  titleBarColor: 'titleBarColor',
+  navigationBarBackgroundColor: 'titleBarColor',
   component: 'component',
   usingComponents: 'usingComponents'
 };
+
+/** aliapp中page.json生效的关键字 */
+
+const PageEnableKey = [
+  'defaultTitle',
+  'pullRefresh',
+  'allowsBounceVertical',
+  'titleBarColor',
+  'component',
+  'usingComponents'
+];
+
+/** aliapp中 app.json中 tabBar生效的关键字 */
+const TabBarEnableKey = [
+  'textColor',
+  'selectedColor',
+  'backgroundColor',
+  'items'
+];
+
+const TabBarItemEnableKey = ['pagePath', 'name', 'icon', 'activeIcon'];
 
 const tabBarNameMapping: { [key in WeappTabBarName]?: string } = {
   color: 'textColor',
@@ -285,7 +311,7 @@ const tabBarNameMapping: { [key in WeappTabBarName]?: string } = {
   list: 'items'
 };
 
-const tabBarItemNameMapping: { [key in WeappTabBarItemName]: string } = {
+const tabBarItemNameMapping: { [key in WeappTabBarItemName]?: string } = {
   pagePath: 'pagePath',
   text: 'name',
   iconPath: 'icon',
@@ -297,10 +323,18 @@ function needTransformJson(ctx: JsonAsset) {
   return ctx.options.target !== ctx.options.source;
 }
 
-// 微信page.json转支付宝微信page.json
-function formatAsAliappPageJson(json: IAppJson['window']) {
-  const windowJson = {} as IAliAppJson['window'];
+/**
+ * 微信page.json转支付宝微信page.json
+ * @param json
+ */
+export function formatAsAliappPageJson(json: any): IAliappWindowJson {
+  const windowJson = {} as any;
   Object.keys(json).forEach((key: WeappWindowName) => {
+    // 当遇到支付宝小程序中page.json关键字时直接赋值
+    if (PageEnableKey.includes(key as keyof IAliappPageJson)) {
+      windowJson[key] = json[key];
+      return;
+    }
     const value = windowNameMapping[key] as keyof IAliAppJson['window'];
     if (value) {
       windowJson[value] = json[key];
@@ -309,8 +343,11 @@ function formatAsAliappPageJson(json: IAppJson['window']) {
   return windowJson;
 }
 
-// 微信app.json转支付宝app.json
-function formatAsAliappJson(json: IAppJson) {
+/**
+ * 微信app.json转支付宝app.json
+ * @param json
+ */
+export function formatAsAliappJson(json: any) {
   const aliappJson: IAliAppJson = {};
 
   aliappJson.pages = json.pages;
@@ -318,8 +355,8 @@ function formatAsAliappJson(json: IAppJson) {
   aliappJson.tabBar = {} as any;
   if (json.subPackages && json.subPackages.length) {
     const allSubPages: string[] = [];
-    json.subPackages.forEach(sub => {
-      const pages = sub.pages.map(page => Path.join(sub.root, page));
+    json.subPackages.forEach((sub: any) => {
+      const pages = sub.pages.map((page: string) => Path.join(sub.root, page));
       allSubPages.push(...pages);
     });
     aliappJson.pages.push(...allSubPages);
@@ -331,25 +368,40 @@ function formatAsAliappJson(json: IAppJson) {
   }
 
   if (json.tabBar) {
-    const tabBar = json.tabBar;
-    Object.keys(tabBar).forEach((key: WeappTabBarName) => {
-      const value = tabBarNameMapping[key] as keyof IAliAppTabBar;
-      if (value) {
-        if (key === 'list') {
-          aliappJson.tabBar[value] = formatAsAliappTabBarItemsJson(tabBar[key]);
-          return;
-        }
-        aliappJson.tabBar[value] = tabBar[key];
-      }
-    });
+    const tabBar = formatAsAliappTabBarJson(json.tabBar);
+    aliappJson.tabBar = tabBar;
   }
   return aliappJson;
 }
 
-function formatAsAliappTabBarItemsJson(json: IAppJsonTabarListConfg[]) {
+export function formatAsAliappTabBarJson(tabBar: any): IAliAppTabBar {
+  const returnValue = {} as any;
+  Object.keys(tabBar).forEach((key: WeappTabBarName) => {
+    if (TabBarEnableKey.includes(key)) {
+      returnValue[key] = tabBar[key];
+      return;
+    }
+    const value = tabBarNameMapping[key] as keyof IAliAppTabBar;
+    if (value) {
+      if (key === 'list') {
+        returnValue[value] = formatAsAliappTabBarItemsJson(tabBar[key]);
+        return;
+      }
+      returnValue[value] = tabBar[key];
+    }
+  });
+
+  return returnValue;
+}
+
+export function formatAsAliappTabBarItemsJson(json: any[]) {
   return json.map(item => {
     const innerItem: IAliAppJsonTabarItemConfig = {};
     Object.keys(item).forEach((itemKey: WeappTabBarItemName) => {
+      if (TabBarItemEnableKey.includes(itemKey)) {
+        innerItem[itemKey] = item[itemKey] as any;
+        return;
+      }
       const replacedItemKey = tabBarItemNameMapping[
         itemKey
       ] as keyof IAliAppJsonTabarItemConfig;

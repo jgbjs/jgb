@@ -7,10 +7,6 @@
     "declaration": false,
     "sourceMap": false,
     "inlineSourceMap": false,
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@tuhu"
-    ],
     "paths": {
       "lodash/*": [
         "node_modules/@types/lodash-es/*"
