@@ -20,7 +20,7 @@
   "dependencies": {
     "babel-code-frame": "^6.26.0",
     "babel-core": "^6.26.3",
-    "babel-plugin-transform-miniprogram": "^0.4.1",
+    "babel-plugin-transform-miniprogram": "^0.5.1",
     "babel-preset-env": "^1.7.0",
     "babel-traverse": "^6.26.0",
     "babylon": "^6.18.0",
