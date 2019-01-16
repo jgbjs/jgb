@@ -18,6 +18,11 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@tuhu/miniprogram-api-typings@2.4.2-2":
+  version "2.4.2-2"
+  resolved "https://registry.npmjs.org/@tuhu/miniprogram-api-typings/-/miniprogram-api-typings-2.4.2-2.tgz#cbd8920789569268161ed9511ffb7ef7cadc32dd"
+  integrity sha512-hyR8WRtqKZiQ22rrk/jmhh9c3Mav5Lj8PxGp/EPvr4YAFmMGk+lNHJzuZOJUgVDr8CupyY88wAaUeR3PUzfkyQ==
+
 "@types/jest@^23.3.10":
   version "23.3.10"
   resolved "http://registry.npm.taobao.org/@types/jest/download/@types/jest-23.3.10.tgz#4897974cc317bf99d4fe6af1efa15957fa9c94de"
@@ -2347,11 +2352,6 @@ minipass@^2.2.1, minipass@^2.3.4:
   dependencies:
     safe-buffer "^5.1.2"
     yallist "^3.0.0"
-
-miniprogram-api-typings@2.4.2-1:
-  version "2.4.2-1"
-  resolved "http://registry.npm.taobao.org/miniprogram-api-typings/download/miniprogram-api-typings-2.4.2-1.tgz#473189225daa47d586506e53728d0d10ba872d4f"
-  integrity sha1-RzGJIl2qR9WGUG5Tco0NELqHLU8=
 
 minizlib@^1.1.1:
   version "1.2.1"

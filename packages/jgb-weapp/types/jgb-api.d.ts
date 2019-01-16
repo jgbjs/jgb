@@ -1,6 +1,6 @@
-/// <reference types="miniprogram-api-typings" />
+/// <reference types="@tuhu/miniprogram-api-typings" />
 
-import { INoPromiseApis, IOnAndSyncApis, IOtherApis } from "./native-apis";
+import { INoPromiseApis, IOnAndSyncApis, IOtherApis } from './native-apis';
 
 type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any
   ? A
@@ -43,7 +43,7 @@ type TypeSyncApi<
   T extends TypeOfWx = TypeOfWx
 > = { [P in K]: T[P] };
 
-type TypeRequestLikeKey = "request" | "downloadFile" | "uploadFile";
+type TypeRequestLikeKey = 'request' | 'downloadFile' | 'uploadFile';
 
 type PromiseFunc<P extends string, T extends (args: any) => any> = (
   args?: ArgumentType<T>
@@ -62,7 +62,7 @@ export interface IJGBIntercept {
   intercept(event: keyOfWx, status: IInterceptStatus, fn: IInterceptFn): void;
 }
 
-export type IInterceptStatus = "fail" | "success" | "complete" | "begin";
+export type IInterceptStatus = 'fail' | 'success' | 'complete' | 'begin';
 
 export type IInterceptFn = (
   /** 返回值  */

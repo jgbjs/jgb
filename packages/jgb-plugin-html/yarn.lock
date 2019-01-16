@@ -3411,10 +3411,10 @@ posthtml-render@^1.1.0, posthtml-render@^1.1.4:
   resolved "http://registry.npm.taobao.org/posthtml-render/download/posthtml-render-1.1.4.tgz#95dac09892f4f183fad5ac823f08f42c0256551e"
   integrity sha1-ldrAmJL08YP61ayCPwj0LAJWVR4=
 
-posthtml-transform-miniprogram@^0.3.1:
-  version "0.3.1"
-  resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.3.1.tgz#2b267a67126215794725174ad72b8b12c16182d1"
-  integrity sha1-KyZ6ZxJiFXlHJRdK1yuLEsFhgtE=
+posthtml-transform-miniprogram@^0.4.2:
+  version "0.4.2"
+  resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.4.2.tgz#a52f4b444dd2d371fb4cfac8f7dde7ea8827455a"
+  integrity sha1-pS9LRE3S03H7TPrI993n6ognRVo=
   dependencies:
     lodash "^4.17.11"
 
