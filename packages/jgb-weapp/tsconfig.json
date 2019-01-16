@@ -3,24 +3,21 @@
   "compilerOptions": {
     "outDir": "./lib/",
     "baseUrl": "src",
-    "allowSyntheticDefaultImports": true,
+    // "strict": true,
+    // "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "declaration": false,
     "sourceMap": false,
     "inlineSourceMap": false,
     "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@tuhu"
+      "./node_modules/@types",
+      "./node_modules/@tuhu",
+      "./types"
     ],
-    "paths": {
-      "lodash/*": [
-        "node_modules/@types/lodash-es/*"
-      ],
-    }
   },
   "exclude": [
     "node_modules",
     "dist",
-    "lib",
-    "test"
+    "lib"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "jgb-weapp",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "main": "lib/index.js",
   "license": "MIT",
   "typings": "types/index.d.ts",
@@ -21,6 +21,7 @@
     "@types/lodash": "^4.14.115",
     "@types/lodash-es": "^4.17.1",
     "@types/node": "^10.5.4",
+    "jest": "^23.6.0",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
@@ -28,8 +29,8 @@
     "typescript": "3.0.1"
   },
   "dependencies": {
+    "@tuhu/miniprogram-api-typings": "2.4.2-2",
     "lodash": "^4.17.10",
-    "miniprogram-api-typings": "2.4.2-1",
     "tslib": "^1.9.3"
   },
   "gitHead": "5f20f17043cc0131daab77646f8431ea87431fc5"

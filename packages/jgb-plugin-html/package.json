@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-html",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -18,16 +18,19 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "htmlnano": "^0.1.10",
-    "jgb-shared": "^1.4.5",
+    "jgb-shared": "^1.4.6",
     "posthtml": "^0.11.3",
     "posthtml-parser": "^0.4.1",
     "posthtml-render": "^1.1.4",
-    "posthtml-transform-miniprogram": "^0.3.1",
+    "posthtml-transform-miniprogram": "^0.4.2",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
+    "@types/jest": "^23.3.12",
     "@types/node": "^10.5.4",
+    "jest": "^23.6.0",
     "rimraf": "^2.6.2",
+    "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
     "typescript": "3.0.1"

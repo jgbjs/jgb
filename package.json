@@ -19,6 +19,7 @@
     "publish:all": "lerna publish --registry https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@types/jest": "^23.3.12",
     "@types/node": "^10.11.7",
     "lerna": "^3.4.3",
     "typescript": "^3.1.3"

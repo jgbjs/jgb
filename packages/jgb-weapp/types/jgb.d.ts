@@ -1,4 +1,4 @@
-/// <reference types="miniprogram-api-typings" />
+/// <reference types="@tuhu/miniprogram-api-typings" />
 
 import { IEventBus, IEventFunction, INewEventBus } from "./eventbus";
 import { JApp } from "./JApp";

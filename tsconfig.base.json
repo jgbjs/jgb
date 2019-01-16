@@ -8,9 +8,6 @@
     "importHelpers": true,
     "downlevelIteration": true,
     "moduleResolution": "node",
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
     "declaration": true,
     "lib": [
       "es7",

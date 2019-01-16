@@ -4,10 +4,12 @@
     "outDir": "./lib/",
     "declarationDir": "lib",
     "baseUrl": "src",
+    "typeRoots": ["node_modules/@types"]
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "lib"
-  ]
+  "include": ["src"],
+  "typeAcquisition": {
+    "include": [
+      "jest"
+    ]
+  }
 }
