@@ -1,6 +1,6 @@
 {
   "name": "jgb-cli",
-  "version": "1.4.5-alpha.0",
+  "version": "1.4.6",
   "main": "index.js",
   "license": "MIT",
   "repository": {
@@ -27,7 +27,7 @@
     "fswatcher-child": "^1.0.5",
     "inquirer": "^6.2.0",
     "is-glob": "^4.0.0",
-    "jgb-shared": "^1.4.5-alpha.0",
+    "jgb-shared": "^1.4.6",
     "mkdirp": "^0.5.1",
     "os-utils": "^0.0.14",
     "physical-cpu-count": "^2.0.0",
@@ -47,12 +47,15 @@
     "@types/debug": "^0.0.30",
     "@types/fs-extra": "^5.0.4",
     "@types/inquirer": "^0.0.43",
+    "@types/jest": "^23.3.12",
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^10.5.4",
     "@types/request": "^2.47.1",
     "@types/resolve": "^0.0.8",
     "@types/semver": "^5.5.0",
     "@types/verror": "^1.10.3",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
     "typescript": "3.0.1"

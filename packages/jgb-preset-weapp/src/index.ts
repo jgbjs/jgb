@@ -45,6 +45,8 @@ interface IPageJson {
   };
 }
 
+const EXT_REGEX = /\.(\w)+$/;
+
 export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
   if (pluginConfig && pluginConfig.coreOptions) {
     const entryFiles = []
@@ -180,11 +182,11 @@ async function usingNpmComponents(
   } = await this.resolveAliasName(value);
 
   if (distPath && relativeRequirePath) {
-    const relativeRequire = relativeRequirePath.replace(/\.(\w)+/, '');
+    const relativeRequire = relativeRequirePath.replace(EXT_REGEX, '');
     pageJson.usingComponents[key] = relativeRequire;
     if (realName) {
       // alias
-      const componentPath = pathToUnixType(absolutePath.replace(/\.(\w)+/, ''));
+      const componentPath = pathToUnixType(absolutePath.replace(EXT_REGEX, ''));
       components.push(componentPath);
     }
 
@@ -210,7 +212,7 @@ async function usingNpmComponents(
         }
       } else {
         // only resolve
-        components.push(absolutePath.replace(/\.(\w)+/, ''));
+        components.push(absolutePath.replace(EXT_REGEX, ''));
         return true;
       }
     }

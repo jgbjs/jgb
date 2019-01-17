@@ -220,7 +220,7 @@ export interface IJComponent {
    * @returns {wx.SelectQuery}
    * @memberof IJComponent
    */
-  createSelectorQuery: wx.Wx['createSelectorQuery'];
+  createSelectorQuery: wxNS.Wx['createSelectorQuery'];
   /**
    * 使用选择器选择组件实例节点，
    * 返回匹配到的第一个组件实例对象（会被 wx://component-export 影响）
