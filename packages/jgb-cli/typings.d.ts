@@ -11,12 +11,19 @@ declare module 'fswatcher-child' {
   export = FSWatcher;
 }
 
+declare module 'js-beautify' {
+  function beautify(code: string, opts?: any): string;
+  export = beautify;
+  namespace beautify {
+    export const css: typeof beautify;
+    export const html: typeof beautify;
+  }
+}
+
 declare module 'is-glob' {
   function isGlob(name: string): boolean;
   export = isGlob;
-  namespace isGlob {
-
-  }
+  namespace isGlob {}
 }
 
 declare module 'user-home' {
@@ -32,17 +39,13 @@ declare module 'download-git-repo' {
     cb: (err: any) => void
   ): void;
   export = downloadRepo;
-  namespace downloadRepo {
-
-  }
+  namespace downloadRepo {}
 }
 
 declare module 'tildify' {
   function tildify(res: string): string;
   export = tildify;
-  namespace tildify {
-
-  }
+  namespace tildify {}
 }
 
 declare module 'read-metadata' {
@@ -57,9 +60,7 @@ declare module 'validate-npm-package-name' {
 declare module 'rimraf' {
   function rimraf(f: string, options?: any, cb?: any): any;
   export = rimraf;
-  namespace rimraf {
-
-  }
+  namespace rimraf {}
 }
 
 interface IPipelineProcessed {

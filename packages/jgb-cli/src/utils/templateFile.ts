@@ -1,7 +1,9 @@
+import chalk from 'chalk';
 import * as crypto from 'crypto';
 import * as downloadRepo from 'download-git-repo';
 import * as fs from 'fs';
 import { logger } from 'jgb-shared/lib/Logger';
+
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as home from 'user-home';
@@ -11,7 +13,7 @@ export async function downloadAndGenerate(
   tmp: string,
   clone: boolean = false
 ) {
-  logger.info('downloading template ...');
+  console.log(chalk.gray('downloading template ...'));
 
   if (fs.existsSync(tmp)) {
     await new Promise(resolve => {
@@ -20,7 +22,7 @@ export async function downloadAndGenerate(
   }
 
   return new Promise(resolve => {
-    logger.info(`template: ${template}`);
+    console.log(chalk.gray(`template: ${template}`));
     downloadRepo(template, tmp, { clone }, async err => {
       if (err) {
         logger.error(
@@ -38,7 +40,15 @@ export async function downloadAndGenerate(
  * @param template
  */
 export function generateMD5TemplatePath(template: string) {
-  return path.join(home, '.jgb_templates', md5(template));
+  return generateTemplatePath(md5(template));
+}
+
+/**
+ * 生成临时文件路径
+ * @param template
+ */
+export function generateTemplatePath(template: string) {
+  return path.join(home, '.jgb_templates', template);
 }
 
 export function isLocalPath(templatePath: string) {

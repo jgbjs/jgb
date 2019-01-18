@@ -77,12 +77,25 @@ program
   .description('create new page or component from jgb_templates')
   .action(create)
   .usage('<template-name> [folder-name]')
-  .option('--template', 'create template files')
+  .option('-t,--template', 'create template files')
+  .option('-c,--component', 'use component folder. default use page folder')
   .on('--help', () => {
     console.log(' Example:');
     console.log();
-    console.log(chalk.gray('   # create template files'));
-    console.log(` $ jgb create custom-page --template`);
+    console.log(chalk.gray('   # downlown/create template files for use'));
+    console.log(` $ jgb create template-name --template`);
+    console.log();
+    console.log(
+      chalk.gray(
+        '  # folder-name is relative to config.sourceDir. default is "src"'
+      )
+    );
+    console.log(chalk.gray('  # use template files to create page files'));
+    console.log(` $ jgb create template-name pages/home`);
+    console.log(chalk.gray('  # or create component files'));
+    console.log(
+      ` $ jgb create template-name components/test-component --component`
+    );
   });
 
 program.parse(process.argv);

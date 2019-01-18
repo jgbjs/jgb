@@ -28,6 +28,7 @@
     "inquirer": "^6.2.0",
     "is-glob": "^4.0.0",
     "jgb-shared": "^1.4.6",
+    "js-beautify": "^1.8.9",
     "mkdirp": "^0.5.1",
     "os-utils": "^0.0.14",
     "physical-cpu-count": "^2.0.0",
