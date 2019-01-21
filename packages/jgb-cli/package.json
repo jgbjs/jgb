@@ -1,6 +1,6 @@
 {
   "name": "jgb-cli",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "main": "index.js",
   "license": "MIT",
   "repository": {

@@ -1,7 +1,7 @@
 {
   "name": "full-case",
   "private": true,
-  "version": "1.4.8",
+  "version": "1.4.9",
   "main": "index.js",
   "license": "MIT",
   "bin": {
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "flyio": "^0.6.9",
-    "jgb-cli": "^1.4.8",
+    "jgb-cli": "^1.4.9",
     "jgb-plugin-babel": "^1.4.8",
     "jgb-plugin-css": "^1.4.8",
     "jgb-plugin-json": "^1.4.8",
