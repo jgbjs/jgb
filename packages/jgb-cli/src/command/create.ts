@@ -2,10 +2,10 @@ import chalk from 'chalk';
 import * as glob from 'fast-glob';
 import * as fs from 'fs-extra';
 import * as inquirer from 'inquirer';
-import { Config, IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import beautify = require('js-beautify');
 import * as path from 'path';
+import { getJGBConfig } from '../config';
 
 import { pathToUnixType } from 'jgb-shared/lib/utils';
 import {
@@ -19,9 +19,7 @@ export default async function create(
   folderName: string,
   program: any = {}
 ) {
-  const config = (await Config.load(process.cwd(), [
-    'jgb.config.js'
-  ])) as IInitOptions;
+  const config = await getJGBConfig(program.config);
 
   if (!config) {
     logger.warning(`cannot found jgb config file.`);

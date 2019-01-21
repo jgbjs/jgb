@@ -81,6 +81,7 @@ program
   .usage('<template-name> [folder-name]')
   .option('-t,--template', 'create template files')
   .option('-c,--component', 'use component folder. default use page folder')
+  .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .on('--help', () => {
     console.log(' Example:');
     console.log();
