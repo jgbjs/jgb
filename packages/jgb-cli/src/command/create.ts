@@ -21,9 +21,13 @@ export default async function create(
 ) {
   const config = await getJGBConfig(program.config);
 
-  if (!config) {
-    logger.warning(`cannot found jgb config file.`);
+  if (program.list) {
+    await showAllTemplate();
     return;
+  }
+
+  if (!templateName) {
+    return logger.warning(`please enter [template-name]`);
   }
 
   // 是否创建模板
@@ -31,6 +35,11 @@ export default async function create(
   // 创建模板
   if (isCreateTemplate) {
     await generateTemplate(templateName);
+    return;
+  }
+
+  if (!config) {
+    logger.warning(`cannot found jgb config file.`);
     return;
   }
 
@@ -71,16 +80,60 @@ export default async function create(
 export async function generateTemplate(templateName: string) {
   // mode: inline or online
   const mode = await getTemplateMode();
+  let promise: ReturnType<typeof createOnlineTemplate>;
+
   switch (mode) {
     case 'online':
-      await createOnlineTemplate(templateName);
+      promise = createOnlineTemplate(templateName);
       break;
 
     case 'inline':
     default:
-      await createInlineTemplate(templateName);
+      promise = createInlineTemplate(templateName);
       break;
   }
+
+  const result = await promise;
+
+  await addTemplateToAllTemplatess(result);
+}
+
+export async function addTemplateToAllTemplatess(result: {
+  templateName: string;
+  templatePath: string;
+}) {
+  const templateJsonPath = generateTemplatePath('.templates.json');
+  const templateJson: any = await getAllTemplates();
+  templateJson[result.templateName] = result.templatePath;
+
+  await fs.writeFile(templateJsonPath, JSON.stringify(templateJson));
+}
+
+export async function getAllTemplates() {
+  const templateJsonPath = generateTemplatePath('.templates.json');
+  let templateJsonStr = '{}';
+  let templateJson: any = {};
+  try {
+    templateJsonStr = await fs.readFile(templateJsonPath, 'utf-8');
+    templateJson = JSON.parse(templateJsonStr);
+  } catch (error) {
+    console.log(error);
+  }
+
+  return templateJson;
+}
+
+export async function showAllTemplate() {
+  const templateJson: any = await getAllTemplates();
+  const keys = Object.keys(templateJson);
+  if (!keys.length) {
+    console.log('no list');
+  }
+
+  keys.forEach(key => {
+    console.log(`${chalk.yellowBright(key)}`);
+    console.log(`    ${chalk.gray(templateJson[key])}`);
+  });
 }
 
 /**
@@ -114,6 +167,11 @@ export async function createOnlineTemplate(templateName: string) {
   console.log(chalk.gray(`download repository ${templateRepo} success`));
   console.log('you can use command:');
   console.log(chalk.yellow(`  jgb create ${templateName} folder-name`));
+
+  return {
+    templateName,
+    templatePath: tmp
+  };
 }
 
 export async function createInlineTemplate(templateName: string) {
@@ -143,6 +201,11 @@ export async function createInlineTemplate(templateName: string) {
     return fs.writeFile(fpath, code);
   });
   await Promise.all(tasks);
+
+  return {
+    templateName,
+    templatePath: tmp
+  };
 }
 
 export async function createInlineFile(files: string[]) {

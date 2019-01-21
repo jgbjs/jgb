@@ -75,17 +75,21 @@ program
   });
 
 program
-  .command('create <template-name> [folder-name]')
+  .command('create [template-name] [folder-name]')
   .description('create new page or component from jgb_templates')
   .action(create)
-  .usage('<template-name> [folder-name]')
+  .usage('[template-name] [folder-name]')
+  .option('--list', 'show all template files')
   .option('-t,--template', 'create template files')
   .option('-c,--component', 'use component folder. default use page folder')
   .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .on('--help', () => {
     console.log(' Example:');
     console.log();
-    console.log(chalk.gray('   # downlown/create template files for use'));
+    console.log(chalk.gray('   # show all templates'));
+    console.log(` $ jgb create --list`);
+    console.log();
+    console.log(chalk.gray('  # downlown/create template files for use'));
     console.log(` $ jgb create template-name --template`);
     console.log();
     console.log(
