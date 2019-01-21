@@ -1,15 +1,17 @@
 import chalk from 'chalk';
-import * as crypto from 'crypto';
-import * as downloadRepo from 'download-git-repo';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
 import { logger } from 'jgb-shared/lib/Logger';
 import * as path from 'path';
-import * as rimraf from 'rimraf';
 import * as tildify from 'tildify';
-import * as home from 'user-home';
 import checkVersion from '../utils/checkVersion';
 import generate from '../utils/generate';
+import {
+  downloadAndGenerate,
+  generateMD5TemplatePath,
+  getTemplatePath,
+  isLocalPath
+} from '../utils/templateFile';
 
 export default async function init(
   template: string,
@@ -21,7 +23,7 @@ export default async function init(
   const to = path.resolve(rawName || '.');
   const clone = program.clone || false;
   const offline = program.offline || false;
-  const tmp = path.join(home, '.jgb_templates', md5(template));
+  const tmp = generateMD5TemplatePath(template);
   /**
    * use offline cache
    */
@@ -61,32 +63,9 @@ export default async function init(
       }
     } else {
       await checkVersion();
-      await downloadAndGenerate();
+      await downloadAndGenerate(template, tmp, clone);
+      await gen(tmp);
     }
-  }
-
-  async function downloadAndGenerate() {
-    logger.info('downloading template ...');
-
-    if (fs.existsSync(tmp)) {
-      await new Promise(resolve => {
-        rimraf(tmp, resolve);
-      });
-    }
-
-    return new Promise(resolve => {
-      logger.info(`template: ${template}`);
-      downloadRepo(template, tmp, { clone }, async err => {
-        if (err) {
-          logger.error(
-            'Failed to download repo ' + template + ': ' + err.message.trim()
-          );
-          return resolve();
-        }
-        await gen(tmp);
-        resolve();
-      });
-    });
   }
 
   async function gen(templatePath: string) {
@@ -98,23 +77,4 @@ export default async function init(
       logger.info(`Generated "${name}".`);
     });
   }
-}
-
-function isLocalPath(templatePath: string) {
-  // templatePath example:
-  // .jgb_templates
-  // E:\workspace\jgb_templates\standard
-  return /^[./]|(^[a-zA-Z]:)/.test(templatePath);
-}
-
-function getTemplatePath(templatePath: string) {
-  return path.isAbsolute(templatePath)
-    ? templatePath
-    : path.normalize(path.join(process.cwd(), templatePath));
-}
-
-function md5(str: string) {
-  const hash = crypto.createHash('md5');
-  hash.update(str);
-  return hash.digest('hex');
 }

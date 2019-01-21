@@ -1,10 +1,8 @@
-import { Config, IInitOptions } from 'jgb-shared/lib';
+import { getJGBConfig } from '../config';
 import Core from '../core';
 
 export default async function builder(main: any = [], command: any = {}) {
-  const config = (await Config.load(process.cwd(), [
-    'jgb.config.js'
-  ])) as IInitOptions;
+  const config = await getJGBConfig(command.config);
 
   const core = new Core(
     Object.assign(

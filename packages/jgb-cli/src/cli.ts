@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
-import { builder, clean, init } from './command';
+import { builder, clean, create, init } from './command';
 
 program.version((pkg as any).version, '-v, --version');
 
@@ -12,12 +12,13 @@ program
     '-d, --out-dir <path>',
     'set the output directory. defaults to "dist"'
   )
+  .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .option('-w, --watch', 'setup watch mode')
   .option('-s, --source <source>', 'set the origin project type', /^(wx)$/)
   .option(
     '-t, --target <target>',
     'set the build type, either "wx", "aliapp" or "swan". defaults to "wx"',
-    /^(wx|aliapp|swan)$/
+    /^(wx|aliapp|swan|my)$/
   )
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')
@@ -41,6 +42,7 @@ program
 
 program
   .command('clean')
+  .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .description('clean project dist and cache dir')
   .action(clean);
 
@@ -70,6 +72,37 @@ program
     );
     console.log('  $ jgb init username/repo my-project');
     console.log();
+  });
+
+program
+  .command('create [template-name] [folder-name]')
+  .description('create new page or component from jgb_templates')
+  .action(create)
+  .usage('[template-name] [folder-name]')
+  .option('--list', 'show all template files')
+  .option('-t,--template', 'create template files')
+  .option('-c,--component', 'use component folder. default use page folder')
+  .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
+  .on('--help', () => {
+    console.log(' Example:');
+    console.log();
+    console.log(chalk.gray('   # show all templates'));
+    console.log(` $ jgb create --list`);
+    console.log();
+    console.log(chalk.gray('  # downlown/create template files for use'));
+    console.log(` $ jgb create template-name --template`);
+    console.log();
+    console.log(
+      chalk.gray(
+        '  # folder-name is relative to config.sourceDir. default is "src"'
+      )
+    );
+    console.log(chalk.gray('  # use template files to create page files'));
+    console.log(` $ jgb create template-name pages/home`);
+    console.log(chalk.gray('  # or create component files'));
+    console.log(
+      ` $ jgb create template-name components/test-component --component`
+    );
   });
 
 program.parse(process.argv);
