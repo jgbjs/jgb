@@ -1,10 +1,8 @@
-import { Config, IInitOptions } from 'jgb-shared/lib';
 import * as rimraf from 'rimraf';
+import { getJGBConfig } from '../config';
 
-export default async function clean() {
-  const config = (await Config.load(process.cwd(), [
-    'jgb.config.js'
-  ])) as IInitOptions;
+export default async function clean(main: any = [], command: any = {}) {
+  const config = await getJGBConfig(command.config);
 
   if (!config) {
     return;

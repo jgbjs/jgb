@@ -12,6 +12,7 @@ program
     '-d, --out-dir <path>',
     'set the output directory. defaults to "dist"'
   )
+  .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .option('-w, --watch', 'setup watch mode')
   .option('-s, --source <source>', 'set the origin project type', /^(wx)$/)
   .option(
@@ -41,6 +42,7 @@ program
 
 program
   .command('clean')
+  .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .description('clean project dist and cache dir')
   .action(clean);
 
