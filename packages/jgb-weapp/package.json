@@ -1,6 +1,6 @@
 {
   "name": "jgb-weapp",
-  "version": "1.4.10",
+  "version": "1.4.11",
   "main": "lib/index.js",
   "license": "MIT",
   "typings": "types/index.d.ts",
