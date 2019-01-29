@@ -1,11 +1,19 @@
-import { JComponent } from "jgb-weapp";
+/* tslint:disable */
+import { JComponent } from 'jgb-weapp';
 
 JComponent({
-  attached() {},
+  attached() {
+    this.show();
+  },
   properties: {
     title: {
       type: String,
-      value: ""
+      value: '',
+      observer(nv: string) {
+        this.test();
+        this.data;
+        this.hide();
+      }
     },
     name: String
   },
@@ -14,8 +22,12 @@ JComponent({
   },
   methods: {
     show() {
-      this.properties.name;
+      this.data.asd;
+      console.log(this.properties.name);
     },
-    hide() {}
+    hide() {
+      this.test();
+      this.show();
+    }
   }
 });
