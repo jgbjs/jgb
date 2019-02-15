@@ -1,2 +1,3 @@
 <view>components/test/index</view>
+<view>{{data}}</view>
 <include src="/components/othertest/index.wxml"></include>
