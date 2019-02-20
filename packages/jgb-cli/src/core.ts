@@ -2,7 +2,7 @@ import * as Debug from 'debug';
 import * as fs from 'fs';
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
 import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
-import Logger, { logger, LogType } from 'jgb-shared/lib/Logger';
+import { logger } from 'jgb-shared/lib/Logger';
 import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
@@ -87,7 +87,7 @@ export default class Core extends AwaitEventEmitter {
   }
 
   async init() {
-    await this.compiler.init(this.resolver);    
+    await this.compiler.init(this.resolver);
   }
 
   async start() {
@@ -289,8 +289,11 @@ export default class Core extends AwaitEventEmitter {
     }
 
     if (this.farm) {
-      await this.farm.end();
+      this.farm.end();
     }
+
+    // fix sometimes won't stop
+    setTimeout(() => process.exit(), 1000);
   }
 
   async unwatch(path: string, asset: Asset) {
