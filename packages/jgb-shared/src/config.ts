@@ -27,10 +27,11 @@ export async function resolve(
 
   // Don't traverse above the module root
   if (
-    filepath === root ||
-    filepath.includes(
-      'node_modules'
-    ) /* path.basename(filepath) === 'node_modules' */
+    filepath === root
+    // ||
+    // filepath.includes(
+    //   'node_modules'
+    // )
   ) {
     return null;
   }

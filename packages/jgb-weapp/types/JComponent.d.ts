@@ -6,27 +6,25 @@ type Prop<T> = (() => T) | { new (...args: any[]): T & object };
 
 type DataDef<Data, Props, P> = Data | ((this: Readonly<Props> & P) => Data);
 
-interface PropOptions<T = any> {
+interface PropOptions<T, U> {
   type?: Prop<T> | Array<Prop<T>>;
   value?: T | null | undefined;
-  observer?(newVal: T, oldVal: T, changedPath: string): void;
+  observer?(this: U, newVal: T, oldVal: T, changedPath: string): void;
 }
 
-type PropValidator<T> = PropOptions<T> | Prop<T> | Array<Prop<T>>;
+type PropValidator<T, U> = PropOptions<T, U> | Prop<T> | Array<Prop<T>>;
 
-type RecordPropsDefinition<T> = { [K in keyof T]: PropValidator<T[K]> };
+type RecordPropsDefinition<T, U> = { [K in keyof T]: PropValidator<T[K], U> };
 
-type ArrayPropsDefinition<T> = Array<keyof T>;
-
-type PropsDefinition<T> = ArrayPropsDefinition<T> | RecordPropsDefinition<T>;
+type PropsDefinition<T, U> = RecordPropsDefinition<T, U>;
 
 type CombinedJComponentInstance<
   Instance extends JComponent,
   Data,
   Method,
   Props
-> = { data: Data } & Instance &
-  Method & { properties: Props } & { data: Props };
+> = DefaultProps & { data: Data & DefaultProps & Props } & Instance &
+  Method & { properties: Props };
 
 type ThisTypedJComponentOptionsWithArrayProps<
   P extends JComponent,
@@ -38,19 +36,15 @@ type ThisTypedJComponentOptionsWithArrayProps<
     P,
     DataDef<Data, Props, P>,
     Methods,
-    RecordPropsDefinition<Props>
+    Props,
+    CombinedJComponentInstance<P, Data, Methods, Readonly<Props>>
   > &
   ThisType<CombinedJComponentInstance<P, Data, Methods, Readonly<Props>>>;
 
 /**
  * JComponent 实现的接口对象
  */
-interface JComponentOptions<
-  P extends JComponent = JComponent,
-  Data = DefaultData<P>,
-  Methods = DefaultMethods<P>,
-  PropsDef = PropsDefinition<DefaultProps>
-> {
+interface JComponentOptions<P, Data, Methods, Props, Instance> {
   /**
    * 开发者可以添加任意的函数或数据到 object 参数中，
    * 在页面的函数中用 this 可以访问
@@ -66,7 +60,7 @@ interface JComponentOptions<
    * @type {wx.IData}
    * @memberof JComponentOptions
    */
-  properties?: PropsDef;
+  properties?: RecordPropsDefinition<Props, Instance>;
   /**
    * 组件的内部数据，和 properties 一同用于组件的模版渲染
    *

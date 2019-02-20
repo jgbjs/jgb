@@ -1,7 +1,7 @@
 {
   "name": "transform-swan",
   "private": true,
-  "version": "1.4.10",
+  "version": "1.4.12",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
@@ -12,11 +12,11 @@
     "babel-plugin-transform-node-env-inline": "^0.2.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "jgb-cli": "^1.4.10",
-    "jgb-plugin-babel": "^1.4.8",
-    "jgb-plugin-css": "^1.4.8",
-    "jgb-plugin-html": "^1.4.8",
-    "jgb-plugin-json": "^1.4.8",
-    "jgb-preset-weapp": "^1.4.8"
+    "jgb-cli": "^1.4.12",
+    "jgb-plugin-babel": "^1.4.12",
+    "jgb-plugin-css": "^1.4.12",
+    "jgb-plugin-html": "^1.4.12",
+    "jgb-plugin-json": "^1.4.12",
+    "jgb-preset-weapp": "^1.4.12"
   }
 }
