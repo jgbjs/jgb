@@ -303,7 +303,7 @@ export default class BabelAsset extends Asset {
           : await new SourceMap().extendSourceMap(this.sourceMap, rawMap);
       }
     } else {
-      code = this.outputCode != null ? this.outputCode : this.contents;
+      code = typeof this.outputCode === 'string'  ? this.outputCode : this.contents;
     }
     code = npmHack(this.basename, code);
 

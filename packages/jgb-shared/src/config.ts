@@ -26,24 +26,21 @@ export async function resolve(
   }
 
   // Don't traverse above the module root
-  if (
-    filepath === root
-    // ||
-    // filepath.includes(
-    //   'node_modules'
-    // )
-  ) {
+  if (filepath === root) {
     return null;
   }
 
-  for (const filename of filenames) {
-    const file = path.join(filepath, filename);
-    const exists = existsCache.has(file)
-      ? existsCache.get(file)
-      : await promisify(fs.exists)(file);
-    if (exists) {
-      existsCache.set(file, true);
-      return file;
+  // Don't resolve config in node_modules
+  if (!filepath.includes('node_modules')) {
+    for (const filename of filenames) {
+      const file = path.join(filepath, filename);
+      const exists = existsCache.has(file)
+        ? existsCache.get(file)
+        : await promisify(fs.exists)(file);
+      if (exists) {
+        existsCache.set(file, true);
+        return file;
+      }
     }
   }
 
