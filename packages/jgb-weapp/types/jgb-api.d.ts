@@ -57,6 +57,10 @@ type RequestTaskExtension<
 
 export interface IJGBIntercept {
   /**
+   * 删除拦截原生方法
+   */
+  intercept(event: keyOfWx):void;
+  /**
    * 拦截原生方法
    *   经过所有拦截状态
    * @param event
