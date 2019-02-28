@@ -10,11 +10,9 @@ type ArgumentType<F extends Function> = F extends (args: infer A) => any
   ? A
   : never;
 
-type SuccessArgumentType<F> = F extends (
-  res: {
-    success?: (res?: infer U) => void;
-  }
-) => void
+type SuccessArgumentType<F> = F extends (res: {
+  success?: (res?: infer U) => void;
+}) => void
   ? U
   : never;
 
@@ -58,12 +56,30 @@ type RequestTaskExtension<
 > = T & ReturnType<TypeOfWx[TypeRequestLikeKey]>;
 
 export interface IJGBIntercept {
+  /**
+   * 删除拦截原生方法
+   */
+  intercept(event: keyOfWx):void;
+  /**
+   * 拦截原生方法
+   *   经过所有拦截状态
+   * @param event
+   * @param fn
+   */
   intercept(event: keyOfWx, fn: IInterceptFn): void;
+  /**
+   * 拦截原生方法
+   * @param event 需要拦截的原生函数
+   * @param status 需要拦截函数执行的状态
+   * @param fn 拦截函数
+   */
   intercept(event: keyOfWx, status: IInterceptStatus, fn: IInterceptFn): void;
 }
 
+/** 拦截状态  */
 export type IInterceptStatus = 'fail' | 'success' | 'complete' | 'begin';
 
+/** 拦截函数  */
 export type IInterceptFn = (
   /** 返回值  */
   result: any,
@@ -73,4 +89,9 @@ export type IInterceptFn = (
   options: any
 ) => any;
 
-export var jgb: TypePromiseApi & TypeNoPromiseApi & TypeSyncApi & IJGBIntercept;
+export var jgb: TypePromiseApi &
+  TypeNoPromiseApi &
+  TypeSyncApi &
+  IJGBIntercept & {
+    [key: string]: any;
+  };

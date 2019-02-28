@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-typescript",
-  "version": "1.4.12",
+  "version": "1.4.13",
   "main": "lib/index.js",
   "typings": "typings/index.d.ts",
   "license": "MIT",
@@ -18,8 +18,8 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
-    "jgb-plugin-babel": "^1.4.12",
-    "jgb-shared": "^1.4.12",
+    "jgb-plugin-babel": "^1.4.13",
+    "jgb-shared": "^1.4.13",
     "tslib": "^1.9.3",
     "typescript": "3.0.1"
   },

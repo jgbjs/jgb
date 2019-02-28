@@ -65,6 +65,9 @@ export default class TypeScriptAsset extends BabelAsset {
       this.sourceMap = await new SourceMap().addMap(sourceMap);
     }
 
+    // 备用输出内容
+    this.outputCode = transpiled.outputText;
+
     return super.parse(transpiled.outputText);
   }
 }
