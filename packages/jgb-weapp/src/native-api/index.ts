@@ -5,13 +5,13 @@
 import { IEventFunction } from '../../types/eventbus';
 import { IInterceptFn, IInterceptStatus } from '../../types/jgb-api';
 import PromiseTask from '../utils/task';
-import { noPromiseApis, onAndSyncApis, otherApis } from './native-apis';
+import { noPromiseApis, onAndSyncApis } from './native-apis';
 
 type interceptValue = [IEventFunction, IInterceptStatus];
 
-const intercepts = new Map<string, interceptValue[]>();
+export const intercepts = new Map<string, interceptValue[]>();
 
-function getIntercept(key: string) {
+export function getIntercept(key: string) {
   return (result: any, status: IInterceptStatus, options?: any) => {
     const value = intercepts.get(key);
 
@@ -19,48 +19,49 @@ function getIntercept(key: string) {
       return result;
     }
 
-    value.reduce((r: any, iValue) => {
+    return value.reduce((r: any, iValue) => {
       const [task, requiredStatus] = iValue;
       if (!requiredStatus) {
         return task(r, status, options);
       }
-      if(requiredStatus === status) {
+      if (requiredStatus === status) {
         return task(r, status, options);
       }
       return r;
     }, result);
-    return result;
   };
 }
 
 export default function initNativeApi(jgb: any = {}) {
-  const weApis = Object.assign({}, onAndSyncApis, noPromiseApis, otherApis);
+  const weApis = Object.assign({}, wx);
 
   Object.keys(weApis).forEach(key => {
     const doIntercept = getIntercept(key);
     // @ts-ignore
     if (!onAndSyncApis[key] && !noPromiseApis[key]) {
-      jgb[key] = (options: any = {}) => {
+      jgb[key] = (options: any = {}, ...args: any[]) => {
         let task: any = null;
 
-        options = doIntercept(options, 'begin', options);
+        options = doIntercept(options, 'begin', options) || options;
 
         const obj: any = Object.assign({}, options);
 
-        if (typeof options === 'string') {
+        if (typeof options !== 'object') {
           // @ts-ignore
-          const result = wx[key](options);
-          return doIntercept(result, 'success', options);
+          const result = wx[key](options, ...args);
+          return doIntercept(result, 'success', options) || result;
         }
         const p = new PromiseTask((resolve, reject) => {
           ['fail', 'success', 'complete'].forEach((k: IInterceptStatus) => {
             obj[k] = (res: any) => {
-              res = doIntercept(res, k, obj);
+              res = doIntercept(res, k, obj) || res;
               // tslint:disable-next-line:no-unused-expression
               options[k] && options[k](res);
               if (k === 'success') {
                 if (key === 'connectSocket') {
-                  resolve(doIntercept(task, k, obj));
+                  resolve(
+                    Promise.resolve().then(() => Object.assign(task, res))
+                  );
                 } else {
                   resolve(res);
                 }
@@ -70,7 +71,7 @@ export default function initNativeApi(jgb: any = {}) {
             };
           });
           // @ts-ignore
-          task = wx[key](obj);
+          task = wx[key](obj, ...args);
         });
         if (['uploadFile', 'downloadFile', 'request'].includes(key)) {
           p.progress = cb => {
@@ -92,11 +93,10 @@ export default function initNativeApi(jgb: any = {}) {
       };
     } else {
       jgb[key] = (...args: any[]) => {
-        args = doIntercept(args, 'begin', args);
-
+        args = [].concat(doIntercept(args, 'begin', args) || args);
         // @ts-ignore
         const result = wx[key].apply(wx, args);
-        return doIntercept(result, 'success', args);
+        return doIntercept(result, 'success', args) || result;
       };
     }
   });
@@ -110,6 +110,11 @@ export default function initNativeApi(jgb: any = {}) {
           [status, fn] = data;
         } else {
           [fn] = data;
+        }
+
+        if (typeof fn !== 'function') {
+          intercepts.delete(event);
+          return;
         }
 
         const fns = intercepts.get(event) || [];

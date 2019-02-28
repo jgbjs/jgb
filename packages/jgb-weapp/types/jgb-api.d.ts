@@ -10,11 +10,9 @@ type ArgumentType<F extends Function> = F extends (args: infer A) => any
   ? A
   : never;
 
-type SuccessArgumentType<F> = F extends (
-  res: {
-    success?: (res?: infer U) => void;
-  }
-) => void
+type SuccessArgumentType<F> = F extends (res: {
+  success?: (res?: infer U) => void;
+}) => void
   ? U
   : never;
 
@@ -61,8 +59,8 @@ export interface IJGBIntercept {
   /**
    * 拦截原生方法
    *   经过所有拦截状态
-   * @param event 
-   * @param fn 
+   * @param event
+   * @param fn
    */
   intercept(event: keyOfWx, fn: IInterceptFn): void;
   /**
@@ -87,4 +85,9 @@ export type IInterceptFn = (
   options: any
 ) => any;
 
-export var jgb: TypePromiseApi & TypeNoPromiseApi & TypeSyncApi & IJGBIntercept;
+export var jgb: TypePromiseApi &
+  TypeNoPromiseApi &
+  TypeSyncApi &
+  IJGBIntercept & {
+    [key: string]: any;
+  };
