@@ -1,9 +1,30 @@
-import { DefaultData } from './common';
-import { IEventBus, IEventFunction, INewEventBus } from './eventbus';
+import { Accessors, DefaultData } from './common';
+import { IEventFunction, INewEventBus } from './eventbus';
 import { Router } from './router';
 
-interface IPageOptions<P extends JPage = JPage, Data = DefaultData<P>>
-  extends Page.PageInstance<Data> {}
+type DefaultComputed = { [key: string]: any };
+
+interface IPageOptions<
+  P extends JPage = JPage,
+  Data = DefaultData<P>,
+  Computed = DefaultComputed
+> extends Page.PageInstance<Data> {
+  /**
+   * 计算属性, 类似Vue
+   * 需要指定方法的类型
+   * @example
+``` js
+ {
+   computed: {
+     priceWithCurrency():string {
+        return '$' + this.data.price
+     }
+   }
+ }
+```
+   */
+  computed?: Accessors<Computed>;
+}
 
 export interface JPage
   extends Required<Pick<Page.PageInstanceBaseProps, 'setData' | 'route'>>,
@@ -29,8 +50,8 @@ export interface JPage
   $scrollIntoView(selector: string, ctx?: any): Promise<any>;
 }
 
-type CombinedPageInstance<Instance extends JPage, Data, Method> = {
-  data: Data;
+type CombinedPageInstance<Instance extends JPage, Data, Method, Computed> = {
+  data: Data & Computed;
 } & Instance &
   Method &
   IAnyObject;
@@ -38,17 +59,41 @@ type CombinedPageInstance<Instance extends JPage, Data, Method> = {
 type ThisTypedPageOptionsWithArrayProps<
   P extends JPage,
   Data extends Record<string, any>,
-  Method
-> = IPageOptions<P, Data> &
+  Method,
+  Computed
+> = IPageOptions<P, Data, Computed> &
   Method &
-  ThisType<CombinedPageInstance<P, Data, Method>>;
+  ThisType<CombinedPageInstance<P, Data, Method, Computed>>;
 
 interface IJPageConstructor<P extends JPage = JPage> {
-  <Data = Record<string, any>, Method = object>(
-    opts: ThisTypedPageOptionsWithArrayProps<P, Data, Method>
+  <Data = Record<string, any>, Method = object, Computed = object>(
+    opts: ThisTypedPageOptionsWithArrayProps<P, Data, Method, Computed>
   ): void;
+  /**
+   * Mixin
+   * @param obj
+   * @example
+   *  JPage.mixin({
+   *    onLoad() {
+   *      // do something
+   *    }
+   *  })
+   */
   mixin(obj: any): void;
+  /**
+   * 拦截Page某个方法，除了onLoad
+   * @example
+   *  JPage.intercept('onShow', () => {})
+   */
   intercept(event: string, fn: IEventFunction): void;
+  /**
+   * 拦截整个Page的参数
+   * @example
+   *  JPage.intercept(function(opts){
+   *    opts.onLoad = () => {}
+   *    return opts;
+   *  })
+   */
   intercept(fn: IEventFunction): void;
 }
 

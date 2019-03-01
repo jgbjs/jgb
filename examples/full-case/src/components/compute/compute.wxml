@@ -1,0 +1,4 @@
+<view>a:{{a}}</view>
+<view>b:{{b}}</view>
+<view>c:{{c}}</view>
+<view>a+b+c : {{d}}</view>

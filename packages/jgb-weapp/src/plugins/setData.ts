@@ -29,6 +29,7 @@ function setDataPerformance(this: any) {
   this[$MERGE_DATA] = [];
 
   Object.defineProperty(this, 'setData', {
+    configurable: true,
     get() {
       return (data: any, cb: any) => {
         this[$MERGE_DATA].push({ data, cb });

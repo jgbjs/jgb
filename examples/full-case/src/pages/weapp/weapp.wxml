@@ -1,2 +1,12 @@
 <view>weapp</view>
 <view>{{weapp}}</view>
+<view>{{weapp1}}</view>
+
+<view>
+  computed组件：
+  <computed a="{{a}}" b="{{b}}" c="{{c}}" />
+</view>
+
+
+<button bindtap="change">computed test</button>
+<button bindtap="toSamePage">toSamePage</button>

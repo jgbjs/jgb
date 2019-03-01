@@ -1,20 +1,41 @@
 import { JPage } from 'jgb-weapp';
 
 JPage({
+  data: {
+    weapp: 'test',
+    a: 1,
+    b: 2
+  },
+  computed: {
+    weapp1(): string {
+      return this.data.weapp + 1;
+    },
+    c(): number {
+      return this.data.a + this.data.b;
+    }
+  },
   onShareAppMessage() {
     return {
       title: '自定义转发标题',
       path: '/page/index/index?id=123'
     };
   },
-  data: {
-    weapp: 'test'
+
+  change() {
+    console.log(this.data.weapp1);
+    this.setData({
+      weapp: 'abc'
+    });
+
+    this.setData({
+      a: this.data.a + 1
+    });
   },
+
   onScroll() {
     console.log(this);
   },
   onLoad(opts) {
-    console.log('onload', this);
     setTimeout(() => {
       this.onShareAppMessage = () => ({
         title: '改-自定义转发标题',
@@ -43,6 +64,11 @@ JPage({
       );
       i--;
     }
+  },
+  toSamePage() {
+    wx.navigateTo({
+      url: `/pages/weapp/weapp?id=2`
+    });
   },
   onUnload() {
     this.$emit('onUnload');
