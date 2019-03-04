@@ -1,7 +1,14 @@
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import { IAssetGenerate } from 'jgb-shared/lib/Asset';
 import { logger } from 'jgb-shared/lib/Logger';
-import * as VError from 'verror';
 import Compiler from './Compiler';
+export interface IPipelineProcessed {
+  generated: IAssetGenerate | IAssetGenerate[];
+  id: string;
+  dependencies: any[];
+  hash: string;
+  cacheData?: any;
+}
 
 export default class Pipeline {
   compiler: Compiler;
@@ -31,9 +38,10 @@ export default class Pipeline {
     if (distPath) {
       asset.distPath = distPath;
     }
-    await this.processAsset(asset);
+    const generated = await this.processAsset(asset);
 
     return {
+      generated,
       id: asset.id,
       dependencies: Array.from(asset.dependencies.values()),
       hash: asset.hash,

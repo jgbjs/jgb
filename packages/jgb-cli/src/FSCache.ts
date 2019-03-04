@@ -1,12 +1,11 @@
-import * as glob from 'fast-glob';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
-import * as isGlob from 'is-glob';
 import { IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import { md5, objectHash } from 'jgb-shared/lib/utils';
 import * as mkdir from 'mkdirp';
 import * as path from 'path';
+import { IPipelineProcessed } from 'Pipeline.js';
 import { promisify } from 'util';
 import * as VError from 'verror';
 import * as pkg from '../package.json';

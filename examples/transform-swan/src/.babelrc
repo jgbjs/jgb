@@ -1,5 +1,7 @@
 {
-  "presets": ["env"],
+  "presets": [
+    "@babel/preset-env"
+  ],
   "env": {
     "debug": {
       "sourceMap": "inline",
@@ -8,7 +10,7 @@
   },
   "plugins": [
     "lodash",
-    "transform-object-rest-spread",
+    "@babel/plugin-proposal-object-rest-spread",
     "transform-node-env-inline",
     "transform-inline-environment-variables",
     "inline-package-json"

@@ -6,6 +6,7 @@ import { logger } from 'jgb-shared/lib/Logger';
 import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
+import { IPipelineProcessed } from 'Pipeline';
 import { promisify } from 'util';
 import Compiler from './Compiler';
 import FSCache from './FSCache';
@@ -188,10 +189,12 @@ export default class Core extends AwaitEventEmitter {
     debug(`${asset.name} processd time: ${asset.endTime - asset.startTime}ms`);
 
     asset.id = processed.id;
-    // asset.generated = processed.generated;
+    asset.generated = processed.generated;
     asset.hash = processed.hash;
 
     const dependencies = processed.dependencies;
+
+    const generateCodeAsync = asset.generateCode();
 
     const assetDeps = await Promise.all(
       dependencies.map(async dep => {
@@ -226,6 +229,7 @@ export default class Core extends AwaitEventEmitter {
       })
     );
 
+    await generateCodeAsync;
     if (this.cache && cacheMiss) {
       await this.cache.write(asset.name, processed);
     }

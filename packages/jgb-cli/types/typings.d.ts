@@ -1,3 +1,5 @@
+
+
 declare module '*.json' {
   const value: any;
   export default value;
@@ -63,9 +65,3 @@ declare module 'rimraf' {
   namespace rimraf {}
 }
 
-interface IPipelineProcessed {
-  id: string;
-  dependencies: any[];
-  hash: string;
-  cacheData?: any;
-}

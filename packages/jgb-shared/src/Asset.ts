@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as URL from 'url';
-import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
+import { IInitOptions } from '../typings/jgb-shared';
 import * as config from './config';
 import { logger } from './Logger';
 import { ICompiler } from './pluginDeclare';
@@ -23,7 +23,7 @@ const cache = new Map();
 export interface IAssetGenerate {
   code: string;
   ext: string;
-  map?: SourceMap;
+  map?: any;
 }
 
 export default class Asset {
@@ -186,20 +186,34 @@ export default class Asset {
    * 3. getDependencies
    * 4. transform
    * 5. generate
-   * 6. output
    */
   async process() {
     if (!this.id) {
       this.id = this.relativeName;
     }
 
-    const startTime = +new Date();
-
     await this.loadIfNeeded();
     await this.pretransform();
     await this.getDependencies();
     await this.transform();
     this.generated = await this.generate();
+
+    this.generated = await Promise.all(
+      [].concat(this.generated).map(async (g: IAssetGenerate) => {
+        let { prettyDistPath } = await this.generateDist(g.ext);
+        g.map = g.map
+          ? (g.map as SourceMap).stringify(path.basename(prettyDistPath), '/')
+          : '';
+        return g;
+      })
+    );
+  }
+
+  /**
+   * 生成code
+   */
+  async generateCode() {
+    const startTime = +new Date();
     const generated: IAssetGenerate[] = [].concat(this.generated);
     for (const { code, ext, map } of generated) {
       this.hash = await this.generateHash();
@@ -332,21 +346,10 @@ export default class Asset {
   }
 
   /**
-   * 生成输出目录distPath
-   * @param code
+   * 生成输出目录和prettyDistPath
    * @param ext
    */
-  async output(
-    code: string,
-    ext: string = '',
-    map: SourceMap
-  ): Promise<{
-    distPath: string;
-    ignore: boolean;
-  }> {
-    /* 是否忽略编译 */
-    let ignore = true;
-
+  async generateDist(ext: string = '') {
     let distPath =
       this.distPath ||
       this.generateDistPath(this.name, ext) ||
@@ -369,12 +372,34 @@ export default class Asset {
       path.relative(this.options.outDir, distPath)
     );
 
+    return {
+      distPath,
+      prettyDistPath
+    };
+  }
+
+  /**
+   * 生成输出目录distPath
+   * @param code
+   * @param ext
+   */
+  async output(
+    code: string,
+    ext: string = '',
+    map: string
+  ): Promise<{
+    distPath: string;
+    ignore: boolean;
+  }> {
+    /* 是否忽略编译 */
+    let ignore = true;
+
+    let { distPath, prettyDistPath } = await this.generateDist(ext);
+
     // if distPath not in outDir
     if (!prettyDistPath.startsWith('..')) {
       ignore = false;
-      const sourceMapString = map
-        ? map.stringify(path.basename(prettyDistPath), '/')
-        : '';
+      const sourceMapString = map || '';
       if (!this.options.minify && sourceMapString) {
         await writeFile(
           distPath,

@@ -12,7 +12,7 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
-    "prepublish": "yarn run clean && yarn run build"
+    "prepublishOnly": "yarn run clean && yarn run build"
   },
   "bin": {
     "jgb": "bin/cli.js"

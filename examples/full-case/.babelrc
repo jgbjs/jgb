@@ -1,6 +1,6 @@
 {
   "sourceMap": true,
-  "presets": ["env"],
+  "presets": ["@babel/env"],
   "plugins": [
     "lodash"
   ]

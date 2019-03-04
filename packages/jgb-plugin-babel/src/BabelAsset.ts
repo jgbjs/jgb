@@ -1,9 +1,6 @@
-import * as Babel from 'babel-core';
-import { File as BabelFile } from 'babel-core/lib/transformation/file';
-import generate from 'babel-generator';
-import traverse from 'babel-traverse';
-// import * as t from 'babel-types';
-import * as babylon from 'babylon';
+import generate from '@babel/generator';
+import * as babelParser from '@babel/parser';
+import traverse from '@babel/traverse';
 import * as walk from 'babylon-walk';
 import * as fs from 'fs';
 import { Asset, IInitOptions } from 'jgb-shared/lib';
@@ -13,14 +10,13 @@ import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
 import * as path from 'path';
 import { promisify } from 'util';
-import babel, { getConfig } from './babel';
+import babel7 from './babel7';
+import getBabelConfig from './babelrc';
 import npmHack from './npmHack';
 import terser from './terser';
+import babel from './transform';
 import collectDependencies from './vistors/dependencies';
 import envVisitor from './vistors/env';
-import fsVisitor from './vistors/fs';
-import insertGlobals from './vistors/globals';
-
 const IMPORT_RE = /\b(?:import\b|export\b|require\s*\()/;
 const ENV_RE = /\b(?:process\.env)\b/;
 const GLOBAL_RE = /\b(?:process|__dirname|__filename|global|Buffer|define)\b/;
@@ -36,47 +32,12 @@ export default class BabelAsset extends Asset {
     this.cacheData.env = {};
   }
 
-  babelConfig: any;
-  babelFile: any;
   outputCode: string;
   waitResolveCollectDependencies: Array<Promise<any>> = [];
   isAstDirty = false;
   sourceMap: any;
 
   static outExt = '.js';
-
-  async getParserOptions(): Promise<any> {
-    // Babylon options. We enable a few plugins by default.
-    const options = {
-      filename: this.name,
-      allowReturnOutsideFunction: true,
-      allowHashBang: true,
-      ecmaVersion: Infinity,
-      strictMode: false,
-      sourceType: 'module',
-      locations: true,
-      plugins: [
-        'exportExtensions',
-        'dynamicImport',
-        'doExpressions',
-        'functionBind',
-        'templateInvalidEscapes',
-        'objectRestSpread',
-        'asyncGenerators',
-        'classProperties',
-        'decorators'
-      ]
-    };
-
-    // Check if there is a babel config file. If so, determine which parser plugins to enable
-    this.babelConfig = await getConfig(this);
-    if (this.babelConfig) {
-      const file = new BabelFile(this.babelConfig);
-      options.plugins.push(...file.parserOpts.plugins);
-    }
-
-    return options;
-  }
 
   shouldInvalidate(cacheData: any) {
     if (cacheData && cacheData.env) {
@@ -91,7 +52,7 @@ export default class BabelAsset extends Asset {
   }
 
   mightHaveDependencies() {
-    return true
+    return true;
     // return (
     //   !/.js$/.test(this.name) ||
     //   IMPORT_RE.test(this.contents) ||
@@ -102,9 +63,25 @@ export default class BabelAsset extends Asset {
     // );
   }
 
-  async parse(code: string): Promise<Babel.types.File> {
-    const options: babylon.BabylonOptions = await this.getParserOptions();
-    return babylon.parse(code, options);
+  async parse(code: string) {
+    return babelParser.parse(code, {
+      // @ts-ignore
+      filename: this.name,
+      allowReturnOutsideFunction: true,
+      strictMode: false,
+      sourceType: 'unambiguous',
+      plugins: [
+        'exportDefaultFrom',
+        'exportNamespaceFrom',
+        'dynamicImport',
+        'decorators-legacy',
+        'nullishCoalescingOperator',
+        'objectRestSpread',
+        'optionalChaining',
+        'classProperties',
+        'asyncGenerators'
+      ]
+    });
   }
 
   async collectDependencies() {
@@ -163,51 +140,23 @@ export default class BabelAsset extends Asset {
   }
 
   traverse(visitor: any) {
-    // Create a babel File object if one hasn't been created yet.
-    // This is needed so that cached NodePath objects get a `hub` object on them.
-    // Plugins like babel-minify depend on this to get the original source code string.
-    if (!this.babelFile) {
-      this.babelFile = new BabelFile(this.babelConfig || {});
-      this.babelFile.addCode(this.contents);
-      this.babelFile.addAst(this.ast);
-    }
-
     return traverse(this.ast, visitor, null, this);
   }
 
   async transform() {
-    if (this.options.target === 'browser') {
-      if (this.dependencies.has('fs') && FS_RE.test(this.contents)) {
-        // Check if we should ignore fs calls
-        // See https://github.com/defunctzombie/node-browser-resolve#skip
-        const pkg = await this.getPackage();
-        const ignore = pkg && pkg.browser && pkg.browser.fs === false;
+    const babelrc: any = (await getBabelConfig(this, true)) || {};
+    if (babelrc) {
+      const config = babelrc.config || {};
+      config.plugins = (config.plugins || []).concat([
+        require('@babel/plugin-transform-modules-commonjs')
+      ]);
+      config.ignore = (config.ignore || []).concat(['node_modules']);
 
-        if (!ignore) {
-          await this.parseIfNeeded();
-          this.traverse(fsVisitor);
-        }
-      }
-
-      if (GLOBAL_RE.test(this.contents)) {
-        await this.parseIfNeeded();
-        walk.ancestor(this.ast, insertGlobals, this);
-      }
+      await babel7(this, {
+        internal: true,
+        config
+      });
     }
-
-    // if (this.options.scopeHoist) {
-    //   await this.parseIfNeeded();
-    //   await this.getPackage();
-
-    //   this.traverse(hoist);
-    //   this.isAstDirty = true;
-    // } else {
-    //   if (this.isES6Module) {
-    //     await babel(this);
-    //   }
-    // }
-
-    await babel(this);
 
     if (this.options.minify) {
       await terser(this);
@@ -284,6 +233,16 @@ export default class BabelAsset extends Asset {
   async generate() {
     let code: string;
     if (this.isAstDirty) {
+      // remove 'use strict'
+      // this.ast.program.directives = (this.ast.program.directives || []).filter(
+      //   d => {
+      //     return !(
+      //       d.type === 'Directive' &&
+      //       d.value &&
+      //       d.value.value === 'use strict'
+      //     );
+      //   }
+      // );
       const opts = {
         sourceMaps: true,
         sourceFileName: pathToUnixType(this.relativeName)
@@ -294,7 +253,7 @@ export default class BabelAsset extends Asset {
       if (generated.map) {
         generated.map.sources = [pathToUnixType(this.relativeName)];
         generated.map.sourcesContent = [this.contents];
-        const rawMap = await new SourceMap().addMap(generated.map)
+        const rawMap = await new SourceMap().addMap(generated.map);
 
         // Check if we already have a source map (e.g. from TypeScript or CoffeeScript)
         // In that case, we need to map the original source map to the babel generated one.
@@ -303,7 +262,8 @@ export default class BabelAsset extends Asset {
           : await new SourceMap().extendSourceMap(this.sourceMap, rawMap);
       }
     } else {
-      code = typeof this.outputCode === 'string'  ? this.outputCode : this.contents;
+      code =
+        typeof this.outputCode === 'string' ? this.outputCode : this.contents;
     }
     code = npmHack(this.basename, code);
 

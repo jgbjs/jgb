@@ -1,10 +1,10 @@
-import isURL from 'jgb-shared/lib/utils/isUrl'
-import urlJoin from 'jgb-shared/lib/utils/urlJoin'
-import matchesPattern from './matchesPattern'
+import template from '@babel/template';
+import traverse from '@babel/traverse';
+import isURL from 'jgb-shared/lib/utils/isUrl';
+import urlJoin from 'jgb-shared/lib/utils/urlJoin';
+import matchesPattern from './matchesPattern';
 
-const types = require('babel-types');
-const template = require('babel-template');
-const traverse = require('babel-traverse').default;
+const types = require('@babel/types');
 const nodeBuiltins = require('node-libs-browser');
 
 const requireTemplate = template('require("_bundle_loader")');
@@ -56,6 +56,7 @@ export default {
     types.isStringLiteral(args[0]);
 
     if (isDynamicImport) {
+      if (isURL(args[0].value)) return;
       asset.addDependency('_bundle_loader');
       addDependency(asset, args[0], {
         dynamic: true

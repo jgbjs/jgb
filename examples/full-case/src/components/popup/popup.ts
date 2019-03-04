@@ -10,7 +10,6 @@ JComponent({
       type: String,
       value: '',
       observer(nv: string) {
-        this.test();
         this.data;
         this.hide();
       }
@@ -26,7 +25,6 @@ JComponent({
       console.log(this.properties.name);
     },
     hide() {
-      this.test();
       this.show();
     }
   }

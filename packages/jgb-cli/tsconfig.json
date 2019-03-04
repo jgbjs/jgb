@@ -4,7 +4,8 @@
     "outDir": "./lib/",
     "baseUrl": "src",
     "typeRoots": [
-      "node_modules/@types"
+      "node_modules/@types",
+      "./types"
     ]
   },
   "exclude": [

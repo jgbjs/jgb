@@ -11,7 +11,12 @@ export default class TypeScriptAsset extends BabelAsset {
     super(fileName, options);
   }
 
-  async parse(code: string) {
+  async pretransform() {
+    await this.typescriptParse(this.contents);
+    await super.pretransform();
+  }
+
+  private async typescriptParse(code: string) {
     // require typescript, installed locally in the app
     const typescript = await safeLocalRequire(
       'typescript',
@@ -65,9 +70,16 @@ export default class TypeScriptAsset extends BabelAsset {
       this.sourceMap = await new SourceMap().addMap(sourceMap);
     }
 
-    // 备用输出内容
     this.outputCode = transpiled.outputText;
+    return transpiled.outputText;
+  }
 
-    return super.parse(transpiled.outputText);
+  async parse(code: string) {
+    if (!this.outputCode) {
+      // 备用输出内容
+      this.outputCode = await this.typescriptParse(code);
+    }
+
+    return super.parse(this.outputCode);
   }
 }

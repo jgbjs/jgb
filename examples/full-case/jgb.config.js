@@ -1,7 +1,7 @@
 const Path = require('path')
 
 module.exports = {
-  // entryFiles: ['pages/index/index.js'],
+  // entryFiles: ['../node_modules/miniapp-regenerator-runtime/index.js'],
   // entryFiles: ['assets/index.wxss'],
   entryFiles: ['app.ts', 'app.wxss', 'app.json'],
   // entryFiles: ['pages/weapp/weapp.ts'],

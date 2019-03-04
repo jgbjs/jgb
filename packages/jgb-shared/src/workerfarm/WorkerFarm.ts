@@ -3,7 +3,6 @@ import * as os from 'os';
 import * as osUtil from 'os-utils';
 import Asset from '../Asset';
 import { logger } from '../Logger';
-import { debounce, throttle } from '../utils/decorator';
 import { errorToJson } from './errorUtils';
 import Worker from './Worker';
 
@@ -204,7 +203,13 @@ export default class WorkerFarm extends EventEmitter {
       if (method) {
         result.content = await mod[method](...args);
       } else {
-        result.content = await mod(...args);
+        try {
+          const fn = mod.default ? mod.default : mod;
+          result.content = await fn(...args);
+        } catch (error) {
+          console.log(error);
+          debugger;
+        }
       }
     } catch (e) {
       result.contentType = 'error';
