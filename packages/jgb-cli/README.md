@@ -16,3 +16,13 @@ jgb build --no-cache #不使用cache
 jgb build --help #具体查看help命令
 ```
 
+
+
+## 命令
+
+* build
+* clean
+* init
+* create
+* upgrade
+

@@ -14,7 +14,6 @@ npm i -g jgb-cli #参考jgb-cli文档
 
 # 开始编译
 jgb build
-
 ```
 
 使用
@@ -87,12 +86,20 @@ JPage.mixin({
 **注意：res的值是上一次的返回值**
 
 ```js
-import { JPage } from 'weapp'
+import { JPage, jgb } from 'weapp'
 
+// 拦截某个函数
 JPage.intercept('onShareAppMessage' , (res) => {
      // todo
      return res
+});
+
+// 拦截Page的opts
+JPage.intercept((opts) => {
+  
 })
+
+
 ```
 
 ## EventBus
@@ -138,15 +145,13 @@ JPage({
 
 ## 插件
 
-内置了两个插件
+内置了几个插件
 
-- RouterPlugin
+- RouterPlugin 类vue-router的路由
 
-类vue-router的路由
-
-- NativeApiPlugin
-
-扩展原生wx方法
+- NativeApiPlugin 扩展原生`wx`方法，支持异步接口Promise返回
+- SetDataPlugin 优化`setData`
+- ComputedPlugin 类vue对`JPage`和`JComponent`增加计算属性
 
 ### 使用插件
 
@@ -208,6 +213,11 @@ jgb.intercept('getStorageInfo', (result, status , options) => {
   return result
 });
 
+// 状态：begin, success, fail, complete
+// 拦截request整个状态
+jgb.intercept('request',(opts , status, result) => {
+  
+})
 
 jgb.getStorageInfo({
     success(res) {
@@ -216,7 +226,6 @@ jgb.getStorageInfo({
 })
 
 const result = await jgb.getStorageInfo()
-
 
 ```
 

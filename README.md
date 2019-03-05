@@ -1,12 +1,12 @@
 # JGB （金箍棒）
 
-小程序渐进式增强开发工具。
+小程序渐进式增强开发工具。[v1文档](./README.v1.md)
 
 ## 使用
 
 ```shell
-# 全局安装jgb-cli
-npm i -g jgb-cli
+# 全局安装 @jgbjs/cli
+npm i -g @jgbjs/cli # yarn add global @jgbjs/cli
 ```
 
 相关根目录配置文件**jgb.config.js**
@@ -17,12 +17,25 @@ module.exports = {
   alias: {
     '@/utils': './src/utils'
   },
-  // jgb-preset-weapp 简写 less
-  plugins: ['less'],
-  // jgb-preset-weapp 简写 weapp
-  presets: ['weapp']
+  // 简写参考 https://babeljs.io/docs/en/options#name-normalization
+  // @jgbjs/plugin-less 简写 less
+  plugins: ['@jgbjs/less'],
+  // @jgbjs/preset-weapp 简写 weapp
+  presets: ['@jgbjs/weapp']
 };
 ```
+
+
+
+## 升级指南
+
+```shell
+# 安装jgb 最新版@jgbjs/cli v2.x
+jgb --version # 2.x
+jgb update # 会更新jgb.config.js 和package.json的依赖
+```
+
+
 
 ## 特性 (具体查看examples)
 
@@ -66,7 +79,7 @@ module.exports = {
 
 ```js
 module.exports = {
-    plugins: ['babel', {
+    plugins: ['@jgbjs/babel', {
         // 支持babel编译的文件扩展名
         extensions: ['.js'],
         // 需要输出的文件扩展名
@@ -75,24 +88,24 @@ module.exports = {
 }
 ```
 
-- [jgb-plugin-babel](packages/jgb-plugin-babel/README.md)
-- [jgb-plugin-css](packages/jgb-plugin-css/README.md)
-- [jgb-plugin-html](packages/jgb-plugin-html/README.md)
-- [jgb-plugin-json](packages/jgb-plugin-json/README.md)
-- [jgb-plugin-less](packages/jgb-plugin-less/README.md)
-- [jgb-plugin-typescript](packages/jgb-plugin-typescript/README.md)
+- [@jgbjs/plugin-babel](packages/jgb-plugin-babel/README.md)
+- [@jgbjs/plugin-css](packages/jgb-plugin-css/README.md)
+- [@jgbjs/plugin-html](packages/jgb-plugin-html/README.md)
+- [@jgbjs/plugin-json](packages/jgb-plugin-json/README.md)
+- [@jgbjs/plugin-less](packages/jgb-plugin-less/README.md)
+- [@jgbjs/plugin-typescript](packages/jgb-plugin-typescript/README.md)
 
 ## presets
 
-- jgb-preset-weapp (微信小程序)
+- @jgbjs/preset-weapp (微信小程序)
 
-- jgb-preset-aliapp (支付宝小程序)
+- @jgbjs/preset-aliapp (支付宝小程序)
 
 ## Roadmap
 
-- [x] 支持微信小程序编译 (jgb-preset-weapp)
+- [x] 支持微信小程序编译 (@jgbjs/preset-weapp)
 
-- [x] 支持支付宝小程序编译 (jgb-preset-aliapp)
+- [x] 支持支付宝小程序编译 (@jgbjs/preset-aliapp)
 
 - [x] 支持百度小程序编译
 

@@ -1,5 +1,7 @@
 # jgb-plugin-babel
 
+使用babel7做编译
+
 ## 使用说明
 
 当当前项目中没有配置.babelrc 时
@@ -7,7 +9,7 @@
 
 ```json
 {
-  "plugins": ["env"],
+  "plugins": ["@babel/env"],
   "ignore": ["node_modules"]
 }
 ```
