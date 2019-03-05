@@ -1,14 +1,9 @@
-import {
-  Asset,
-  IInitOptions,
-  IPluginConfig,
-  localRequire,
-  Resolver
-} from 'jgb-shared/lib';
-import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
-import { ICompiler, IPluginRegister } from 'jgb-shared/lib/pluginDeclare';
-import StaticAsset from 'jgb-shared/lib/StaticAsset';
+import { Asset, IInitOptions, IPluginConfig, localRequire, Resolver } from '@jgbjs/shared/lib';
+import AwaitEventEmitter from '@jgbjs/shared/lib/awaitEventEmitter';
+import { ICompiler, IPluginRegister } from '@jgbjs/shared/lib/pluginDeclare';
+import StaticAsset from '@jgbjs/shared/lib/StaticAsset';
 import * as path from 'path';
+import standardizeName from './utils/standardizeName';
 
 type TypeAsset = typeof Asset;
 
@@ -44,9 +39,7 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     for (const plugin of new Set(plugins)) {
       // tslint:disable-next-line:prefer-const
       let [pluginName, pluginConfig] = [].concat(plugin);
-      if (!(pluginName as string).startsWith('jgb-plugin-')) {
-        pluginName = `jgb-plugin-${pluginName}`;
-      }
+      pluginName = standardizeName('plugin', pluginName);
 
       if (!pluginConfig) {
         pluginConfig = {};
@@ -67,9 +60,7 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     for (const preset of new Set(presets)) {
       // tslint:disable-next-line:prefer-const
       let [presetName, presetConfig] = [].concat(preset);
-      if (!(presetName as string).startsWith('jgb-preset-')) {
-        presetName = `jgb-preset-${presetName}`;
-      }
+      presetName = standardizeName('preset', presetName);
 
       if (!presetConfig) {
         presetConfig = {};
@@ -88,8 +79,8 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
 
   /**
    * addAssetsType 时会自动添加parentCompiler
-   * @param exts 
-   * @param asset 
+   * @param exts
+   * @param asset
    */
   addAssetsType(exts: string | string[], asset: string | TypeAsset) {
     [].concat(exts).forEach(ext => {

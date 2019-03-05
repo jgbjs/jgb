@@ -1,17 +1,12 @@
+import { logger } from '@jgbjs/shared/lib/Logger';
 import chalk from 'chalk';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
-import { logger } from 'jgb-shared/lib/Logger';
 import * as path from 'path';
 import * as tildify from 'tildify';
 import checkVersion from '../utils/checkVersion';
 import generate from '../utils/generate';
-import {
-  downloadAndGenerate,
-  generateMD5TemplatePath,
-  getTemplatePath,
-  isLocalPath
-} from '../utils/templateFile';
+import { downloadAndGenerate, generateMD5TemplatePath, getTemplatePath, isLocalPath } from '../utils/templateFile';
 
 export default async function init(
   template: string,

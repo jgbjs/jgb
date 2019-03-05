@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { IInitOptions } from '../typings/jgb-shared';
+import { IInitOptions } from '../typings/shared';
 import Asset from './Asset';
 
 export default class StaticAsset extends Asset {

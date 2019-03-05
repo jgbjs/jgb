@@ -1,4 +1,4 @@
-# jgb-weapp
+# weapp
 
 对小程序内置对象封装方便扩展
 
@@ -6,10 +6,10 @@
 
 ## 快速开始
 
-安装jgb-weapp
+安装weapp
 
 ```shell
-npm i -S jgb-weapp 
+npm i -S weapp 
 npm i -g jgb-cli #参考jgb-cli文档
 
 # 开始编译
@@ -21,27 +21,27 @@ jgb build
 
 ``` js
 // app.js
-import { JApp } from 'jgb-weapp'
+import { JApp } from 'weapp'
 import 'init.js'
 JApp({
     
 });
 
 // pages/index/index.js
-import { JPage } from 'jgb-weapp'
+import { JPage } from 'weapp'
 
 JPage({
     
 })
 
 // components/index/index.js
-import { JComponent } from 'jgb-weapp'
+import { JComponent } from 'weapp'
 JComponent({
     
 })
 
 // init.js
-import { JApp, JPage, JComponent } from 'jgb-weapp'
+import { JApp, JPage, JComponent } from 'weapp'
 
 JPage.mixin({
     onLoad() {
@@ -69,7 +69,7 @@ JPage.mixin({
 类似Vue.mixin,**会优先执行mixin中的方法**。
 
 ```js
-import { JPage } from 'jgb-weapp'
+import { JPage } from 'weapp'
 
 JPage.mixin({
     onLoad() {
@@ -87,7 +87,7 @@ JPage.mixin({
 **注意：res的值是上一次的返回值**
 
 ```js
-import { JPage } from 'jgb-weapp'
+import { JPage } from 'weapp'
 
 JPage.intercept('onShareAppMessage' , (res) => {
      // todo
@@ -123,7 +123,7 @@ JPage,JComponent,JApp 中都有扩展
 
 ```js
 // pages
-import { JPage } from 'jgb-weapp'
+import { JPage } from 'weapp'
 
 JPage({
     onLoad() {
@@ -151,7 +151,7 @@ JPage({
 ### 使用插件
 
 ```js
-import { jgb , use} from 'jgb-weapp'
+import { jgb , use} from 'weapp'
 import Plugin from 'xxx/Plugin'
 
 use(Plugin);
@@ -182,7 +182,7 @@ export default {
 
 ```js
 import 'miniapp-regenerator-runtime' // babel regenerator-runtime
-import { jgb } from 'jgb-weapp'
+import { jgb } from 'weapp'
 
 /**
 	result: 返回值

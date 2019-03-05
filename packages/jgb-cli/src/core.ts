@@ -1,10 +1,10 @@
+import { Asset, IInitOptions, Resolver } from '@jgbjs/shared/lib';
+import AwaitEventEmitter from '@jgbjs/shared/lib/awaitEventEmitter';
+import { logger } from '@jgbjs/shared/lib/Logger';
+import { normalizeAlias, pathToUnixType } from '@jgbjs/shared/lib/utils/index';
+import WorkerFarm from '@jgbjs/shared/lib/workerfarm/WorkerFarm';
 import * as Debug from 'debug';
 import * as fs from 'fs';
-import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
-import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
-import { logger } from 'jgb-shared/lib/Logger';
-import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
-import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
 import { IPipelineProcessed } from 'Pipeline';
 import { promisify } from 'util';

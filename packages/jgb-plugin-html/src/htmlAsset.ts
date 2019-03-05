@@ -1,6 +1,6 @@
 // tslint:disable-next-line:ordered-imports
-import { Asset, IInitOptions, Resolver, Utils } from 'jgb-shared/lib';
-import { pathToUnixType } from 'jgb-shared/lib/utils';
+import { Asset, IInitOptions, Resolver, Utils } from '@jgbjs/shared/lib';
+import { pathToUnixType } from '@jgbjs/shared/lib/utils';
 import { extname } from 'path';
 import * as render from 'posthtml-render';
 import * as api from 'posthtml/lib/api';

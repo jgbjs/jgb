@@ -1,14 +1,14 @@
+import { IInitOptions } from '@jgbjs/shared/lib';
+import { logger } from '@jgbjs/shared/lib/Logger';
+import { md5, objectHash } from '@jgbjs/shared/lib/utils';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
-import { IInitOptions } from 'jgb-shared/lib';
-import { logger } from 'jgb-shared/lib/Logger';
-import { md5, objectHash } from 'jgb-shared/lib/utils';
 import * as mkdir from 'mkdirp';
 import * as path from 'path';
-import { IPipelineProcessed } from 'Pipeline.js';
 import { promisify } from 'util';
 import * as VError from 'verror';
 import * as pkg from '../package.json';
+import { IPipelineProcessed } from './Pipeline.js';
 
 type optionsKey = keyof IInitOptions;
 

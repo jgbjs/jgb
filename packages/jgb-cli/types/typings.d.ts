@@ -1,5 +1,3 @@
-
-
 declare module '*.json' {
   const value: any;
   export default value;
@@ -44,6 +42,14 @@ declare module 'download-git-repo' {
   namespace downloadRepo {}
 }
 
+declare module 'diff' {
+  const diff: {
+    createPatch(...args: any[]): string;
+  };
+  export = diff;
+  namespace diff {}
+}
+
 declare module 'tildify' {
   function tildify(res: string): string;
   export = tildify;
@@ -64,4 +70,3 @@ declare module 'rimraf' {
   export = rimraf;
   namespace rimraf {}
 }
-

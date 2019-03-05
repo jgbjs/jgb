@@ -1,4 +1,4 @@
-import { Asset, IInitOptions } from 'jgb-shared/lib';
+import { Asset, IInitOptions } from '@jgbjs/shared/lib';
 import * as json5 from 'json5';
 import * as path from 'path';
 

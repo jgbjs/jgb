@@ -1,5 +1,5 @@
-import Asset from 'jgb-shared/lib/Asset';
-import loadPlugins from 'jgb-shared/lib/utils/loadPlugins';
+import Asset from '@jgbjs/shared/lib/Asset';
+import loadPlugins from '@jgbjs/shared/lib/utils/loadPlugins';
 import * as posthtml from 'posthtml';
 import * as posthtmlParse from 'posthtml-parser';
 

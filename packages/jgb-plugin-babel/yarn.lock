@@ -2865,9 +2865,9 @@ jest@^24.1.0:
     import-local "^2.0.0"
     jest-cli "^24.1.0"
 
-jgb-shared@^1.4.13:
+shared@^1.4.13:
   version "1.4.13"
-  resolved "http://registry.npm.taobao.org/jgb-shared/download/jgb-shared-1.4.13.tgz#92bf8cf6d40dd7e3902012c3cbcbd30e6a2403f6"
+  resolved "http://registry.npm.taobao.org/shared/download/shared-1.4.13.tgz#92bf8cf6d40dd7e3902012c3cbcbd30e6a2403f6"
   integrity sha1-kr+M9tQN1+OQIBLDy8vTDmokA/Y=
   dependencies:
     "@types/glob" "^5.0.35"

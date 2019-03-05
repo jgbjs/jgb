@@ -1,6 +1,5 @@
-import { JComponent } from 'jgb-weapp';
 
-declare module 'jgb-weapp/types/JComponent' {
+declare module '@jgbjs/weapp/types/JComponent' {
   interface IJComponent {
     /**
      * component test method

@@ -18,7 +18,7 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@tuhu/miniprogram-api-typings@2.4.2-2":
+"@tuhu/miniprogram-api-typings@latest":
   version "2.4.2-2"
   resolved "https://registry.npmjs.org/@tuhu/miniprogram-api-typings/-/miniprogram-api-typings-2.4.2-2.tgz#cbd8920789569268161ed9511ffb7ef7cadc32dd"
   integrity sha512-hyR8WRtqKZiQ22rrk/jmhh9c3Mav5Lj8PxGp/EPvr4YAFmMGk+lNHJzuZOJUgVDr8CupyY88wAaUeR3PUzfkyQ==

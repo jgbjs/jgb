@@ -611,16 +611,7 @@
     globals "^11.1.0"
     lodash "^4.17.11"
 
-"@babel/types@^7.0.0", "@babel/types@^7.0.0-beta.49":
-  version "7.2.2"
-  resolved "http://registry.npm.taobao.org/@babel/types/download/@babel/types-7.2.2.tgz#44e10fc24e33af524488b716cdaee5360ea8ed1e"
-  integrity sha1-ROEPwk4zr1JEiLcWza7lNg6o7R4=
-  dependencies:
-    esutils "^2.0.2"
-    lodash "^4.17.10"
-    to-fast-properties "^2.0.0"
-
-"@babel/types@^7.2.0", "@babel/types@^7.2.2", "@babel/types@^7.3.0", "@babel/types@^7.3.4":
+"@babel/types@^7.0.0", "@babel/types@^7.0.0-beta.49", "@babel/types@^7.2.0", "@babel/types@^7.2.2", "@babel/types@^7.3.0", "@babel/types@^7.3.4":
   version "7.3.4"
   resolved "http://registry.npm.taobao.org/@babel/types/download/@babel/types-7.3.4.tgz#bf482eaeaffb367a28abbf9357a94963235d90ed"
   integrity sha1-v0gurq/7Nnooq7+TV6lJYyNdkO0=
@@ -658,12 +649,12 @@ babel-plugin-transform-inline-environment-variables@^0.3.0:
   integrity sha1-ueGSlTVIDnKp43IQ35muvKAHp7U=
 
 babel-plugin-transform-miniprogram@^0.5.1:
-  version "0.5.1"
-  resolved "http://registry.npm.taobao.org/babel-plugin-transform-miniprogram/download/babel-plugin-transform-miniprogram-0.5.1.tgz#649b979532585282a1ec41cc00c2c054ea17549e"
-  integrity sha1-ZJuXlTJYUoKh7EHMAMLAVOoXVJ4=
+  version "0.5.2"
+  resolved "http://registry.npm.taobao.org/babel-plugin-transform-miniprogram/download/babel-plugin-transform-miniprogram-0.5.2.tgz#32a3b01ff1d65b9749678d58bd69b3e4b7550254"
+  integrity sha1-MqOwH/HWW5dJZ41YvWmz5LdVAlQ=
   dependencies:
     lodash "^4.17.11"
-    miniapp-adapter "^1.5.1"
+    miniapp-adapter "^1.5.2"
     resolve "^1.8.1"
 
 babel-plugin-transform-node-env-inline@^0.2.0:
@@ -839,10 +830,10 @@ loose-envify@^1.0.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-miniapp-adapter@^1.5.1:
-  version "1.5.1"
-  resolved "http://registry.npm.taobao.org/miniapp-adapter/download/miniapp-adapter-1.5.1.tgz#ebdba1f24ed45a2111956f81c306d6f05a032d13"
-  integrity sha1-69uh8k7UWiERlW+BwwbW8FoDLRM=
+miniapp-adapter@^1.5.2:
+  version "1.5.2"
+  resolved "http://registry.npm.taobao.org/miniapp-adapter/download/miniapp-adapter-1.5.2.tgz#4bc7bbbf84afa4feb7ae04c2eaf418d469b68ad7"
+  integrity sha1-S8e7v4SvpP63rgTC6vQY1Gm2itc=
   dependencies:
     miniapp-regenerator-runtime "^1.0.0"
 
@@ -895,9 +886,9 @@ path-parse@^1.0.6:
   integrity sha1-1i27VnlAXXLEc37FhgDp3c8G0kw=
 
 posthtml-transform-miniprogram@^0.4.2:
-  version "0.4.2"
-  resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.4.2.tgz#a52f4b444dd2d371fb4cfac8f7dde7ea8827455a"
-  integrity sha1-pS9LRE3S03H7TPrI993n6ognRVo=
+  version "0.4.3"
+  resolved "http://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.4.3.tgz#a49b541f867f8b3725b3c8f813a314052e9f8fb6"
+  integrity sha1-pJtUH4Z/izcls8j4E6MUBS6fj7Y=
   dependencies:
     lodash "^4.17.11"
 

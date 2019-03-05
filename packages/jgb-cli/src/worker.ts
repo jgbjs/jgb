@@ -1,7 +1,7 @@
+import Asset from '@jgbjs/shared/lib/Asset';
 import 'v8-compile-cache';
-
-import Asset from 'jgb-shared/lib/Asset';
 import Pipeline from './Pipeline';
+
 
 let pipeline: Pipeline;
 

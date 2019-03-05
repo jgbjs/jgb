@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { IAliasValue } from '../../typings/jgb-shared';
+import { IAliasValue } from '../../typings/shared';
 import isUrl from './isUrl';
 import loadPlugins from './loadPlugins';
 import localRequire from './localRequire';
@@ -7,9 +7,9 @@ import md5 from './md5';
 import objectHash from './objectHash';
 import urlJoin from './urlJoin';
 
-export { isUrl, loadPlugins, localRequire, md5, objectHash, urlJoin };
 export * from './localRequire';
 export * from './md5';
+export { isUrl, loadPlugins, localRequire, md5, objectHash, urlJoin };
 
 export function normalizeAlias(alias: IAliasValue) {
   if (typeof alias === 'string') {

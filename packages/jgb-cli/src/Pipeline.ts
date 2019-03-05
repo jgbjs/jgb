@@ -1,6 +1,6 @@
-import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
-import { IAssetGenerate } from 'jgb-shared/lib/Asset';
-import { logger } from 'jgb-shared/lib/Logger';
+import { Asset, IInitOptions, Resolver } from '@jgbjs/shared/lib';
+import { IAssetGenerate } from '@jgbjs/shared/lib/Asset';
+import { logger } from '@jgbjs/shared/lib/Logger';
 import Compiler from './Compiler';
 export interface IPipelineProcessed {
   generated: IAssetGenerate | IAssetGenerate[];

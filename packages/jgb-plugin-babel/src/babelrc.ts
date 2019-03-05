@@ -1,8 +1,8 @@
+import { safeLocalRequire } from '@jgbjs/shared';
+import { warning } from '@jgbjs/shared/lib/Logger';
+import { localResolve } from '@jgbjs/shared/lib/utils';
 import BabelAsset from 'BabelAsset';
 import * as fs from 'fs';
-import { safeLocalRequire } from 'jgb-shared';
-import { warning } from 'jgb-shared/lib/Logger';
-import { localResolve } from 'jgb-shared/lib/utils';
 import * as path from 'path';
 import { promisify } from 'util';
 

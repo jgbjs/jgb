@@ -1,5 +1,5 @@
 {
-  "name": "jgb-plugin-html",
+  "name": "@jgbjs/plugin-html",
   "version": "1.4.13",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -18,7 +18,7 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "htmlnano": "^0.1.10",
-    "jgb-shared": "^1.4.13",
+    "@jgbjs/shared": "^1.4.13",
     "posthtml": "^0.11.3",
     "posthtml-parser": "^0.4.1",
     "posthtml-render": "^1.1.4",

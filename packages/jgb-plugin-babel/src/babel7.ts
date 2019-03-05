@@ -1,4 +1,4 @@
-import localRequire from 'jgb-shared/lib/utils/localRequire';
+import localRequire from '@jgbjs/shared/lib/utils/localRequire';
 import BabelAsset from './BabelAsset';
 
 export default async function babel7(asset: BabelAsset, options: any = {}) {

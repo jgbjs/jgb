@@ -1,12 +1,12 @@
+import { logger } from '@jgbjs/shared/lib/Logger';
 import chalk from 'chalk';
 import * as crypto from 'crypto';
 import * as downloadRepo from 'download-git-repo';
 import * as fs from 'fs';
-import { logger } from 'jgb-shared/lib/Logger';
-
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import * as home from 'user-home';
+
 
 export async function downloadAndGenerate(
   template: string,

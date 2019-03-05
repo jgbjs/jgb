@@ -1,18 +1,14 @@
+import { logger } from '@jgbjs/shared/lib/Logger';
+import { pathToUnixType } from '@jgbjs/shared/lib/utils';
 import chalk from 'chalk';
 import * as glob from 'fast-glob';
 import * as fs from 'fs-extra';
 import * as inquirer from 'inquirer';
-import { logger } from 'jgb-shared/lib/Logger';
-import beautify = require('js-beautify');
 import * as path from 'path';
 import { getJGBConfig } from '../config';
+import { downloadAndGenerate, generateTemplatePath, md5 } from '../utils/templateFile';
+import beautify = require('js-beautify');
 
-import { pathToUnixType } from 'jgb-shared/lib/utils';
-import {
-  downloadAndGenerate,
-  generateTemplatePath,
-  md5
-} from '../utils/templateFile';
 
 export default async function create(
   templateName: string,

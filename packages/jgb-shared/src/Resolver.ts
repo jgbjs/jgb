@@ -1,9 +1,8 @@
-import * as debug from 'debug';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';
 import { promisify } from 'util';
-import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
+import { IAliasValue, IInitOptions } from '../typings/shared';
 import { normalizeAlias, pathToUnixType } from './utils';
 
 // debug.enable('*');

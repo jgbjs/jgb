@@ -1,5 +1,5 @@
 /* tslint:disable */
-import { JComponent } from 'jgb-weapp';
+import { JComponent } from '@jgbjs/weapp';
 
 JComponent({
   attached() {

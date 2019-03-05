@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
-import { builder, clean, create, init } from './command';
+import { builder, clean, create, init, upgrade } from './command';
 
 program.version((pkg as any).version, '-v, --version');
 
@@ -45,6 +45,13 @@ program
   .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .description('clean project dist and cache dir')
   .action(clean);
+
+program
+  .command('upgrade')
+  .option('--write', 'Write back updated configure files')
+  .option('--install', 'Install all the updated dependencies')
+  .description('upgrade jgb project')
+  .action(upgrade);
 
 program
   .command('init <template-name> [project-name]')

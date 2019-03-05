@@ -1,4 +1,4 @@
-import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import { Asset, IInitOptions, Resolver } from '@jgbjs/shared/lib';
 import * as path from 'path';
 import * as postcss from 'postcss';
 import * as valueParser from 'postcss-value-parser';

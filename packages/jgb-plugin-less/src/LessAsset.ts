@@ -1,5 +1,5 @@
+import { safeLocalRequire } from "@jgbjs/shared";
 import CssAsset from "jgb-plugin-css/lib/CssAsset";
-import { safeLocalRequire } from "jgb-shared";
 import * as Less from "less";
 import { promisify } from "util";
 

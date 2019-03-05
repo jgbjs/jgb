@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "./lib/",
     "baseUrl": "src",
+    "noImplicitAny": false,
     "typeRoots": [
       "node_modules/@types",
       "./types"

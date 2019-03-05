@@ -1,5 +1,5 @@
+import { Config, IInitOptions } from '@jgbjs/shared/lib';
 import * as fs from 'fs';
-import { Config, IInitOptions } from 'jgb-shared/lib';
 
 export function loadConfig(fileName: string) {
   if (fs.existsSync(fileName)) {

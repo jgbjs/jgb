@@ -1,4 +1,4 @@
-const Path = require('path')
+const Path = require('path');
 
 module.exports = {
   // entryFiles: ['../node_modules/miniapp-regenerator-runtime/index.js'],
@@ -20,9 +20,9 @@ module.exports = {
       dist: 'pages/aliasComponent/'
     }
   },
-  presets: ['weapp'],
-  plugins: [['less', {
+  presets: ["@jgbjs/weapp"],
+  plugins: [["@jgbjs/less", {
     extensions: ['.wxss'],
     outExt: '.wxss'
-  }], 'typescript']
+  }], "@jgbjs/typescript"]
 }

@@ -1,5 +1,5 @@
-import loadPlugins from 'jgb-shared/lib/utils/loadPlugins';
-import localRequire from 'jgb-shared/lib/utils/localRequire';
+import loadPlugins from '@jgbjs/shared/lib/utils/loadPlugins';
+import localRequire from '@jgbjs/shared/lib/utils/localRequire';
 import * as postcss from 'postcss';
 import * as semver from 'semver';
 import CssAsset from './CssAsset';

@@ -1,5 +1,5 @@
 {
-  "name": "jgb-plugin-babel",
+  "name": "@jgbjs/plugin-babel",
   "version": "1.4.13",
   "main": "lib/index.js",
   "typings": "typings/index.d.ts",
@@ -33,7 +33,7 @@
     "browserslist": "^4.0.1",
     "chalk": "^2.4.1",
     "debug": "^4.1.1",
-    "jgb-shared": "^1.4.13",
+    "@jgbjs/shared": "^1.4.13",
     "node-libs-browser": "^2.1.0",
     "semver": "^5.5.0",
     "terser": "^3.8.1",

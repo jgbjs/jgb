@@ -1,13 +1,12 @@
-
 module.exports = {
   // entryFiles: ['app.js'],
   cache: false,
-  presets: ['weapp'],
-  plugins: [['css', {
+  presets: ["@jgbjs/weapp"],
+  plugins: [["@jgbjs/css", {
     outExt: '.css',
-    extensions: ['.wxss', 'bcss'],
-  }], ['html', {
+    extensions: ['.wxss', 'bcss']
+  }], ["@jgbjs/html", {
     extensions: ['.wxml', 'swan'],
     outExt: '.swan'
   }]]
-}
+};

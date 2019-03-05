@@ -1,7 +1,7 @@
+import { IInitOptions } from '@jgbjs/shared';
+import SourceMap from '@jgbjs/shared/lib/SourceMap';
+import { pathToUnixType, safeLocalRequire } from '@jgbjs/shared/lib/utils';
 import BabelAsset from 'jgb-plugin-babel/lib/BabelAsset';
-import { IInitOptions } from 'jgb-shared';
-import SourceMap from 'jgb-shared/lib/SourceMap';
-import { pathToUnixType, safeLocalRequire } from 'jgb-shared/lib/utils';
 import * as Typescript from 'typescript';
 
 export default class TypeScriptAsset extends BabelAsset {

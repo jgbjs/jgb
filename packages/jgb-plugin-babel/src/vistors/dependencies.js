@@ -1,7 +1,7 @@
 import template from '@babel/template';
 import traverse from '@babel/traverse';
-import isURL from 'jgb-shared/lib/utils/isUrl';
-import urlJoin from 'jgb-shared/lib/utils/urlJoin';
+import isURL from '@jgbjs/shared/lib/utils/isUrl';
+import urlJoin from '@jgbjs/shared/lib/utils/urlJoin';
 import matchesPattern from './matchesPattern';
 
 const types = require('@babel/types');

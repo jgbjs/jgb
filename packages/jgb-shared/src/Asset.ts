@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as URL from 'url';
-import { IInitOptions } from '../typings/jgb-shared';
+import { IInitOptions } from '../typings/shared';
 import * as config from './config';
 import { logger } from './Logger';
 import { ICompiler } from './pluginDeclare';

@@ -1,5 +1,5 @@
 {
-  "name": "jgb-weapp",
+  "name": "@jgbjs/weapp",
   "version": "1.4.14",
   "main": "lib/index.js",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "typescript": "3.0.1"
   },
   "dependencies": {
-    "@tuhu/miniprogram-api-typings": "2.4.2-2",
+    "@tuhu/miniprogram-api-typings": "latest",
     "lodash": "^4.17.10",
     "tslib": "^1.9.3"
   },

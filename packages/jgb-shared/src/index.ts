@@ -5,7 +5,8 @@ import Resolver from './Resolver';
 import * as Utils from './utils';
 import localRequire, { safeLocalRequire } from './utils/localRequire';
 
-export * from '../typings/jgb-shared';
+export * from '../typings/shared';
+export { Asset, Resolver, declare, Config, localRequire, safeLocalRequire, Utils };
 
 export default {
   Asset,
@@ -17,12 +18,4 @@ export default {
   Utils
 };
 
-export {
-  Asset,
-  Resolver,
-  declare,
-  Config,
-  localRequire,
-  safeLocalRequire,
-  Utils
-};
+

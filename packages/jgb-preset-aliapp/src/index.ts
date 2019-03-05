@@ -1,11 +1,11 @@
+import { declare, IInitOptions } from '@jgbjs/shared/lib';
+import { ICompiler } from '@jgbjs/shared/lib/pluginDeclare';
 import * as glob from 'fast-glob';
 import BabelPlugin from 'jgb-plugin-babel';
 import CssPlugin from 'jgb-plugin-css';
 import HtmlPlugin from 'jgb-plugin-html';
 import JsonPlugin from 'jgb-plugin-json';
 import JsonAsset from 'jgb-plugin-json/lib/JsonAsset';
-import { declare, IInitOptions } from 'jgb-shared/lib';
-import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
 import * as Path from 'path';
 
 interface IPluginConfig {

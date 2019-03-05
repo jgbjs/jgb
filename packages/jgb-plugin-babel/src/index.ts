@@ -1,6 +1,6 @@
-import { declare } from 'jgb-shared/lib';
+import { declare } from '@jgbjs/shared/lib';
 // @ts-ignore
-import * as pkg from '../package.json'
+import * as pkg from '../package.json';
 import BabelAsset from './BabelAsset';
 
 const defaultExts = ['.js'];

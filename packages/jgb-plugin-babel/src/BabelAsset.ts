@@ -1,12 +1,12 @@
 import generate from '@babel/generator';
 import * as babelParser from '@babel/parser';
 import traverse from '@babel/traverse';
+import { Asset, IInitOptions } from '@jgbjs/shared/lib';
+import { logger } from '@jgbjs/shared/lib/Logger';
+import SourceMap from '@jgbjs/shared/lib/SourceMap';
+import { pathToUnixType } from '@jgbjs/shared/lib/utils';
 import * as walk from 'babylon-walk';
 import * as fs from 'fs';
-import { Asset, IInitOptions } from 'jgb-shared/lib';
-import { logger } from 'jgb-shared/lib/Logger';
-import SourceMap from 'jgb-shared/lib/SourceMap';
-import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
 import * as path from 'path';
 import { promisify } from 'util';

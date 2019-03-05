@@ -1,4 +1,4 @@
-import { localRequire } from 'jgb-shared/lib';
+import { localRequire } from '@jgbjs/shared/lib';
 import { babel6toBabel7 } from './astConverter';
 
 export default async function babel6(asset, options: any = {}) {
