@@ -40,21 +40,24 @@ export default function initNativeApi(jgb: any = {}) {
     // @ts-ignore
     if (!onAndSyncApis[key] && !noPromiseApis[key]) {
       jgb[key] = (options: any = {}, ...args: any[]) => {
-        let task: any = null;
+        let task: any = {};
 
-        options = doIntercept(options, 'begin', options) || options;
+        const p = new PromiseTask(async (resolve, reject) => {
+          // 拦截入参
+          options = (await doIntercept(options, 'begin', options)) || options;
 
-        const obj: any = Object.assign({}, options);
+          const obj: any = Object.assign({}, options);
 
-        if (typeof options !== 'object') {
-          // @ts-ignore
-          const result = wx[key](options, ...args);
-          return doIntercept(result, 'success', options) || result;
-        }
-        const p = new PromiseTask((resolve, reject) => {
+          if (typeof options !== 'object') {
+            // @ts-ignore
+            const result = wx[key](options, ...args);
+            resolve(doIntercept(result, 'success', options) || result);
+            return;
+          }
+
           ['fail', 'success', 'complete'].forEach((k: IInterceptStatus) => {
-            obj[k] = (res: any) => {
-              res = doIntercept(res, k, obj) || res;
+            obj[k] = async (res: any) => {
+              res = (await doIntercept(res, k, obj)) || res;
               // tslint:disable-next-line:no-unused-expression
               options[k] && options[k](res);
               if (k === 'success') {
@@ -73,6 +76,7 @@ export default function initNativeApi(jgb: any = {}) {
           // @ts-ignore
           task = wx[key](obj, ...args);
         });
+
         if (['uploadFile', 'downloadFile', 'request'].includes(key)) {
           p.progress = cb => {
             if (typeof task.onProgressUpdate === 'function') {
@@ -89,6 +93,7 @@ export default function initNativeApi(jgb: any = {}) {
             return p;
           };
         }
+        
         return p;
       };
     } else {

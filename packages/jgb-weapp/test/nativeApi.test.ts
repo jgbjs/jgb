@@ -2,6 +2,11 @@ import initNativeApi, { intercepts } from '../src/native-api';
 
 // @ts-ignore
 global.wx = {
+  /**
+   * 模拟异步接口
+   *    统一延迟100ms返回
+   * @param opts
+   */
   request(opts: any) {
     const { success, fail, complete } = opts;
     const timers: any[] = [];
@@ -146,6 +151,38 @@ describe('otherApis: request intercept', () => {
     setTimeout(() => {
       expect(t).toBe(1);
     }, 200);
+  });
+
+  test('async intercept', async () => {
+    const jgb = init();
+    let t = 1;
+    jgb.intercept('request', 'begin', async (opts: any) => {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          opts.url = `test2`;
+          resolve(opts);
+        }, 100);
+      });
+    });
+
+    const requestOpts = {
+      url: `test`,
+      success() {
+        t = 2;
+      }
+    };
+
+    setTimeout(() => {
+      expect(t).toBe(1);
+      expect(requestOpts.url).toBe(`test2`);
+    }, 101);
+
+    jgb.request(requestOpts).then((res: any) => {
+      expect(t).toBe(2);
+      expect(res.data.opts.url).toBe(`test2`);
+    });
+
+    expect(requestOpts.url).toBe(`test`);
   });
 });
 

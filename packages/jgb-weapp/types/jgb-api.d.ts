@@ -62,13 +62,16 @@ export interface IJGBIntercept {
   intercept(event: keyOfWx):void;
   /**
    * 拦截原生方法
-   *   经过所有拦截状态
-   * @param event
+   * * 拦截所有状态, begin, fail, success, complete
+   * * fn如果是非同步api支持返回promise   
+   * @param event 
    * @param fn
    */
   intercept(event: keyOfWx, fn: IInterceptFn): void;
   /**
    * 拦截原生方法
+   * * 拦截所有状态, begin, fail, success, complete
+   * * fn如果是非同步api支持返回promise 
    * @param event 需要拦截的原生函数
    * @param status 需要拦截函数执行的状态
    * @param fn 拦截函数
