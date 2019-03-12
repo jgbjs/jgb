@@ -11,7 +11,8 @@
       "npmClient": "yarn"
     },
     "publish": {
-      "message": "chore(release): publish %s"
+      "message": "chore(release): publish %s",
+      "verifyAccess": false
     }
   }
 }
