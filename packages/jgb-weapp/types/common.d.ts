@@ -1,5 +1,7 @@
 export type BaseCallback = (res: any) => void;
 
+export type Accessors<T> = { [K in keyof T]: () => T[K] };
+
 export interface BaseOptions {
   /**
    * 接口调用成功的回调函数

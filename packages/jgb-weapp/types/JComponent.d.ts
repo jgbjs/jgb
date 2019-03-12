@@ -1,5 +1,5 @@
-import { DefaultData, DefaultMethods } from './common';
-import { IEventBus, IEventFunction, INewEventBus } from './eventbus';
+import { Accessors } from './common';
+import { IEventFunction } from './eventbus';
 type DefaultProps = Record<string, any>;
 
 type Prop<T> = (() => T) | { new (...args: any[]): T & object };
@@ -22,29 +22,34 @@ type CombinedJComponentInstance<
   Instance extends JComponent,
   Data,
   Method,
-  Props
-> = DefaultProps & { data: Data & DefaultProps & Props } & Instance &
+  Props,
+  Computed
+> = DefaultProps & { data: Data & DefaultProps & Props & Computed } & Instance &
   Method & { properties: Props };
 
 type ThisTypedJComponentOptionsWithArrayProps<
   P extends JComponent,
   Data,
   Methods,
-  Props
+  Props,
+  Computed
 > = object &
   JComponentOptions<
     P,
     DataDef<Data, Props, P>,
     Methods,
     Props,
-    CombinedJComponentInstance<P, Data, Methods, Readonly<Props>>
+    Computed,
+    CombinedJComponentInstance<P, Data, Methods, Readonly<Props>, Computed>
   > &
-  ThisType<CombinedJComponentInstance<P, Data, Methods, Readonly<Props>>>;
+  ThisType<
+    CombinedJComponentInstance<P, Data, Methods, Readonly<Props>, Computed>
+  >;
 
 /**
  * JComponent 实现的接口对象
  */
-interface JComponentOptions<P, Data, Methods, Props, Instance> {
+interface JComponentOptions<P, Data, Methods, Props, Computed, Instance> {
   /**
    * 开发者可以添加任意的函数或数据到 object 参数中，
    * 在页面的函数中用 this 可以访问
@@ -61,6 +66,23 @@ interface JComponentOptions<P, Data, Methods, Props, Instance> {
    * @memberof JComponentOptions
    */
   properties?: RecordPropsDefinition<Props, Instance>;
+
+  /**
+   * 计算属性
+   * 需要指定显示声明returntype
+   * @example
+```js
+ computed: {
+  priceWithCurrency():string {
+     return '$' + this.data.price
+  }
+}
+```
+   *
+   * @type {Accessors<Computed>}
+   * @memberof JComponentOptions
+   */
+  computed?: Accessors<Computed>;
   /**
    * 组件的内部数据，和 properties 一同用于组件的模版渲染
    *
@@ -168,8 +190,19 @@ interface JComponentOptions<P, Data, Methods, Props, Instance> {
  * JComponent的构造方法
  */
 interface IJComponentConstructor<P extends JComponent = JComponent> {
-  <Data = Record<string, any>, Methods = object, Props = object>(
-    opts: ThisTypedJComponentOptionsWithArrayProps<P, Data, Methods, Props>
+  <
+    Data = Record<string, any>,
+    Methods = object,
+    Props = object,
+    Computed = object
+  >(
+    opts: ThisTypedJComponentOptionsWithArrayProps<
+      P,
+      Data,
+      Methods,
+      Props,
+      Computed
+    >
   ): any;
   mixin(obj: any): void;
   intercept(event: string, fn: IEventFunction): void;
