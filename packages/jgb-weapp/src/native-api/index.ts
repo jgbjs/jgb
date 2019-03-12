@@ -12,15 +12,39 @@ type interceptValue = [IEventFunction, IInterceptStatus];
 export const intercepts = new Map<string, interceptValue[]>();
 
 export function getIntercept(key: string) {
-  return (result: any, status: IInterceptStatus, options?: any) => {
-    const value = intercepts.get(key);
+  // @ts-ignore
+  // async api use async reduce
+  if (!onAndSyncApis[key] && !noPromiseApis[key]) {
+    return (result: any, status: IInterceptStatus, options?: any) => {
+      const tasks = intercepts.get(key);
 
-    if (!value || value.length === 0) {
+      if (!tasks || tasks.length === 0) {
+        return result;
+      }
+
+      return tasks.reduce(async (r: any, t) => {
+        const [task, requiredStatus] = t;
+        const prevResult = await r;
+        if (!requiredStatus) {
+          return task(prevResult, status, options);
+        }
+        if (requiredStatus === status) {
+          return task(prevResult, status, options);
+        }
+        return prevResult;
+      }, result);
+    };
+  }
+
+  return (result: any, status: IInterceptStatus, options?: any) => {
+    const tasks = intercepts.get(key);
+
+    if (!tasks || tasks.length === 0) {
       return result;
     }
 
-    return value.reduce((r: any, iValue) => {
-      const [task, requiredStatus] = iValue;
+    return tasks.reduce((r: any, t) => {
+      const [task, requiredStatus] = t;
       if (!requiredStatus) {
         return task(r, status, options);
       }
@@ -93,7 +117,7 @@ export default function initNativeApi(jgb: any = {}) {
             return p;
           };
         }
-        
+
         return p;
       };
     } else {
