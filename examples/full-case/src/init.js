@@ -1,4 +1,4 @@
-import { JApp, JPage } from '@jgbjs/weapp';
+import { JApp, JPage } from 'jgb-weapp';
 
 JApp.mixin({
   onLaunch(e) {

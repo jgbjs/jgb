@@ -1,5 +1,5 @@
 
-declare module '@jgbjs/weapp/types/JComponent' {
+declare module 'jgb-weapp/types/JComponent' {
   interface IJComponent {
     /**
      * component test method

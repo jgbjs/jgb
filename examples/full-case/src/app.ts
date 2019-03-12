@@ -2,7 +2,7 @@
 import AliasTest from '@alias-test';
 // @ts-ignore
 import TestAlias from '@alias/testAlias.js';
-import { JApp, JComponent, jgb } from '@jgbjs/weapp';
+import { JApp, JComponent, jgb } from 'jgb-weapp';
 import 'miniapp-regenerator-runtime';
 import './init.js';
 import testUtil from './utils/index';

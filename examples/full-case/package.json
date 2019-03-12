@@ -19,7 +19,7 @@
     "@jgbjs/plugin-less": "^1.4.13",
     "@jgbjs/plugin-typescript": "^1.4.13",
     "@jgbjs/preset-weapp": "^1.4.13",
-    "@jgbjs/weapp": "^1.4.14",
+    "jgb-weapp": "^1.4.14",
     "lodash-es": "^4.17.10",
     "lottie-miniapp": "^1.4.0",
     "miniapp-regenerator-runtime": "^1.0.0",

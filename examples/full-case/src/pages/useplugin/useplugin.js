@@ -1,4 +1,4 @@
-import { JPage } from '@jgbjs/weapp';
+import { JPage } from 'jgb-weapp';
 
 JPage({
   onLoad() {

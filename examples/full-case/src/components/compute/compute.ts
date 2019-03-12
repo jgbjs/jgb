@@ -1,4 +1,4 @@
-import { JComponent } from '@jgbjs/weapp';
+import { JComponent } from 'jgb-weapp';
 
 JComponent({
   computed: {
