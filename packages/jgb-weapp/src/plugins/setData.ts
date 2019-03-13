@@ -1,3 +1,4 @@
+import set from 'lodash/set';
 import { IPlugin } from '../../types/plugins';
 import nextTick from '../utils/nextTick';
 
@@ -33,6 +34,7 @@ function setDataPerformance(this: any) {
     get() {
       return (data: any, cb: any) => {
         this[$MERGE_DATA].push({ data, cb });
+        setDataOnPath(this.data, data);
         nextTick(() => {
           if (this[$MERGE_DATA].length === 0) return;
           const copies = this[$MERGE_DATA].slice(0);
@@ -67,6 +69,13 @@ function setDataPerformance(this: any) {
       };
     }
   });
+}
+
+function setDataOnPath(ctx: any, data: any = {}) {
+  for(const path of Object.keys(data)) {
+    const value = data[path];
+    set(ctx, path , value);
+  }
 }
 
 export default setDataPlugin;
