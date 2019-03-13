@@ -1,6 +1,6 @@
 {
   "name": "@jgbjs/cli",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.3.4",
-    "@jgbjs/shared": "^2.0.0-alpha.0",
+    "@jgbjs/shared": "^2.0.0-alpha.1",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
     "debug": "^3.1.0",

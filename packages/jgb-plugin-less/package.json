@@ -1,6 +1,6 @@
 {
   "name": "@jgbjs/plugin-less",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -19,8 +19,8 @@
     "prepublishOnly": "yarn run clean && yarn run build"
   },
   "dependencies": {
-    "@jgbjs/plugin-css": "^2.0.0-alpha.0",
-    "@jgbjs/shared": "^2.0.0-alpha.0",
+    "@jgbjs/plugin-css": "^2.0.0-alpha.1",
+    "@jgbjs/shared": "^2.0.0-alpha.1",
     "@types/less": "^0.0.34",
     "chalk": "^2.4.1",
     "cssnano": "^4.0.5",

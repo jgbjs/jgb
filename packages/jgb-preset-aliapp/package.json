@@ -1,6 +1,6 @@
 {
   "name": "@jgbjs/preset-aliapp",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -20,11 +20,11 @@
     "test": "jest --env=node --colors"
   },
   "dependencies": {
-    "@jgbjs/plugin-babel": "^2.0.0-alpha.0",
-    "@jgbjs/plugin-css": "^2.0.0-alpha.0",
-    "@jgbjs/plugin-html": "^2.0.0-alpha.0",
-    "@jgbjs/plugin-json": "^2.0.0-alpha.0",
-    "@jgbjs/shared": "^2.0.0-alpha.0",
+    "@jgbjs/plugin-babel": "^2.0.0-alpha.1",
+    "@jgbjs/plugin-css": "^2.0.0-alpha.1",
+    "@jgbjs/plugin-html": "^2.0.0-alpha.1",
+    "@jgbjs/plugin-json": "^2.0.0-alpha.1",
+    "@jgbjs/shared": "^2.0.0-alpha.1",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",

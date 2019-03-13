@@ -1,6 +1,6 @@
 {
   "name": "@jgbjs/plugin-json",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "publishConfig": {
     "access": "public"
   },
@@ -19,7 +19,7 @@
     "prepublishOnly": "yarn run clean && yarn run build"
   },
   "dependencies": {
-    "@jgbjs/shared": "^2.0.0-alpha.0",
+    "@jgbjs/shared": "^2.0.0-alpha.1",
     "@types/json5": "^0.0.30",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
