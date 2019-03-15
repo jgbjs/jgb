@@ -1,6 +1,6 @@
 import EventBus, { STORE } from '../src/EventBus';
 
-describe('emit', () => {
+describe('eventbus:emit', () => {
   test('emit when on', () => {
     const bus = new EventBus();
     bus.on('test', data => {
@@ -83,7 +83,7 @@ describe('emit', () => {
   });
 });
 
-describe('off', () => {
+describe('eventbus:off', () => {
   const bus = new EventBus();
   let index = 0;
   const fn = (data: any) => {
@@ -97,14 +97,12 @@ describe('off', () => {
 
   const [id1, id2] = bus.on(['test2', 'test3', 'test4'], fn1);
 
-  let size = bus[STORE].size;
-
   test('off with function', () => {
     // off test with fn
     bus.emit('test', 1);
 
     bus.off('test', fn);
-    expect(bus[STORE].get('test').length).toBe(0);
+    expect(bus[STORE].get('test')).toBeUndefined();
   });
 
   test('off with id', () => {
@@ -125,7 +123,7 @@ describe('off', () => {
     bus.emit(['test3'], 5);
 
     bus.off([id1, id2]);
-
+    console.log();
     bus.emit(['test3'], 6);
 
     expect(index).toBe(5);
@@ -142,19 +140,21 @@ describe('off', () => {
 
     bus.off('test4', fn1);
 
-    expect(bus[STORE].get('test4').length).toBe(0);
+    expect(bus[STORE].get('test4')).toBeUndefined();
   });
 
   test('no event will be off', () => {
     // no event will be off
+    const storeSize = bus[STORE].size;
     bus.off('empty');
-    expect(bus[STORE].size).toBe(size);
+    expect(bus[STORE].size).toBe(storeSize);
   });
 
   test('off with one params', () => {
     // off test with no arguments[1]
+    const storeSize = bus[STORE].size;
     bus.off('test');
-    expect(bus[STORE].size).toBe(--size);
+    expect(bus[STORE].size).toBe(Math.max(storeSize - 1, 0));
   });
 
   test('off all', () => {
@@ -163,7 +163,7 @@ describe('off', () => {
   });
 });
 
-describe('on', () => {
+describe('eventbus:on', () => {
   test('events is string', () => {
     const bus = new EventBus();
     bus.on('test', () => console.log(1));
@@ -186,6 +186,14 @@ describe('on', () => {
       //
     }
 
+    expect(bus[STORE].size).toBe(0);
+  });
+
+  test('once', () => {
+    const bus = new EventBus();
+    bus.once('once', () => {});
+    expect(bus[STORE].size).toBe(1);
+    bus.emit('once');
     expect(bus[STORE].size).toBe(0);
   });
 });

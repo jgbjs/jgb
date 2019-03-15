@@ -101,15 +101,24 @@ class EventBus implements IEventBus {
   }
 
   private indentifyIdOff(events: number | number[]) {
-    const values = this[STORE].values();
-    const ids = [].concat(events);
-    for (const value of values) {
-      value.forEach((v, i) => {
-        const id = v.identifyId;
+    const entries = this[STORE].entries();
+    const ids: number[] = [].concat(events);
+
+    for (let [key, values] of entries) {
+      values = values.filter(value => {
+        const id = value.identifyId;
         if (ids.includes(id)) {
-          value.splice(i, 1);
+          return false;
         }
+
+        return true;
       });
+
+      if (values.length === 0) {
+        this[STORE].delete(key);
+      } else {
+        this[STORE].set(key, values);
+      }
     }
   }
 
@@ -139,6 +148,11 @@ class EventBus implements IEventBus {
         store.splice(i, 1);
         break;
       }
+    }
+
+    // remove store when events length zero
+    if (store.length === 0) {
+      this[STORE].delete(event);
     }
   }
 }
