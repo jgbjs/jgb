@@ -39,12 +39,20 @@ type TypeNoPromiseApi<
 type TypeSyncApi<
   K extends SyncApiKey = SyncApiKey,
   T extends TypeOfWx = TypeOfWx
-> = { [P in K]: T[P] };
+> = { [P in K]: T[P] } & {
+  request: {
+    /**
+     * 最大并发数
+     * @default 10
+     */
+    MAX: number;
+  };
+};
 
 type TypeRequestLikeKey = 'request' | 'downloadFile' | 'uploadFile';
 
 type PromiseFunc<P extends string, T extends (args: any) => any> = (
-  args?: ArgumentType<T>
+  args?: ExtendOptions<P, ArgumentType<T>>
 ) => P extends TypeRequestLikeKey
   ? RequestTaskExtension<Promise<SuccessArgumentType<T>>, P>
   : Promise<SuccessArgumentType<T>>;
@@ -53,25 +61,35 @@ type PromiseFunc<P extends string, T extends (args: any) => any> = (
 type RequestTaskExtension<
   T extends Promise<any>,
   K extends TypeRequestLikeKey
-> = T & ReturnType<TypeOfWx[TypeRequestLikeKey]>;
+> = T & ReturnType<TypeOfWx[TypeRequestLikeKey]> & {};
+
+/** 扩展入参  */
+type ExtendOptions<T, U> = T extends TypeRequestLikeKey ? U & {
+  /**
+   * 请求优先级
+   * 数字越大优先级越低
+   * @default 1
+   */
+  priority?: number
+} : U;
 
 export interface IJGBIntercept {
   /**
    * 删除拦截原生方法
    */
-  intercept(event: keyOfWx):void;
+  intercept(event: keyOfWx): void;
   /**
    * 拦截原生方法
    * * 拦截所有状态, begin, fail, success, complete
-   * * fn如果是非同步api支持返回promise   
-   * @param event 
+   * * fn如果是非同步api支持返回promise
+   * @param event
    * @param fn
    */
   intercept(event: keyOfWx, fn: IInterceptFn): void;
   /**
    * 拦截原生方法
    * * 拦截所有状态, begin, fail, success, complete
-   * * fn如果是非同步api支持返回promise 
+   * * fn如果是非同步api支持返回promise
    * @param event 需要拦截的原生函数
    * @param status 需要拦截函数执行的状态
    * @param fn 拦截函数

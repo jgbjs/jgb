@@ -4,8 +4,9 @@ export default class PromiseTask<T> {
   private res: (value?: T | PromiseLike<T>) => void;
   private rej: (reason?: any) => void;
   private readonly promise: Promise<T>;
-
-  progress: (cb: any) => this;
+  offHeadersReceived: (cb: any) => this;
+  onHeadersReceived: (cb: any) => this;
+  onProgressUpdate: (cb: any) => this;
   abort: (cb: any) => this;
 
   constructor(executor: IExecutor) {

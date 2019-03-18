@@ -1,77 +1,8 @@
-import initNativeApi, { intercepts } from '../src/native-api';
+import initNativeApi from '../src/native-api';
+import { intercepts } from '../src/native-api/intercept';
+import './polyfill';
 
-// @ts-ignore
-global.wx = {
-  /**
-   * 模拟异步接口
-   *    统一延迟100ms返回
-   * @param opts
-   */
-  request(opts: any) {
-    const { success, fail, complete } = opts;
-    const timers: any[] = [];
-    if (opts.isfail) {
-      const timer = setTimeout(() => {
-        fail &&
-          fail({
-            err: 0
-          });
-      }, 100);
-      timers.push(timer);
-    } else {
-      const timer = setTimeout(() => {
-        success &&
-          success({
-            data: {
-              test: 1,
-              opts
-            },
-            statusCode: 200,
-            header: {}
-          });
-      }, 100);
-      timers.push(timer);
-    }
-
-    const timer = setTimeout(() => {
-      complete && complete();
-    }, 101);
-    timers.push(timer);
-    return {
-      abort() {
-        for (const t of timers) {
-          clearTimeout(t);
-        }
-      }
-    };
-  },
-  getStorageSync(key: string) {
-    return {
-      test: key
-    };
-  },
-  createMapContext(mapId: string, ctx?: any) {
-    return {
-      mapId,
-      ctx
-    };
-  },
-  nextTick(cb: any) {
-    Promise.resolve().then(cb);
-  },
-  connectSocket(opts: any) {
-    setTimeout(() => {
-      opts.success && opts.success();
-    });
-
-    return {
-      send(opts: any) {
-        const { data, success } = opts;
-        success(data);
-      }
-    };
-  }
-};
+const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 
 function init(jgb: any = {}) {
   initNativeApi(jgb);
@@ -127,7 +58,7 @@ describe('otherApis: request intercept', () => {
     });
 
     try {
-      const result = await jgb.request({
+      await jgb.request({
         url: 'test',
         isfail: true
       });
@@ -136,27 +67,43 @@ describe('otherApis: request intercept', () => {
     }
   });
 
-  test('request abort', () => {
+  test('request abort', async () => {
+    expect.assertions(1);
+
     const jgb = init();
     let t = 1;
-    jgb
-      .request({
-        url: `test`,
-        success() {
-          t = 2;
-        }
-      })
-      .abort();
+    const r = jgb.request({
+      url: `test`,
+      success() {
+        t = 2;
+      }
+    });
 
-    setTimeout(() => {
-      expect(t).toBe(1);
-    }, 200);
+    try {
+      r.abort();
+    } catch (error) {
+      console.log('e', error);
+    }
+
+    r.then(
+      (value: any) => {},
+      (value: any) => {
+        console.error(value);
+      }
+    );
+
+    return new Promise(resolve => {
+      setTimeout(() => {
+        expect(t).toBe(1);
+        resolve();
+      }, 200);
+    });
   });
 
   test('async intercept', async () => {
     const jgb = init();
     let t = 1;
-    jgb.intercept('request', 'begin', async (opts: any) => {
+    jgb.intercept('request', 'begin', (opts: any) => {
       return new Promise(resolve => {
         setTimeout(() => {
           opts.url = `test2`;
@@ -172,17 +119,10 @@ describe('otherApis: request intercept', () => {
       }
     };
 
-    setTimeout(() => {
-      expect(t).toBe(1);
-      expect(requestOpts.url).toBe(`test2`);
-    }, 101);
+    const res = await jgb.request(requestOpts);
 
-    jgb.request(requestOpts).then((res: any) => {
-      expect(t).toBe(2);
-      expect(res.data.opts.url).toBe(`test2`);
-    });
-
-    expect(requestOpts.url).toBe(`test`);
+    expect(t).toBe(2);
+    expect(res.data.opts.url).toBe(`test2`);
   });
 });
 
@@ -226,7 +166,7 @@ describe('onAndSyncApis: getStorageSync intercept', () => {
   });
 });
 
-describe('intercept common', () => {
+describe('intercept:common', () => {
   test('add intercept', () => {
     intercepts.clear();
     const jgb = init();
@@ -259,13 +199,14 @@ describe('intercept common', () => {
     expect(ctx.ctx).toBe(1);
   });
 
-  test(`nextTick no in native-api config`, () => {
+  test(`nextTick no in native-api config`, async () => {
     const jgb = init();
     let t = 1;
     jgb.nextTick(() => {
       t = 2;
     });
     expect(t).toBe(1);
+    await sleep(10);
   });
 
   test(`connectSocket`, async () => {

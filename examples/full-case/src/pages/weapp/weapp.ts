@@ -1,4 +1,8 @@
-import { JPage } from 'jgb-weapp';
+import { jgb, JPage } from 'jgb-weapp';
+
+jgb.intercept('request', 'begin', opts => {
+  opts.url = `${opts.url}?v=2`;
+});
 
 JPage({
   data: {
@@ -35,7 +39,13 @@ JPage({
   onScroll() {
     console.log(this);
   },
-  onLoad(opts) {
+  async onLoad(opts) {
+    const res = jgb.request({
+      url: `https://api.github.com`
+    });
+
+    res.onHeadersReceived(res => console.log(res));
+
     setTimeout(() => {
       this.onShareAppMessage = () => ({
         title: '改-自定义转发标题',

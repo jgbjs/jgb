@@ -16,6 +16,8 @@ JComponent.intercept(opts => {
   return opts;
 });
 
+jgb.request.MAX = 10;
+
 JApp({
   globaldata: {},
   async onLaunch() {

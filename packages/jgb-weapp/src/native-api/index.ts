@@ -2,67 +2,24 @@
  * 参考 taro
  * https://github.com/NervJS/taro/blob/a16bb2cd0e9bbc44562877fc8476ff797c688b9c/packages/taro-weapp/src/native-api.js
  */
-import { IEventFunction } from '../../types/eventbus';
-import { IInterceptFn, IInterceptStatus } from '../../types/jgb-api';
+import { IInterceptStatus } from '../../types/jgb-api';
 import PromiseTask from '../utils/task';
+import { getIntercept, initInercept } from './intercept';
 import { noPromiseApis, onAndSyncApis } from './native-apis';
+import { request } from './network';
 
-type interceptValue = [IEventFunction, IInterceptStatus];
-
-export const intercepts = new Map<string, interceptValue[]>();
-
-export function getIntercept(key: string) {
-  // @ts-ignore
-  // async api use async reduce
-  if (!onAndSyncApis[key] && !noPromiseApis[key]) {
-    return (result: any, status: IInterceptStatus, options?: any) => {
-      const tasks = intercepts.get(key);
-
-      if (!tasks || tasks.length === 0) {
-        return result;
-      }
-
-      return tasks.reduce(async (r: any, t) => {
-        const [task, requiredStatus] = t;
-        const prevResult = await r;
-        if (!requiredStatus) {
-          return task(prevResult, status, options);
-        }
-        if (requiredStatus === status) {
-          return task(prevResult, status, options);
-        }
-        return prevResult;
-      }, result);
-    };
-  }
-
-  return (result: any, status: IInterceptStatus, options?: any) => {
-    const tasks = intercepts.get(key);
-
-    if (!tasks || tasks.length === 0) {
-      return result;
-    }
-
-    return tasks.reduce((r: any, t) => {
-      const [task, requiredStatus] = t;
-      if (!requiredStatus) {
-        return task(r, status, options);
-      }
-      if (requiredStatus === status) {
-        return task(r, status, options);
-      }
-      return r;
-    }, result);
-  };
-}
+const networkApi = ['request'];
 
 export default function initNativeApi(jgb: any = {}) {
   const weApis = Object.assign({}, wx);
 
   Object.keys(weApis).forEach(key => {
     const doIntercept = getIntercept(key);
+    if (networkApi.includes(key)) {
+      jgb[key] = request;
+    }
     // @ts-ignore
-    if (!onAndSyncApis[key] && !noPromiseApis[key]) {
+    else if (!onAndSyncApis[key] && !noPromiseApis[key]) {
       jgb[key] = (options: any = {}, ...args: any[]) => {
         let task: any = {};
 
@@ -102,7 +59,7 @@ export default function initNativeApi(jgb: any = {}) {
         });
 
         if (['uploadFile', 'downloadFile', 'request'].includes(key)) {
-          p.progress = cb => {
+          p.onProgressUpdate = cb => {
             if (typeof task.onProgressUpdate === 'function') {
               task.onProgressUpdate(cb);
             }
@@ -130,26 +87,5 @@ export default function initNativeApi(jgb: any = {}) {
     }
   });
 
-  Object.defineProperty(jgb, 'intercept', {
-    get() {
-      return (event: string, ...data: any[]) => {
-        let status: IInterceptStatus;
-        let fn: IInterceptFn;
-        if (data.length > 1) {
-          [status, fn] = data;
-        } else {
-          [fn] = data;
-        }
-
-        if (typeof fn !== 'function') {
-          intercepts.delete(event);
-          return;
-        }
-
-        const fns = intercepts.get(event) || [];
-        fns.push([fn, status]);
-        intercepts.set(event, fns);
-      };
-    }
-  });
+  initInercept(jgb);
 }
