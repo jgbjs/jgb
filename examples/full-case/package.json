@@ -20,6 +20,7 @@
     "@jgbjs/preset-weapp": "^2.0.0-alpha.1",
     "flyio": "^0.6.9",
     "jgb-weapp": "^1.5.1",
+    "lodash": "^4.17.11",
     "lodash-es": "^4.17.10",
     "lottie-miniapp": "^1.4.0",
     "miniapp-regenerator-runtime": "^1.0.0",

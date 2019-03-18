@@ -609,6 +609,26 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
+"@jgbjs/shared@^2.0.0-alpha.1":
+  version "2.0.0-alpha.1"
+  resolved "http://registry.npm.taobao.org/@jgbjs/shared/download/@jgbjs/shared-2.0.0-alpha.1.tgz#58511fe3242aedecd2a698d232c29f3277dedf14"
+  integrity sha1-WFEf4yQq7ezSppjSMsKfMnfe3xQ=
+  dependencies:
+    "@types/glob" "^5.0.35"
+    "@types/lodash" "^4.14.117"
+    chalk "^2.4.1"
+    command-exists "^1.2.8"
+    cross-spawn "^6.0.5"
+    debug "^3.1.0"
+    fs-extra "^7.0.0"
+    glob "^7.1.2"
+    json5 "^1.0.1"
+    lodash "^4.17.10"
+    os-utils "^0.0.14"
+    resolve "^1.8.1"
+    source-map "^0.7.3"
+    tslib "^1.9.3"
+
 "@types/babel-core@^6.25.5":
   version "6.25.6"
   resolved "http://registry.npm.taobao.org/@types/babel-core/download/@types/babel-core-6.25.6.tgz#9e4faefcb300fd3abf0d2c2d85c505071462c1e1"
@@ -1368,6 +1388,11 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   integrity sha1-LR0kMXr7ir6V1tLAsHtXgTU52Cg=
   dependencies:
     delayed-stream "~1.0.0"
+
+command-exists@^1.2.8:
+  version "1.2.8"
+  resolved "http://registry.npm.taobao.org/command-exists/download/command-exists-1.2.8.tgz#715acefdd1223b9c9b37110a149c6392c2852291"
+  integrity sha1-cVrO/dEiO5ybNxEKFJxjksKFIpE=
 
 commander@^2.12.1, commander@^2.8.1:
   version "2.19.0"
@@ -2864,24 +2889,6 @@ jest@^24.1.0:
   dependencies:
     import-local "^2.0.0"
     jest-cli "^24.1.0"
-
-shared@^1.4.13:
-  version "1.4.13"
-  resolved "http://registry.npm.taobao.org/shared/download/shared-1.4.13.tgz#92bf8cf6d40dd7e3902012c3cbcbd30e6a2403f6"
-  integrity sha1-kr+M9tQN1+OQIBLDy8vTDmokA/Y=
-  dependencies:
-    "@types/glob" "^5.0.35"
-    "@types/lodash" "^4.14.117"
-    chalk "^2.4.1"
-    debug "^3.1.0"
-    fs-extra "^7.0.0"
-    glob "^7.1.2"
-    json5 "^1.0.1"
-    lodash "^4.17.10"
-    os-utils "^0.0.14"
-    resolve "^1.8.1"
-    source-map "^0.7.3"
-    tslib "^1.9.3"
 
 js-levenshtein@^1.1.3:
   version "1.1.6"
