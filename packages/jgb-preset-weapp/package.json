@@ -1,6 +1,6 @@
 {
   "name": "@jgbjs/preset-weapp",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "publishConfig": {
     "access": "public"
   },
@@ -19,7 +19,7 @@
     "prepublishOnly": "yarn run clean && yarn run build"
   },
   "dependencies": {
-    "@jgbjs/plugin-babel": "^2.0.0-alpha.1",
+    "@jgbjs/plugin-babel": "^2.0.0-alpha.2",
     "@jgbjs/plugin-css": "^2.0.0-alpha.1",
     "@jgbjs/plugin-html": "^2.0.0-alpha.1",
     "@jgbjs/plugin-json": "^2.0.0-alpha.1",

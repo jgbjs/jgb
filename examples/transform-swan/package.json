@@ -1,7 +1,7 @@
 {
   "name": "transform-swan",
   "private": true,
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
@@ -10,11 +10,11 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@jgbjs/cli": "^2.0.0-alpha.1",
-    "@jgbjs/plugin-babel": "^2.0.0-alpha.1",
+    "@jgbjs/plugin-babel": "^2.0.0-alpha.2",
     "@jgbjs/plugin-css": "^2.0.0-alpha.1",
     "@jgbjs/plugin-html": "^2.0.0-alpha.1",
     "@jgbjs/plugin-json": "^2.0.0-alpha.1",
-    "@jgbjs/preset-weapp": "^2.0.0-alpha.1",
+    "@jgbjs/preset-weapp": "^2.0.0-alpha.2",
     "babel-plugin-inline-package-json": "^2.0.0",
     "babel-plugin-lodash": "^3.2.11",
     "babel-plugin-transform-inline-environment-variables": "^0.3.0",
