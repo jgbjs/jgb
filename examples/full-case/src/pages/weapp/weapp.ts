@@ -41,10 +41,17 @@ JPage({
   },
   async onLoad(opts) {
     const res = jgb.request({
-      url: `https://api.github.com`
+      url: `https://api.github.com`,
+      priority: 9
+    });
+
+    res.then(result => {
+      console.log(result);
     });
 
     res.onHeadersReceived(res => console.log(res));
+
+    jgb.getSystemInfo();
 
     setTimeout(() => {
       this.onShareAppMessage = () => ({

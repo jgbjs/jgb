@@ -10,11 +10,23 @@ type ArgumentType<F extends Function> = F extends (args: infer A) => any
   ? A
   : never;
 
-type SuccessArgumentType<F> = F extends (res: {
-  success?: (res?: infer U) => void;
-}) => void
+// 获取success成功时返回值
+type SuccessArgumentType<
+  F extends Function,
+  P = ArgumentType<F>
+> = F extends (res: { success?: (res?: infer U) => any }) => any
   ? U
-  : never;
+  : SuccessArgumentTypeFix<F>;
+
+type SuccessArgumentTypeFix<
+  F extends Function,
+  P = ArgumentType<F>
+> = P extends {
+  [key: string]: any;
+  success?: (result: infer U) => any;
+}
+  ? U
+  : (F extends (res: { success?: (res: infer U) => any }) => any ? U : any);
 
 type TypeOfWx = typeof wx;
 
@@ -29,17 +41,7 @@ type SyncApiKey = keyof IOnAndSyncApis;
 type TypePromiseApi<
   K extends PromiseApiKey = PromiseApiKey,
   T extends TypeOfWx = TypeOfWx
-> = { [P in K]: PromiseFunc<P, T[P]> };
-
-type TypeNoPromiseApi<
-  K extends NoPromiseApiKey = NoPromiseApiKey,
-  T extends TypeOfWx = TypeOfWx
-> = { [P in K]: T[P] };
-
-type TypeSyncApi<
-  K extends SyncApiKey = SyncApiKey,
-  T extends TypeOfWx = TypeOfWx
-> = { [P in K]: T[P] } & {
+> = { [P in K]: PromiseFunc<P, T[P]> } & {
   request: {
     /**
      * 最大并发数
@@ -49,29 +51,39 @@ type TypeSyncApi<
   };
 };
 
+type TypeNoPromiseApi<
+  K extends NoPromiseApiKey = NoPromiseApiKey,
+  T extends TypeOfWx = TypeOfWx
+> = { [P in K]: T[P] };
+
+type TypeSyncApi<
+  K extends SyncApiKey = SyncApiKey,
+  T extends TypeOfWx = TypeOfWx
+> = { [P in K]: T[P] };
+
 type TypeRequestLikeKey = 'request' | 'downloadFile' | 'uploadFile';
 
-type PromiseFunc<P extends string, T extends (args: any) => any> = (
+type PromiseFunc<P extends string, T extends Function> = (
   args?: ExtendOptions<P, ArgumentType<T>>
 ) => P extends TypeRequestLikeKey
   ? RequestTaskExtension<Promise<SuccessArgumentType<T>>, P>
   : Promise<SuccessArgumentType<T>>;
 
 /** 扩展类似请求任务的方法 */
-type RequestTaskExtension<
-  T extends Promise<any>,
-  K extends TypeRequestLikeKey
-> = T & ReturnType<TypeOfWx[TypeRequestLikeKey]> & {};
+type RequestTaskExtension<T, K extends TypeRequestLikeKey> = T &
+  ReturnType<TypeOfWx[TypeRequestLikeKey]> & {};
 
 /** 扩展入参  */
-type ExtendOptions<T, U> = T extends TypeRequestLikeKey ? U & {
-  /**
-   * 请求优先级
-   * 数字越大优先级越低
-   * @default 1
-   */
-  priority?: number
-} : U;
+type ExtendOptions<T, U> = T extends TypeRequestLikeKey
+  ? U & {
+      /**
+       * 请求优先级
+       * 数字越大优先级越低
+       * @default 1
+       */
+      priority?: number;
+    }
+  : U;
 
 export interface IJGBIntercept {
   /**
