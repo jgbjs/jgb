@@ -1,11 +1,11 @@
 import * as glob from 'fast-glob';
+import * as fs from 'fs';
 import BabelPlugin from 'jgb-plugin-babel';
 import CssPlugin from 'jgb-plugin-css';
 import HtmlPlugin from 'jgb-plugin-html';
 import JsonPlugin from 'jgb-plugin-json';
 import JsonAsset from 'jgb-plugin-json/lib/JsonAsset';
 import { declare, IInitOptions } from 'jgb-shared/lib';
-import { logger } from 'jgb-shared/lib/Logger';
 import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
@@ -39,7 +39,7 @@ interface IAppJsonTabarListConfg {
   selectedIconPath: string;
 }
 
-interface IPageJson {
+export interface IPageJson {
   usingComponents: {
     [componentName: string]: string;
   };
@@ -79,7 +79,7 @@ function attachCompilerEvent(compiler: ICompiler) {
   compiler.on('collect-page-json', collectPageJson);
 }
 
-async function collectPageJson({
+export async function collectPageJson({
   dependences,
   pageJson,
   ctx
@@ -99,50 +99,19 @@ async function collectPageJson({
   const supportExtensions = extensions.keys();
   const components: string[] = [];
 
-  const findComponent = usingNpmComponents.bind(ctx);
+  const usingComponent = usingNpmComponents.bind(ctx);
 
   for (const [key, value] of Object.entries(pageJson.usingComponents)) {
-    // not relative path
-    if (value.indexOf('.') === -1) {
-      try {
-        await findComponent(key, value, pageJson, dependences, components);
-      } catch (error) {
-        // xxx/yy, xxx\\yy => [xxx, yy]
-        const spValue = value.split(/[\/|\\]/);
-        if (spValue.length === 1) {
-          logger.error(error);
-          continue;
-        }
-        const module = await ctx.resolver.resolveModule(spValue[0], null);
-        // node_modules
-        if ('moduleDir' in module && module.moduleDir) {
-          const pkg = await ctx.resolver.findPackage(module.moduleDir);
-          // const pkgJson = await findPackage(ctx, Path.dirname(absolutePath));
-          // 可能找不到文件，需要根据pkg.miniprogram查找
-          if (pkg.miniprogram) {
-            const componentPath = Path.join(
-              spValue[0],
-              pkg.miniprogram,
-              ...spValue.slice(1)
-            );
-            const isSuccess = await findComponent(
-              key,
-              componentPath,
-              pageJson,
-              dependences,
-              components
-            );
-            if (!isSuccess) {
-              logger.error(error);
-            }
-          }
-        }
-      }
-
-      continue;
-    }
-
-    components.push(value);
+    const componentPath = await findComponent(value, ctx);
+    try {
+      await usingComponent(
+        key,
+        componentPath,
+        pageJson,
+        dependences,
+        components
+      );
+    } catch (error) {}
   }
 
   // expandFiles
@@ -156,7 +125,53 @@ async function collectPageJson({
   }
 }
 
-async function usingNpmComponents(
+/**
+ * 找到组件路径，并返回相对编译后的路径
+ * @param componentPath
+ */
+export async function findComponent(componentPath: string, ctx: JsonAsset) {
+  // resolve alias
+  try {
+    const realPath = await ctx.resolver.loadResolveAlias(componentPath);
+    if (realPath) {
+      componentPath = realPath;
+    }
+  } catch (error) {}
+
+  if (componentPath.startsWith('.') || componentPath.startsWith('/')) {
+    return componentPath;
+  }
+
+  const module = await ctx.resolver.resolveModule(componentPath, null);
+  if (!module) {
+    return componentPath;
+  }
+  // node_modules
+  if ('moduleDir' in module && module.moduleDir) {
+    const pkg = await ctx.resolver.findPackage(module.moduleDir);
+    if (
+      module.filePath &&
+      (fs.existsSync(module.filePath) ||
+        fs.existsSync(module.filePath + '.json'))
+    ) {
+      return module.filePath;
+    }
+    // 根据pkg.miniprogram查找
+    if (pkg.miniprogram) {
+      const realComponentPath = Path.join(
+        module.moduleDir,
+        pkg.miniprogram,
+        module.subPath
+      );
+
+      if (fs.existsSync(realComponentPath + '.json')) {
+        return realComponentPath;
+      }
+    }
+  }
+}
+
+export async function usingNpmComponents(
   this: JsonAsset,
   key: string,
   value: string,

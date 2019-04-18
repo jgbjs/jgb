@@ -13,7 +13,8 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
-    "prepublish": "yarn run clean && yarn run build"
+    "prepublish": "yarn run clean && yarn run build",
+    "test": "jest --env=node --colors test"
   },
   "dependencies": {
     "chalk": "^2.4.1",
@@ -27,14 +28,18 @@
     "tslib": "^1.9.3"
   },
   "devDependencies": {
+    "@tuhu/miniprogram-recycle-view": "^0.0.8",
     "@types/debug": "^0.0.30",
+    "@types/fs-extra": "^5.0.5",
     "@types/jest": "^23.3.12",
     "@types/node": "^10.5.4",
     "jest": "^23.6.0",
+    "miniprogram-recycle-view": "^0.1.0",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
+    "tw-component": "^1.1.1",
     "typescript": "3.0.1"
   },
   "gitHead": "5f20f17043cc0131daab77646f8431ea87431fc5"

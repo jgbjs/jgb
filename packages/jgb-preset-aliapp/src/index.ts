@@ -1,4 +1,5 @@
 import * as glob from 'fast-glob';
+import * as fs from 'fs';
 import BabelPlugin from 'jgb-plugin-babel';
 import CssPlugin from 'jgb-plugin-css';
 import HtmlPlugin from 'jgb-plugin-html';
@@ -6,6 +7,7 @@ import JsonPlugin from 'jgb-plugin-json';
 import JsonAsset from 'jgb-plugin-json/lib/JsonAsset';
 import { declare, IInitOptions } from 'jgb-shared/lib';
 import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
+import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
 
 interface IPluginConfig {
@@ -149,53 +151,19 @@ async function collectPageJson({
   const supportExtensions = extensions.keys();
   const components: string[] = [];
 
+  const usingComponent = usingNpmComponents.bind(ctx);
+
   for (const [key, value] of Object.entries(pageJson.usingComponents)) {
-    // not relative path
-    if (value.indexOf('.') === -1) {
-      // alias path
-      const {
-        distPath,
-        relativeRequirePath,
-        realName,
-        absolutePath
-      } = await ctx.resolveAliasName(value);
-      if (distPath && relativeRequirePath) {
-        const relativeRequire = relativeRequirePath.replace(EXT_REGEX, '');
-        pageJson.usingComponents[key] = relativeRequire;
-        if (realName) {
-          // alias
-          components.push(realName);
-        }
-
-        if (absolutePath.includes('node_modules')) {
-          // npm
-          const result = await findPackage(this, Path.dirname(absolutePath));
-          if (!result) {
-            continue;
-          }
-          const { pkg, dir } = result;
-          // 如果配置了miniprogram小程序组件目录 会copy整个目录
-          if (pkg.miniprogram) {
-            const npmProjectDir = Path.join(dir, pkg.miniprogram);
-
-            const allMatches = await glob.async(['**/**'], {
-              cwd: npmProjectDir
-            });
-            if (allMatches) {
-              allMatches.forEach((file: string) => {
-                dependences.add(Path.join(npmProjectDir, file));
-              });
-            }
-          } else {
-            // only resolve
-            components.push(absolutePath.replace(EXT_REGEX, ''));
-          }
-        }
-        continue;
-      }
-    }
-
-    components.push(value);
+    const componentPath = await findComponent(value, ctx);
+    try {
+      await usingComponent(
+        key,
+        componentPath,
+        pageJson,
+        dependences,
+        components
+      );
+    } catch (error) {}
   }
 
   // expandFiles
@@ -205,6 +173,115 @@ async function collectPageJson({
       supportExtensions
     )) {
       dependences.add(dep);
+    }
+  }
+}
+
+/**
+ * 找到组件路径，并返回相对编译后的路径
+ * @param componentPath
+ */
+export async function findComponent(componentPath: string, ctx: JsonAsset) {
+  // resolve alias
+  try {
+    const realPath = await ctx.resolver.loadResolveAlias(componentPath);
+    if (realPath) {
+      componentPath = realPath;
+    }
+  } catch (error) {}
+
+  if (componentPath.startsWith('.') || componentPath.startsWith('/')) {
+    return componentPath;
+  }
+
+  const module = await ctx.resolver.resolveModule(componentPath, null);
+  if (!module) {
+    return componentPath;
+  }
+  // node_modules
+  if ('moduleDir' in module && module.moduleDir) {
+    const pkg = await ctx.resolver.findPackage(module.moduleDir);
+    if (
+      module.filePath &&
+      (fs.existsSync(module.filePath) ||
+        fs.existsSync(module.filePath + '.json'))
+    ) {
+      return module.filePath;
+    }
+    // 根据pkg.miniprogram查找
+    if (pkg.miniprogram) {
+      const realComponentPath = Path.join(
+        module.moduleDir,
+        pkg.miniprogram,
+        module.subPath
+      );
+
+      if (fs.existsSync(realComponentPath + '.json')) {
+        return realComponentPath;
+      }
+    }
+  }
+}
+
+export async function usingNpmComponents(
+  this: JsonAsset,
+  key: string,
+  value: string,
+  pageJson: IPageJson,
+  dependences: Set<string>,
+  components: string[]
+): Promise<boolean> {
+  // let distPath = '';
+  // let relativeRequirePath = '';
+  // let realName = '';
+  // let absolutePath = '';
+  /**
+   * value maybe:
+   *  xxx/xx => 可能找不到文件，需要根据pkg.miniprogram
+   *  xxx
+   *  @xxx/xxx
+   */
+  const {
+    distPath,
+    relativeRequirePath,
+    realName,
+    absolutePath
+  } = await this.resolveAliasName(value);
+
+  if (distPath && relativeRequirePath) {
+    const relativeRequire = relativeRequirePath.replace(EXT_REGEX, '');
+    pageJson.usingComponents[key] = relativeRequire;
+    if (realName) {
+      // alias
+      const componentPath = pathToUnixType(absolutePath.replace(EXT_REGEX, ''));
+      components.push(componentPath);
+    }
+
+    if (absolutePath.includes('node_modules')) {
+      // npm
+      const pkgJson = await findPackage(this, Path.dirname(absolutePath));
+      if (!pkgJson) {
+        return;
+      }
+      const { pkg, dir } = pkgJson;
+      // 如果配置了miniprogram小程序组件目录 会copy整个目录
+      if (pkg.miniprogram) {
+        const npmProjectDir = Path.join(dir, pkg.miniprogram);
+
+        const allMatches = await glob.async(['**/**'], {
+          cwd: npmProjectDir
+        });
+        if (allMatches) {
+          allMatches.forEach((file: string) => {
+            dependences.add(Path.join(npmProjectDir, file));
+          });
+          return true;
+        }
+      } else {
+        // only resolve
+        components.push(absolutePath.replace(EXT_REGEX, ''));
+        return true;
+      }
     }
   }
 }

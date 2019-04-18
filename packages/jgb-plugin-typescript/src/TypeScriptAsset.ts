@@ -11,7 +11,7 @@ export default class TypeScriptAsset extends BabelAsset {
     super(fileName, options);
   }
 
-  async parse(code: string) {
+  async parse(code: string): Promise<any> {
     // require typescript, installed locally in the app
     const typescript = await safeLocalRequire(
       'typescript',
