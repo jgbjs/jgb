@@ -1,6 +1,6 @@
 {
   "name": "jgb-weapp",
-  "version": "1.5.2-alpha.0",
+  "version": "1.5.2",
   "publishConfig": {
     "access": "public"
   },

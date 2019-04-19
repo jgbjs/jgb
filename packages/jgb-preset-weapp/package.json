@@ -1,6 +1,6 @@
 {
   "name": "@jgbjs/preset-weapp",
-  "version": "2.0.0-alpha.2",
+  "version": "2.0.0-alpha.3",
   "publishConfig": {
     "access": "public"
   },
@@ -19,11 +19,11 @@
     "prepublishOnly": "yarn run clean && yarn run build"
   },
   "dependencies": {
-    "@jgbjs/plugin-babel": "^2.0.0-alpha.2",
-    "@jgbjs/plugin-css": "^2.0.0-alpha.1",
-    "@jgbjs/plugin-html": "^2.0.0-alpha.1",
-    "@jgbjs/plugin-json": "^2.0.0-alpha.1",
-    "@jgbjs/shared": "^2.0.0-alpha.1",
+    "@jgbjs/plugin-babel": "^2.0.0-alpha.3",
+    "@jgbjs/plugin-css": "^2.0.0-alpha.2",
+    "@jgbjs/plugin-html": "^2.0.0-alpha.2",
+    "@jgbjs/plugin-json": "^2.0.0-alpha.2",
+    "@jgbjs/shared": "^2.0.0-alpha.2",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",

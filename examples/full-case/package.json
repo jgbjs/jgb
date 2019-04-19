@@ -1,7 +1,7 @@
 {
   "name": "full-case",
   "private": true,
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "main": "index.js",
   "license": "MIT",
   "bin": {
@@ -11,15 +11,15 @@
     "debug": "jgb-debug"
   },
   "dependencies": {
-    "@jgbjs/cli": "^2.0.0-alpha.1",
-    "@jgbjs/plugin-babel": "^2.0.0-alpha.2",
-    "@jgbjs/plugin-css": "^2.0.0-alpha.1",
-    "@jgbjs/plugin-json": "^2.0.0-alpha.1",
-    "@jgbjs/plugin-less": "^2.0.0-alpha.1",
-    "@jgbjs/plugin-typescript": "^2.0.0-alpha.2",
-    "@jgbjs/preset-weapp": "^2.0.0-alpha.2",
+    "@jgbjs/cli": "^2.0.0-alpha.2",
+    "@jgbjs/plugin-babel": "^2.0.0-alpha.3",
+    "@jgbjs/plugin-css": "^2.0.0-alpha.2",
+    "@jgbjs/plugin-json": "^2.0.0-alpha.2",
+    "@jgbjs/plugin-less": "^2.0.0-alpha.2",
+    "@jgbjs/plugin-typescript": "^2.0.0-alpha.3",
+    "@jgbjs/preset-weapp": "^2.0.0-alpha.3",
     "flyio": "^0.6.9",
-    "jgb-weapp": "^1.5.2-alpha.0",
+    "jgb-weapp": "^1.5.2",
     "lodash": "^4.17.11",
     "lodash-es": "^4.17.10",
     "lottie-miniapp": "^1.4.0",
