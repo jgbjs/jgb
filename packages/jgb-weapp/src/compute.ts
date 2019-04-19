@@ -1,3 +1,5 @@
+import { CallNode, CallTree } from './utils/calltree';
+
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 const cache = Symbol(`cache`);
 const setData = Symbol(`setData`);
@@ -19,7 +21,7 @@ export function Compute(opts: any) {
   if (propertyKeys.length) {
     propertyKeys.forEach(key => {
       if (hasOwnProperty.call(propertyKeys, key)) {
-        return
+        return;
       }
       const value = properties[key];
       const valueType = Object.prototype.toString.call(value);
@@ -49,10 +51,12 @@ export function Compute(opts: any) {
       // 追加 observer，用于监听变动
       properties[key].observer = function(...args: any[]) {
         const originalSetData = this[setData];
-
+        
+        // 调用 setData 设置 properties
         if (this[doingSetProps]) {
-          // 调用 setData 设置 properties
-          if (oldObserver) oldObserver.apply(this, args);
+          if (oldObserver) {
+            oldObserver.apply(this, args);
+          }
           return;
         }
 
@@ -72,7 +76,9 @@ export function Compute(opts: any) {
 
         this[doingSetData] = false;
 
-        if (oldObserver) oldObserver.apply(this, args);
+        if (oldObserver) {
+          oldObserver.apply(this, args);
+        }
       };
     });
   }
@@ -108,9 +114,12 @@ export function Compute(opts: any) {
       for (let i = 0, len = dataKeys.length; i < len; i++) {
         const key = dataKeys[i];
 
-        if (computed[key]) delete data[key];
-        if (!this[doingSetProps] && propertyKeys.indexOf(key) >= 0)
+        if (computed[key]) {
+          delete data[key];
+        }
+        if (!this[doingSetProps] && propertyKeys.indexOf(key) >= 0) {
           this[doingSetProps] = true;
+        }
       }
 
       // 做 data 属性的 setData
@@ -128,23 +137,81 @@ export function Compute(opts: any) {
   };
 }
 
-export function calcComputed(scope: any, computed: any, computedKeys: any[]) {
+export function calcComputed(scope: any, computed: any, keys: any[]) {
   const needUpdate: any = {};
+  const computedKeys = [].concat(keys);
+  const callTree = new CallTree();
+
+  // 修复当没有this.data时会报错
+  if (!scope.data) {
+    scope.data = {};
+  }
+
   const computedCache = scope[cache] || scope.data || {};
+
+  const getAndSetCache = (key: string, getter: any) => {
+    if (typeof getter !== 'function') {
+      return;
+    }
+    const value = getter.call(scope);
+    if (computedCache[key] !== value) {
+      needUpdate[key] = value;
+      computedCache[key] = value;
+
+      // 修复computed的属性引用computed的属性 计算值时获取不到实时数据
+      scope.data[key] = value;
+    }
+  };
 
   for (let i = 0, len = computedKeys.length; i < len; i++) {
     const key = computedKeys[i];
     const getter = computed[key];
-
     if (typeof getter === 'function') {
-      const value = getter.call(scope);
-
-      if (computedCache[key] !== value) {
-        needUpdate[key] = value;
-        computedCache[key] = value;
-      }
+      const depkeys = fnContainsComputeKey(getter, computed);
+      const callNode = new CallNode(key, [...depkeys]);
+      callTree.addCallNode(callNode);
     }
   }
 
+  const squence = callTree.getBestCallStackSequence();
+  squence.forEach(node => {
+    const getter = computed[node.key];
+    getAndSetCache(node.key, getter);
+  });
+
   return needUpdate;
+}
+
+const cacheContainsComputekey = new Map();
+
+/**
+ * 获取computed中包含的其他computed的key
+ * e.g.
+ *  this.data.key
+ *  this.data['key'] this.data["key"]
+ * @param fn
+ * @param computed
+ */
+export function fnContainsComputeKey(fn: any, computed: any): Set<string> {
+  if (cacheContainsComputekey.has(fn)) {
+    return cacheContainsComputekey.get(fn);
+  }
+
+  const str: string = fn.toString();
+  const keys = Object.keys(computed);
+  const reg1 = new RegExp(`data\\.(${keys.join('|')})`, 'g');
+  const reg2 = new RegExp(`data\\[('|")(${keys.join('|')})\\1\\]`, 'g');
+  const matchComputeKeys = new Set<string>();
+  let matches;
+  // tslint:disable-next-line: no-conditional-assignment
+  while ((matches = reg1.exec(str)) !== null) {
+    matchComputeKeys.add(matches[1]);
+  }
+
+  // tslint:disable-next-line: no-conditional-assignment
+  while ((matches = reg2.exec(str)) !== null) {
+    matchComputeKeys.add(matches[2]);
+  }
+
+  return matchComputeKeys;
 }

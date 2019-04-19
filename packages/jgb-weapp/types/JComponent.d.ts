@@ -7,9 +7,20 @@ type Prop<T> = (() => T) | { new (...args: any[]): T & object };
 type DataDef<Data, Props, P> = Data | ((this: Readonly<Props> & P) => Data);
 
 interface PropOptions<T, U> {
+  /**
+   * 属性的类型
+   * 属性的类型可以为 String Number Boolean Object Array 其一，也可以为 null 表示不限制类型。
+   */
   type?: Prop<T> | Array<Prop<T>>;
+  /**
+   * 属性的初始值
+   */
   value?: T | null | undefined;
-  observer?(this: U, newVal: T, oldVal: T, changedPath: string): void;
+  /**
+   * 属性值变化时的回调函数
+   * 目前，在新版本基础库中不推荐使用这个字段，而是使用 Component 构造器的 observers 字段代替，它更加强大且性能更好。
+   */
+  observer?: (newVal: any, oldVal: any, changedPath: string) => any;
 }
 
 type PropValidator<T, U> = PropOptions<T, U> | Prop<T> | Array<Prop<T>>;
@@ -65,7 +76,7 @@ interface JComponentOptions<P, Data, Methods, Props, Computed, Instance> {
    * @type {wx.IData}
    * @memberof JComponentOptions
    */
-  properties?: RecordPropsDefinition<Props, Instance>;
+  properties?: PropsDefinition<Props, Instance>;
 
   /**
    * 计算属性
