@@ -146,27 +146,28 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
   if (!module) {
     return componentPath;
   }
-  // node_modules
-  if ('moduleDir' in module && module.moduleDir) {
-    const pkg = await ctx.resolver.findPackage(module.moduleDir);
-    if (
-      module.filePath &&
-      (fs.existsSync(module.filePath) ||
-        fs.existsSync(module.filePath + '.json'))
-    ) {
-      return module.filePath;
-    }
-    // 根据pkg.miniprogram查找
-    if (pkg.miniprogram) {
-      const realComponentPath = Path.join(
-        module.moduleDir,
-        pkg.miniprogram,
-        module.subPath
-      );
 
-      if (fs.existsSync(realComponentPath + '.json')) {
-        return realComponentPath;
-      }
+  const pkg =
+    'moduleDir' in module && module.moduleDir
+      ? await ctx.resolver.findPackage(module.moduleDir)
+      : {};
+
+  if (
+    module.filePath &&
+    (fs.existsSync(module.filePath) || fs.existsSync(module.filePath + '.json'))
+  ) {
+    return module.filePath;
+  }
+  // 根据pkg.miniprogram查找
+  if (pkg.miniprogram) {
+    const realComponentPath = Path.join(
+      module.moduleDir,
+      pkg.miniprogram,
+      module.subPath
+    );
+
+    if (fs.existsSync(realComponentPath + '.json')) {
+      return realComponentPath;
     }
   }
 }

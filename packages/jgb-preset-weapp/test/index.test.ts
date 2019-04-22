@@ -13,6 +13,19 @@ describe('find component', () => {
     extensions: new Set(['.json']),
     alias: {}
   });
+  const jsonAliasAsset = new JsonAsset(pagePath, {
+    outDir: path.resolve('dist'),
+    rootDir: process.cwd(),
+    sourceDir: examplePath,
+    extensions: new Set(['.json']),
+    alias: {
+      '@example': examplePath,
+      '@tuhu': path.resolve('node_modules/@tuhu'),
+      '@miniprogram-recycle-view': path.resolve(
+        'node_modules/@tuhu/miniprogram-recycle-view/miniprogram_dist'
+      )
+    }
+  });
 
   test('resolve localcomponent', async () => {
     const componentPath = await findComponent('./localcomponent', jsonAsset);
@@ -67,6 +80,22 @@ describe('find component', () => {
       )
     );
   });
+
+  test(`resolve alias component`, async () => {
+    const componentPath = await findComponent(
+      '@miniprogram-recycle-view/recycle-view',
+      jsonAliasAsset
+    );
+    const ucomponentPath = Utils.pathToUnixType(componentPath);
+    expect(ucomponentPath).toBe(
+      Utils.pathToUnixType(
+        path.resolve(
+          process.cwd(),
+          'node_modules/@tuhu/miniprogram-recycle-view/miniprogram_dist/recycle-view'
+        )
+      )
+    );
+  });
 });
 
 describe('usingComponent', () => {
@@ -78,6 +107,19 @@ describe('usingComponent', () => {
     sourceDir: examplePath,
     extensions: new Set(['.json']),
     alias: {}
+  });
+  const jsonAliasAsset = new JsonAsset(pagePath, {
+    outDir: path.resolve('dist'),
+    rootDir: process.cwd(),
+    sourceDir: examplePath,
+    extensions: new Set(['.json']),
+    alias: {
+      '@example': examplePath,
+      '@tuhu': path.resolve('node_modules/@tuhu'),
+      '@miniprogram-recycle-view': path.resolve(
+        'node_modules/@tuhu/miniprogram-recycle-view/miniprogram_dist'
+      )
+    }
   });
 
   test('localcomponent', async () => {
@@ -144,6 +186,98 @@ describe('usingComponent', () => {
       jsonAsset,
       'component',
       await findComponent(pageJson.usingComponents.component, jsonAsset),
+      pageJson,
+      dependences,
+      components
+    );
+    const ucomponentPath = Utils.pathToUnixType(
+      pageJson.usingComponents.component
+    );
+    expect(ucomponentPath).toBe(
+      './npm/@tuhu/miniprogram-recycle-view/miniprogram_dist/recycle-view'
+    );
+    expect(components.length).toBe(1);
+    expect(dependences.size).toBeGreaterThan(8);
+  });
+
+  test('alias localcomponent', async () => {
+    const pageJson = {
+      usingComponents: {
+        component: '@example/localcomponent'
+      }
+    };
+
+    const dependences = new Set<string>();
+    const components = [] as string[];
+    const targetComponent = await findComponent(
+      pageJson.usingComponents.component,
+      jsonAliasAsset
+    );
+    await usingNpmComponents.call(
+      jsonAliasAsset,
+      'component',
+      targetComponent,
+      pageJson,
+      dependences,
+      components
+    );
+    const ucomponentPath = Utils.pathToUnixType(
+      pageJson.usingComponents.component
+    );
+    expect(ucomponentPath).toBe('./localcomponent');
+    expect(components.length).toBe(1);
+    expect(components[0]).toBe(
+      Utils.pathToUnixType(path.resolve(examplePath, './localcomponent'))
+    );
+  });
+
+  test(`alias npm scope component`, async () => {
+    const pageJson = {
+      usingComponents: {
+        component: '@tuhu/miniprogram-recycle-view/miniprogram_dist/recycle-view'
+      }
+    };
+
+    const dependences = new Set<string>();
+    const components = [] as string[];
+    const componentPath = await findComponent(
+      pageJson.usingComponents.component,
+      jsonAliasAsset
+    );
+    await usingNpmComponents.call(
+      jsonAliasAsset,
+      'component',
+      componentPath,
+      pageJson,
+      dependences,
+      components
+    );
+    const ucomponentPath = Utils.pathToUnixType(
+      pageJson.usingComponents.component
+    );
+    expect(ucomponentPath).toBe(
+      './npm/@tuhu/miniprogram-recycle-view/miniprogram_dist/recycle-view'
+    );
+    expect(components.length).toBe(1);
+    expect(dependences.size).toBeGreaterThan(8);
+  });
+  test(`alias npm component`, async () => {
+    const pageJson = {
+      usingComponents: {
+        component: '@miniprogram-recycle-view/recycle-view'
+      }
+    };
+
+    const dependences = new Set<string>();
+    const components = [] as string[];
+    const componentPath = await findComponent(
+      pageJson.usingComponents.component,
+      jsonAliasAsset
+    );
+    await usingNpmComponents.call(
+      jsonAliasAsset,
+      'component',
+      componentPath,
       pageJson,
       dependences,
       components

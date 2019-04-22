@@ -1,4 +1,3 @@
-import * as debug from 'debug';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';
@@ -43,7 +42,7 @@ export default class Resolver {
     }
 
     exts.unshift('');
-
+    // console.log('resolve', fileName)
     // Resolve the module directory or local file path
     const module = await this.resolveModule(fileName, parent);
     const dir = parent ? path.dirname(parent) : process.cwd();
@@ -329,6 +328,7 @@ export default class Resolver {
    *  @/utils/index => ../utils/index
    */
   loadResolveAlias(fileName: string, dir?: string) {
+    // console.log(fileName,this.alias ,'loadResolveAlias');
     fileName = pathToUnixType(fileName);
     if (path.isAbsolute(fileName)) {
       return fileName;
