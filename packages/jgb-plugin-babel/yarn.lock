@@ -781,13 +781,13 @@ babel-plugin-transform-exponentiation-operator@^6.22.0:
     babel-plugin-syntax-exponentiation-operator "^6.8.0"
     babel-runtime "^6.22.0"
 
-babel-plugin-transform-miniprogram@^0.4.1:
-  version "0.4.1"
-  resolved "http://registry.npm.taobao.org/babel-plugin-transform-miniprogram/download/babel-plugin-transform-miniprogram-0.4.1.tgz#206401c66e2466a0cce120a8a0201069e824b928"
-  integrity sha1-IGQBxm4kZqDM4SCooCAQaegkuSg=
+babel-plugin-transform-miniprogram@^0.5.1:
+  version "0.5.2"
+  resolved "http://registry.npm.taobao.org/babel-plugin-transform-miniprogram/download/babel-plugin-transform-miniprogram-0.5.2.tgz#32a3b01ff1d65b9749678d58bd69b3e4b7550254"
+  integrity sha1-MqOwH/HWW5dJZ41YvWmz5LdVAlQ=
   dependencies:
     lodash "^4.17.11"
-    miniapp-adapter "^1.4.1"
+    miniapp-adapter "^1.5.2"
     resolve "^1.8.1"
 
 babel-plugin-transform-regenerator@^6.22.0:
@@ -3306,10 +3306,10 @@ mimic-fn@^1.0.0:
   resolved "http://registry.npm.taobao.org/mimic-fn/download/mimic-fn-1.2.0.tgz#820c86a39334640e99516928bd03fca88057d022"
   integrity sha1-ggyGo5M0ZA6ZUWkovQP8qIBX0CI=
 
-miniapp-adapter@^1.4.1:
-  version "1.5.0"
-  resolved "http://registry.npm.taobao.org/miniapp-adapter/download/miniapp-adapter-1.5.0.tgz#968f33b05a28c6ffdc101e48310150103fd294fe"
-  integrity sha1-lo8zsFooxv/cEB5IMQFQED/SlP4=
+miniapp-adapter@^1.5.2:
+  version "1.5.2"
+  resolved "http://registry.npm.taobao.org/miniapp-adapter/download/miniapp-adapter-1.5.2.tgz#4bc7bbbf84afa4feb7ae04c2eaf418d469b68ad7"
+  integrity sha1-S8e7v4SvpP63rgTC6vQY1Gm2itc=
   dependencies:
     miniapp-regenerator-runtime "^1.0.0"
 
