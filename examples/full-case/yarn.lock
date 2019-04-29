@@ -25,6 +25,11 @@
   dependencies:
     lodash "^4.17.5"
 
+"@tuhu/miniprogram-api-typings@^2.4.2-2.1":
+  version "2.4.2-2.1"
+  resolved "https://registry.npmjs.org/@tuhu/miniprogram-api-typings/-/miniprogram-api-typings-2.4.2-2.1.tgz#05fcc98fca677f57dfbf534b336158dd4dc216d3"
+  integrity sha512-uJggDTndMIChM88ipuOeFB5JHJaqGauiWD84QOdPKK8sM57XCX9vqKjLUR0nDEe8+jOQC4A5qb+GXH3i7wyy+A==
+
 "@types/lodash@^4.14.116":
   version "4.14.116"
   resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.116.tgz#5ccf215653e3e8c786a58390751033a9adca0eb9"
@@ -785,6 +790,15 @@ isstream@~0.1.2:
   version "0.1.2"
   resolved "http://registry.npm.taobao.org/isstream/download/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   integrity sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=
+
+jgb-weapp@^1.5.0:
+  version "1.5.2"
+  resolved "https://registry.npm.taobao.org/jgb-weapp/download/jgb-weapp-1.5.2.tgz#f274cb1c17410967f3d304dca15da49904d7fb3f"
+  integrity sha1-8nTLHBdBCWfz0wTcoV2kmQTX+z8=
+  dependencies:
+    "@tuhu/miniprogram-api-typings" "^2.4.2-2.1"
+    lodash "^4.17.10"
+    tslib "^1.9.3"
 
 "js-tokens@^3.0.0 || ^4.0.0":
   version "4.0.0"
