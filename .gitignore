@@ -1,5 +1,5 @@
 node_modules
-converage
+coverage
 lib
 dist
 lerna-*
