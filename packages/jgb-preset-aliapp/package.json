@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-aliapp",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",
-    "jgb-plugin-babel": "^1.5.2",
+    "jgb-plugin-babel": "^1.5.3",
     "jgb-plugin-css": "^1.5.2",
     "jgb-plugin-html": "^1.5.2",
     "jgb-plugin-json": "^1.5.2",
