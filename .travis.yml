@@ -1,0 +1,11 @@
+language: node_js
+sudo: required
+cache: 
+  npm: true
+  yarn: true
+node_js:
+  - lts/*
+before_install:
+  - npm i -g typescript yarn
+script:
+  - yarn run test
