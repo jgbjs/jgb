@@ -1,0 +1,11 @@
+language: node_js
+sudo: required
+cache: 
+  npm: true
+  yarn: true
+node_js:
+  - lts/*
+before_install:
+  - npm i -g typescript lerna yarn
+script:
+  - yarn && lerna bootstrap --scope=jgb* && yarn run test
