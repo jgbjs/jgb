@@ -94,7 +94,7 @@ function generateIgnore(ignores = [] as string[], isDifferenceTarget) {
     // 移除node_modules相关的忽略
     return ignores.filter(ig => !ig.includes('node_modules'));
   }
-  return [...new Set(ignores.concat('node_modules'))];
+  return [...new Set(ignores.concat('node_modules/**/*.js'))];
 }
 
 async function getBabelConfig(asset: BabelAsset) {
