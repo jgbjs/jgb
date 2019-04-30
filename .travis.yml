@@ -6,6 +6,6 @@ cache:
 node_js:
   - lts/*
 before_install:
-  - npm i -g typescript yarn
+  - npm i -g typescript lerna yarn
 script:
-  - yarn run test
+  - yarn && yarn run start && yarn run test
