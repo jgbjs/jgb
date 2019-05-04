@@ -274,7 +274,15 @@ export default class Resolver {
             return fileName;
           }
           // Absolute path. Resolve relative to project root.
-          return path.resolve(this.options.sourceDir, fileName.slice(1));
+          const abFileName = path.resolve(
+            this.options.sourceDir,
+            fileName.slice(1)
+          );
+          if (fsExtra.existsSync(abFileName)) {
+            return abFileName;
+          }
+
+          return fileName;
 
         case '~':
           // Tilde path. Resolve relative to nearest node_modules directory,
