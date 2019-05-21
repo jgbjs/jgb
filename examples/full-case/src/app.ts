@@ -1,11 +1,11 @@
-import 'miniapp-regenerator-runtime';
-import { JApp, JComponent, jgb } from 'jgb-weapp';
-import './init.js';
-import testUtil from './utils/index';
-// @ts-ignore
-import TestAlias from '@alias/testAlias.js';
 // @ts-ignore
 import AliasTest from '@alias-test';
+// @ts-ignore
+import TestAlias from '@alias/testAlias.js';
+import { JApp, JComponent, jgb } from 'jgb-weapp';
+import 'miniapp-regenerator-runtime';
+import './init.js';
+import testUtil from './utils/index';
 import test from './utils/test';
 
 // @ts-ignore
@@ -13,6 +13,11 @@ const isProd = process.env.NODE_ENV === 'production';
 
 JComponent.intercept(opts => {
   console.log('JComponent.intercept', opts);
+  opts.methods = Object.assign({
+    test() {
+      console.log('JComponent.intercept.test')
+    }
+  },opts.methods)
   return opts;
 });
 

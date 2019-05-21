@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as URL from 'url';
-import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
+import { IInitOptions } from '../typings/jgb-shared';
 import * as config from './config';
 import { logger } from './Logger';
 import { ICompiler } from './pluginDeclare';
@@ -163,12 +163,14 @@ export default class Asset {
       depName = resolved = this.resolver.resolveFilename(filename, dir);
     } else {
       resolved = path.resolve(dir, filename);
-      depName = './' + path.relative(path.dirname(this.name), resolved);
+      depName = path.relative(path.dirname(this.name), resolved);
     }
 
     if (path.isAbsolute(depName)) {
       depName = promoteRelativePath(path.relative(this.name, depName));
     }
+
+    [depName] = pathToUnixType(depName).split('?');
 
     this.addDependency(depName, Object.assign({ dynamic: true }, opts));
 
