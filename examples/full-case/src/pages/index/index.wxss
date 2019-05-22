@@ -1,4 +1,5 @@
 @import '../../utils/index.wxss';
+@lazysprite "test-upload";
 
 view {
   color: #f0f;
@@ -7,4 +8,12 @@ view {
 .lottie-wrap {
   width: 100%;
   height: 300px;
+}
+
+.test-import-img {
+  width: 20px;
+  height: 20px;
+}
+.test-import-img::before {
+  transform: scale(0.2);
 }
