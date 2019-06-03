@@ -13,7 +13,8 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
-    "prepublish": "yarn run clean && yarn run build"
+    "prepublish": "yarn run clean && yarn run build",
+    "test":"jest -t resolveAliasName"
   },
   "devDependencies": {
     "@types/debug": "^0.0.30",

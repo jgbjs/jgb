@@ -6,7 +6,7 @@
 <popup title="{{title}}"></popup>
 <template is="tipMsg" data="{{...tipMsg}}" />
 <view class="test-import-img icon-test-upload__category-red"></view>
-<wxs src="../../template/wxs.wxs" module="wxs"></wxs>
+<wxs src="/template/wxs.wxs" module="wxs"></wxs>
 <view class="lottie-wrap">
   <lottie width="200" height="200" path="https://img1.tuhu.org/ActivityPageAe/dbf1/6269/ee0b86f8cb06bbe58b535eec.json">
   </lottie>

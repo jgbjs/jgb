@@ -419,6 +419,15 @@ babel-plugin-transform-inline-environment-variables@^0.3.0:
   resolved "http://registry.npm.taobao.org/babel-plugin-transform-inline-environment-variables/download/babel-plugin-transform-inline-environment-variables-0.3.0.tgz#b9e1929535480e72a9e37210df99aebca007a7b5"
   integrity sha1-ueGSlTVIDnKp43IQ35muvKAHp7U=
 
+babel-plugin-transform-miniprogram@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.npm.taobao.org/babel-plugin-transform-miniprogram/download/babel-plugin-transform-miniprogram-0.6.1.tgz#24ee2ef6dc9ae27729984b1a8c7b088eaea8c9cb"
+  integrity sha1-JO4u9tya4ncpmEsajHsIjq6oycs=
+  dependencies:
+    lodash "^4.17.11"
+    miniapp-adapter "^1.6.1"
+    resolve "^1.8.1"
+
 babel-plugin-transform-node-env-inline@^0.2.0:
   version "0.2.0"
   resolved "http://registry.npm.taobao.org/babel-plugin-transform-node-env-inline/download/babel-plugin-transform-node-env-inline-0.2.0.tgz#b13c2aafd4a7cbefeba07091a1134d402147d192"
@@ -665,7 +674,7 @@ jsesc@~0.5.0:
   resolved "http://registry.npm.taobao.org/jsesc/download/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
   integrity sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=
 
-lodash@^4.17.10, lodash@^4.17.4:
+lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4:
   version "4.17.11"
   resolved "http://registry.npm.taobao.org/lodash/download/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha1-s56mIp72B+zYniyN8SU2iRysm40=
@@ -676,6 +685,20 @@ loose-envify@^1.0.0:
   integrity sha1-ce5R+nvkyuwaY4OffmgtgTLTDK8=
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
+
+miniapp-adapter@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.npm.taobao.org/miniapp-adapter/download/miniapp-adapter-1.6.1.tgz#10cabcc65a09e2e61a7d733994312484a28b0527"
+  integrity sha1-EMq8xloJ4uYafXM5lDEkhKKLBSc=
+  dependencies:
+    miniapp-regenerator-runtime "^1.0.0"
+
+miniapp-regenerator-runtime@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npm.taobao.org/miniapp-regenerator-runtime/download/miniapp-regenerator-runtime-1.0.0.tgz#f8c7cc1d970d4072c2cbc04ebcede0c5428143f0"
+  integrity sha1-+MfMHZcNQHLCy8BOvO3gxUKBQ/A=
+  dependencies:
+    regenerator-runtime "^0.11.1"
 
 minimatch@^3.0.4:
   version "3.0.4"
@@ -701,6 +724,18 @@ path-is-absolute@^1.0.0:
   resolved "http://registry.npm.taobao.org/path-is-absolute/download/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
   integrity sha1-F0uSaHNVNP+8es5r9TpanhtcX18=
 
+path-parse@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.npm.taobao.org/path-parse/download/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
+  integrity sha1-1i27VnlAXXLEc37FhgDp3c8G0kw=
+
+posthtml-transform-miniprogram@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.5.1.tgz#4b6b40a0cdbc179aa4818a9d22060df9d46571bd"
+  integrity sha1-S2tAoM28F5qkgYqdIgYN+dRlcb0=
+  dependencies:
+    lodash "^4.17.11"
+
 private@^0.1.6:
   version "0.1.8"
   resolved "http://registry.npm.taobao.org/private/download/private-0.1.8.tgz#2381edb3689f7a53d653190060fcf822d2f368ff"
@@ -711,7 +746,7 @@ regenerate@^1.2.1:
   resolved "http://registry.npm.taobao.org/regenerate/download/regenerate-1.4.0.tgz#4a856ec4b56e4077c557589cae85e7a4c8869a11"
   integrity sha1-SoVuxLVuQHfFV1icroXnpMiGmhE=
 
-regenerator-runtime@^0.11.0:
+regenerator-runtime@^0.11.0, regenerator-runtime@^0.11.1:
   version "0.11.1"
   resolved "http://registry.npm.taobao.org/regenerator-runtime/download/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
   integrity sha1-vgWtf5v30i4Fb5cmzuUBf78Z4uk=
@@ -750,6 +785,13 @@ require-package-name@^2.0.1:
   version "2.0.1"
   resolved "http://registry.npm.taobao.org/require-package-name/download/require-package-name-2.0.1.tgz#c11e97276b65b8e2923f75dabf5fb2ef0c3841b9"
   integrity sha1-wR6XJ2tluOKSP3Xav1+y7ww4Qbk=
+
+resolve@^1.8.1:
+  version "1.11.0"
+  resolved "https://registry.npm.taobao.org/resolve/download/resolve-1.11.0.tgz#4014870ba296176b86343d50b60f3b50609ce232"
+  integrity sha1-QBSHC6KWF2uGND1Qtg87UGCc4jI=
+  dependencies:
+    path-parse "^1.0.6"
 
 semver@^5.3.0:
   version "5.6.0"

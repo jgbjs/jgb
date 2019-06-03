@@ -34,19 +34,21 @@ export default class Resolver {
       return this.cache.get(cacheKey);
     }
 
-    let exts = [...this.options.extensions];
+    let exts = ['', ...this.options.extensions];
 
     if (parent) {
       const parentExt = path.extname(parent);
       exts = [parentExt, ...exts.filter(ext => ext !== parentExt)];
     }
 
-    exts.unshift('');
     // console.log('resolve', fileName)
     // Resolve the module directory or local file path
     const module = await this.resolveModule(fileName, parent);
     const dir = parent ? path.dirname(parent) : process.cwd();
-    let resolved;
+    let resolved: {
+      path: any;
+      pkg: any;
+    };
 
     if ('moduleDir' in module && module.moduleDir) {
       resolved = await this.loadNodeModules(module, exts);
@@ -71,21 +73,50 @@ export default class Resolver {
     return (parent ? path.dirname(parent) : '') + ':' + fileName;
   }
 
+  get isSameTarget() {
+    return this.options.target === this.options.source;
+  }
+
+  /**
+   * 解析是否有对应的跨平台文件，并返回
+   *  目录
+   *  |- index.js
+   *  |- index.alipay.js
+   *
+   *   1. target = alipay
+   *       index.js => ndex.alipay.js
+   *   2. target = swan
+   *      ndex.js => index.js
+   */
+  async resolvePlatformModule(fileName: string) {
+    if (this.isSameTarget) {
+      return fileName;
+    }
+
+    const { ext, name, dir } = path.parse(fileName);
+    if (ext) {
+      // index.js => index.target.js
+      const targetFileName = `${dir}/${name}.${this.options.target}${ext}`;
+      if (fs.existsSync(targetFileName)) {
+        return targetFileName;
+      }
+    }
+
+    return fileName;
+  }
+
   async resolveModule(fileName: string, parent: any) {
     const dir = parent ? path.dirname(parent) : this.options.sourceDir;
-
     // If this isn't the entrypoint, resolve the input file to an absolute path
     if (parent) {
       fileName = this.resolveFilename(fileName, dir);
     }
-
     // Resolve aliases in the parent module for this file.
     fileName = await this.loadAlias(fileName, dir);
-
     // Return just the file path if this is a file, not in node_modules
     if (path.isAbsolute(fileName)) {
       return {
-        filePath: fileName
+        filePath: pathToUnixType(fileName)
       };
     }
 
@@ -142,33 +173,38 @@ export default class Resolver {
     }
   }
 
-  expandFile(
+  *expandFileGenerator(
     file: string,
     extensions: string[],
     pkg: any,
     expandAliases = true
-  ): any[] {
-    // Expand extensions and aliases
-    let res: any[] = [];
+  ): IterableIterator<string> {
     for (const ext of extensions) {
       const f = file + ext;
 
       if (expandAliases) {
         const alias = this.resolveAliases(file + ext, pkg);
         if (alias !== f) {
-          res = res.concat(this.expandFile(alias, extensions, pkg, false));
+          yield* this.expandFileGenerator(alias, extensions, pkg, false);
         }
       }
 
-      res.push(f);
+      yield f;
     }
+  }
 
-    return res;
+  expandFile(
+    file: string,
+    extensions: string[],
+    pkg: any,
+    expandAliases = true
+  ): any[] {
+    return [...this.expandFileGenerator(file, extensions, pkg, expandAliases)];
   }
 
   async loadAsFile(file: string, extensions: string[], pkg: any) {
     // Try all supported extensions
-    for (const f of this.expandFile(file, extensions, pkg)) {
+    for (const f of this.expandFileGenerator(file, extensions, pkg)) {
       if (await this.isFile(f)) {
         return { path: f, pkg };
       }
@@ -268,12 +304,16 @@ export default class Resolver {
 
   resolveFilename(fileName: string, dir: string) {
     try {
+      if (path.isAbsolute(fileName)) {
+        // resolve system absolute path;
+        if (fsExtra.existsSync(fileName)) {
+          return fileName;
+        }
+      }
+
       switch (fileName[0]) {
         case '/':
-          if (fsExtra.existsSync(fileName)) {
-            return fileName;
-          }
-          // Absolute path. Resolve relative to project root.
+          // Absolute path. Resolve relative to project souceDir.
           const abFileName = path.resolve(
             this.options.sourceDir,
             fileName.slice(1)

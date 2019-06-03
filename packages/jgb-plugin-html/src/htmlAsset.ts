@@ -1,7 +1,6 @@
 // tslint:disable-next-line:ordered-imports
-import { Asset, IInitOptions, Resolver, Utils } from 'jgb-shared/lib';
+import { Asset, IInitOptions, Utils } from 'jgb-shared/lib';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
-import { extname } from 'path';
 import * as render from 'posthtml-render';
 import * as api from 'posthtml/lib/api';
 import htmlnanoTransform from './htmlnano';
@@ -100,30 +99,10 @@ export default class HtmlAsset extends Asset {
   }
 
   async processSingleDependency(path: string, opts: any) {
-    let assetPath = this.addURLDependency(path, opts);
+    let assetPath = await this.addURLDependency(path, opts);
     if (!Utils.isUrl(assetPath)) {
       if (this.options.publicURL) {
         assetPath = Utils.urlJoin(this.options.publicURL, assetPath);
-      }
-
-      const ext = extname(assetPath);
-
-      if (HtmlAsset.outExt !== ext) {
-        const resolver = this.options.parser.resolver as Resolver;
-        const { path: depPath } = await resolver.resolve(assetPath, this.name);
-        const depAsset: Asset = this.options.parser.getAsset(depPath);
-        if (depAsset instanceof HtmlAsset) {
-          // .wxml => .swan
-          // .wxs => .filter.js
-          const depDistPath = depAsset.generateDistPath(
-            assetPath,
-            HtmlAsset.outExt
-          );
-          const depExt = extname(depDistPath);
-          if (depExt !== ext) {
-            assetPath = assetPath.replace(ext, depExt);
-          }
-        }
       }
     }
     return assetPath;

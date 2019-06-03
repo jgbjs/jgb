@@ -18,7 +18,8 @@ const REG_NODE_MODULES = /(\/node_modules\/|\/npm\/)/g;
 
 const NODE_MODULES = 'node_modules';
 
-const cache = new Map();
+/** Asset 缓存数据  */
+export const cache = new Map();
 
 export interface IAssetGenerate {
   code: string;
@@ -26,9 +27,15 @@ export interface IAssetGenerate {
   map?: SourceMap;
 }
 
+export interface IDepOptions {
+  [key: string]: any;
+  name?: string;
+  distPath?: string;
+}
+
 export default class Asset {
   id: string;
-  dependencies = new Map<string, any>();
+  dependencies = new Map<string, IDepOptions>();
   contents = '';
   basename: string;
   relativeName: string;
@@ -48,7 +55,18 @@ export default class Asset {
   /** 在addAssetsType会自动注入compiler */
   parentCompiler: ICompiler;
 
+  private checkOptions(options: IInitOptions) {
+    if (!options.sourceDir) {
+      throw new Error('please set options.sourceDir');
+    }
+
+    if (!options.outDir) {
+      throw new Error('please set options.outDir');
+    }
+  }
+
   constructor(public name: string, public options: IInitOptions) {
+    this.checkOptions(options);
     this.basename = path.basename(name);
     this.relativeName = path.relative(options.sourceDir, name);
     const resolver = WorkerFarm.getSharedResolver();
@@ -88,14 +106,16 @@ export default class Asset {
    */
   async resolveAliasName(name: string, ext: string = '') {
     /** resolve relative path */
-    const { path: absolutePath } = (await this.resolver.resolve(
+    let { path: absolutePath } = (await this.resolver.resolve(
       name,
       this.name
     )) as {
       path: string;
       pkg: any;
     };
-
+    if (!this.resolver.isSameTarget) {
+      absolutePath = await this.resolver.resolvePlatformModule(absolutePath);
+    }
     /** require相对引用路径 */
     let relativeRequirePath = '';
 
@@ -108,6 +128,8 @@ export default class Asset {
       );
     }
 
+    absolutePath = pathToUnixType(absolutePath);
+
     return {
       /* 文件真实路径 */
       realName: absolutePath,
@@ -118,11 +140,11 @@ export default class Asset {
     };
   }
 
-  addDependency(name: string, opts: any = {}) {
+  addDependency(name: string, opts?: IDepOptions) {
     this.dependencies.set(name, Object.assign({ name }, opts));
   }
 
-  addURLDependency(url: string, from = this.name, opts?: any) {
+  async addURLDependency(url: string, from = this.name, opts?: any) {
     if (!url || isUrl(url)) {
       return url;
     }
@@ -133,50 +155,24 @@ export default class Asset {
     }
 
     const parsed = URL.parse(url);
-    let depName;
-    let resolved;
-    let dir = path.dirname(from);
-    let filename = decodeURIComponent(parsed.pathname);
+    const filename = decodeURIComponent(parsed.pathname);
+    const ext = path.extname(filename);
+    const parser = this.options.parser.findParser(filename);
 
-    if (filename[0] === '~' || filename[0] === '/') {
-      if (dir === '.') {
-        dir = this.options.rootDir;
-      }
-      // 绝对定位默认是相对于 sourceDir而言
-      // 当文件不在source目录中时
-      // 绝对目录应该相对于文件所在项目package.json位置或者是package.json所指向的main文件所在位置
-      if (filename[0] === '/' && !this.name.includes(this.options.sourceDir)) {
-        const pkg = this.resolver.findPackageSync(dir);
-        if (pkg) {
-          let root = pkg.pkgdir;
-          // pkg.main like dist/index.js
-          if (pkg.main && pkg.main.includes('/')) {
-            const distDir = pkg.main.split(/\\|\//g)[0];
-            root = path.join(root, distDir);
-          }
+    const {
+      realName,
+      relativeRequirePath,
+      distPath
+    } = await this.resolveAliasName(filename, parser ? parser.outExt : ext);
 
-          filename = promoteRelativePath(
-            path.relative(this.name, path.join(root, filename))
-          );
-        }
-      }
-      depName = resolved = this.resolver.resolveFilename(filename, dir);
-    } else {
-      resolved = path.resolve(dir, filename);
-      depName = path.relative(path.dirname(this.name), resolved);
-    }
-
-    if (path.isAbsolute(depName)) {
-      depName = promoteRelativePath(path.relative(this.name, depName));
-    }
-
-    [depName] = pathToUnixType(depName).split('?');
-
-    this.addDependency(depName, Object.assign({ dynamic: true }, opts));
+    this.addDependency(
+      realName,
+      Object.assign({ dynamic: true, distPath }, opts)
+    );
 
     // parsed.pathname = this.options.parser.getAsset(resolved, this.options);
 
-    parsed.pathname = depName;
+    parsed.pathname = relativeRequirePath;
 
     return URL.format(parsed);
   }
@@ -256,6 +252,10 @@ export default class Asset {
     return true;
   }
 
+  get isSameTarget() {
+    return this.options.target === this.options.source;
+  }
+
   /**
    * 生成文件dist路径
    */
@@ -299,9 +299,6 @@ export default class Asset {
       }
     }
 
-    // fix style
-    distPath = pathToUnixType(distPath);
-
     /**
      * node_modules/npm => npm
      */
@@ -328,8 +325,18 @@ export default class Asset {
       // index.es6 => index.js
       distPath = distPath.replace(extName, ext);
     }
+    // fix style
+    distPath = pathToUnixType(distPath);
+    // index.target.js => index.js
+    if (!this.isSameTarget && distPath.includes(`.${this.options.target}.`)) {
+      distPath = distPath.replace(
+        new RegExp(`\\.${this.options.target}\\.`),
+        '.'
+      );
+    }
 
     cache.set(cacheKey, distPath);
+
     return distPath;
   }
 
@@ -350,11 +357,10 @@ export default class Asset {
     let ignore = true;
 
     let distPath =
-      this.distPath ||
       this.generateDistPath(this.name, ext) ||
       path.resolve(this.options.outDir, this.relativeName);
 
-    let prettyDistPath = this.distPath;
+    let prettyDistPath = distPath;
     const extName = path.extname(this.basename);
 
     if (!ext && !path.extname(distPath)) {

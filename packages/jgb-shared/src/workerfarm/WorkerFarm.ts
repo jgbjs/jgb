@@ -1,9 +1,8 @@
 import { EventEmitter } from 'events';
+import { throttle } from 'lodash';
 import * as os from 'os';
-import * as osUtil from 'os-utils';
 import Asset from '../Asset';
 import { logger } from '../Logger';
-import { debounce, throttle } from '../utils/decorator';
 import { errorToJson } from './errorUtils';
 import Worker from './Worker';
 
@@ -19,7 +18,6 @@ export default class WorkerFarm extends EventEmitter {
   run: (asset: Asset | string, distPath: string) => any;
   ending: boolean;
   bundlerOptions: any;
-  startPrefTime: any;
 
   constructor(options: any, farmOptions: any = {}) {
     super();
@@ -40,7 +38,6 @@ export default class WorkerFarm extends EventEmitter {
     this.run = this.mkhandle('run');
 
     this.init(options);
-    this.startPref();
   }
 
   /**
@@ -239,7 +236,6 @@ export default class WorkerFarm extends EventEmitter {
 
   async end() {
     this.ending = true;
-    this.stopPref();
     await Promise.all(
       Array.from(this.workers.values()).map(worker => this.stopWorker(worker))
     );
@@ -259,53 +255,24 @@ export default class WorkerFarm extends EventEmitter {
   }
 
   /**
-   * 开启cpu占用优化
+   * 开启worker优化
    */
-  async startPref(time = 1000) {
-    this.startPrefTime = setTimeout(async () => {
-      const workers = [...this.workers.values()];
-      const cpu = await this.getCpuUsageAsync();
-      // 满cpu需要暂停一个进程
-      if (cpu >= 0.9) {
-        const noStoppedWorkers = workers.filter(w => !w.isStopping);
-        if (noStoppedWorkers.length > 1) {
-          const targetWorker = noStoppedWorkers.pop();
-          logger.info(
-            `current cpu: ${Number(cpu.toFixed(2)) * 100}%. stop a worker ${
-              targetWorker.id
-            }`
-          );
-          targetWorker.isStopping = true;
-        }
+  @_throttle(1000)
+  async startPref(usedTime = 1000) {
+    const workers = [...this.workers.values()];
+    if (usedTime > 1000) {
+      const noStoppedWorkers = workers.filter(w => !w.isStopping);
+      if (noStoppedWorkers.length > 1) {
+        const targetWorker = noStoppedWorkers.pop();
+        targetWorker.isStopping = true;
       }
-      // cpu空闲可以开启执行更多任务
-      if (cpu <= 0.5 && this.cpuUsage <= 0.5) {
-        const stopedWorkers = workers.filter(worker => worker.isStopping);
-        if (stopedWorkers.length) {
-          const targetWorker = stopedWorkers[0];
-          logger.info(
-            `current cpu: ${cpu}. start a stopped worker ${targetWorker.id}`
-          );
-          targetWorker.isStopping = false;
-        }
+    } else if (usedTime < 100) {
+      const stopedWorkers = workers.filter(worker => worker.isStopping);
+      if (stopedWorkers.length) {
+        const targetWorker = stopedWorkers[0];
+        targetWorker.isStopping = false;
       }
-      this.cpuUsage = cpu;
-      this.startPref(time * 1.2);
-    }, time);
-  }
-  getCpuUsageAsync(): Promise<number> {
-    return new Promise(resolve => {
-      osUtil.cpuUsage((v: number) => {
-        resolve(v);
-      });
-    });
-  }
-
-  /**
-   * 停止cpu占用优化
-   */
-  stopPref() {
-    clearTimeout(this.startPrefTime);
+    }
   }
 
   persistBundlerOptions() {
@@ -400,4 +367,14 @@ export default class WorkerFarm extends EventEmitter {
   static getConcurrentCallsPerWorker() {
     return parseInt(process.env.JGB_MAX_CONCURRENT_CALLS, 10) || 1;
   }
+}
+
+function _throttle(wait = 0, options = {}) {
+  return (target: any, name: string, descriptor: PropertyDescriptor) => {
+    const fn = descriptor.value;
+
+    descriptor.value = throttle(fn, wait, options);
+
+    return descriptor;
+  };
 }

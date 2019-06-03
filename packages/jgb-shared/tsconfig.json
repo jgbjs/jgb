@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib/",
+    "declarationDir": "lib",
     "baseUrl": "src",
     "noImplicitAny": false
   },
@@ -12,6 +13,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "lib"
+    "lib",
+    "test"
   ]
 }

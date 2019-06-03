@@ -17,6 +17,8 @@
     "jgb-plugin-css": "^1.5.4",
     "jgb-plugin-html": "^1.5.4",
     "jgb-plugin-json": "^1.5.4",
-    "jgb-preset-weapp": "^1.5.4"
+    "jgb-preset-weapp": "^1.5.4",
+    "babel-plugin-transform-miniprogram": "^0.6.1",
+    "posthtml-transform-miniprogram": "^0.5.1"
   }
 }

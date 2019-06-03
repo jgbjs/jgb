@@ -55,7 +55,7 @@ function urlPlugin(asset: LessAsset) {
         //   return node;
         // },
         visitImport: (node: any) => {
-          asset.addDependency(node.path.value);
+          // asset.addDependency(node.path.value);
           return node;
         }
       });
@@ -64,12 +64,4 @@ function urlPlugin(asset: LessAsset) {
       pluginManager.addVisitor(visitor);
     }
   };
-}
-
-function ignoreDependency(value: string) {
-  if (value.startsWith("data:")) {
-    return true;
-  }
-
-  return false;
 }

@@ -89,7 +89,7 @@ program
     console.log(chalk.gray('   # show all templates'));
     console.log(` $ jgb create --list`);
     console.log();
-    console.log(chalk.gray('  # downlown/create template files for use'));
+    console.log(chalk.gray('  # download/create template files for use'));
     console.log(` $ jgb create template-name --template`);
     console.log();
     console.log(

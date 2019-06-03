@@ -59,25 +59,36 @@ export default class CssAsset extends Asset {
 
       const task = async () => {
         const ext = path.extname(dep);
-        const depDist = await this.getDepDist(dep, ext);
+        const {
+          realName,
+          relativeRequirePath,
+          distPath
+        } = await this.resolveAliasName(name.value, CssAsset.outExt);
+
+        const depDist = distPath;
         const depExt = path.extname(depDist);
         if (depExt !== ext) {
           // app.wxss => app.css
-          rule.params = `"${dep.replace(ext, depExt)}"`;
+          rule.params = `"${relativeRequirePath}"`;
         }
-        this.addDependency(dep, { media, loc: rule.source.start });
+
+        this.addDependency(realName, {
+          distPath,
+          media,
+          loc: rule.source.start
+        });
       };
 
-      asyncTasks.push(task())
+      asyncTasks.push(task());
 
       this.ast.dirty = true;
     });
 
-    this.ast.root.walkDecls((decl: any) => {
+    this.ast.root.walkDecls(async (decl: any) => {
       if (URL_RE.test(decl.value)) {
         const parsed = valueParser(decl.value);
         let dirty = false;
-
+        const tasks = [] as any[];
         parsed.walk((node: any) => {
           if (
             node.type === 'function' &&
@@ -88,14 +99,18 @@ export default class CssAsset extends Asset {
             if (nodeValue.startsWith('data:')) {
               return;
             }
-            const url = this.addURLDependency(nodeValue, this.name, {
-              loc: decl.source.start
+
+            tasks.push(async () => {
+              const url = await this.addURLDependency(nodeValue, this.name, {
+                loc: decl.source.start
+              });
+              dirty = nodeValue !== url;
+              node.nodes[0].value = url;
             });
-            dirty = nodeValue !== url;
-            node.nodes[0].value = url;
           }
         });
-
+        asyncTasks.push(...tasks);
+        await Promise.all(tasks);
         if (dirty) {
           decl.value = parsed.toString();
           this.ast.dirty = true;

@@ -17,7 +17,6 @@
       "./node_modules/@types",
       "./node_modules/@tuhu"
     ],
-    "declaration": true,
     "lib": [
       "es2015", "es6", "es2017", "dom"
     ],

@@ -132,7 +132,6 @@ export default class Core extends AwaitEventEmitter {
     logger.info(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
 
     await this.emit('end-build');
-    this.farm.stopPref();
 
     if (!this.options.watch) {
       await this.stop();
@@ -185,7 +184,12 @@ export default class Core extends AwaitEventEmitter {
 
     asset.endTime = Date.now();
 
-    debug(`${asset.name} processd time: ${asset.endTime - asset.startTime}ms`);
+    // 耗時
+    const usedTime = asset.endTime - asset.startTime;
+
+    this.farm.startPref(usedTime);
+
+    debug(`${asset.name} processd time: ${usedTime}ms`);
 
     asset.id = processed.id;
     // asset.generated = processed.generated;
@@ -193,7 +197,7 @@ export default class Core extends AwaitEventEmitter {
 
     const dependencies = processed.dependencies;
 
-    const assetDeps = await Promise.all(
+    await Promise.all(
       dependencies.map(async dep => {
         // from cache dep
         if (Array.isArray(dep) && dep.length > 1) {

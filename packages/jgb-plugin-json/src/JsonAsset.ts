@@ -14,7 +14,7 @@ export default class JsonAsset extends Asset {
   }
 
   async pretransform() {
-    if(this.ast) {
+    if (this.ast) {
       // TODO: transform json
     }
   }
@@ -52,7 +52,8 @@ export default class JsonAsset extends Asset {
     });
 
     for (const name of dependences) {
-      this.addDependency(name);
+      const { realName, distPath } = await this.resolveAliasName(name);
+      this.addDependency(realName, { distPath });
     }
   }
 
@@ -70,7 +71,8 @@ export default class JsonAsset extends Asset {
     });
 
     for (const name of [...dependences]) {
-      this.addDependency(name);
+      const { realName, distPath } = await this.resolveAliasName(name);
+      this.addDependency(realName, { distPath });
     }
   }
 
