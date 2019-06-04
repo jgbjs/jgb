@@ -8,6 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/jgbjs/jgb.git"
   },
+  "files": ["lib", "typings"],
   "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
     "build:ts": "tsc -p tsconfig.json",
