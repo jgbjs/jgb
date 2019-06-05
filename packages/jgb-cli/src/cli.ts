@@ -14,11 +14,10 @@ program
   )
   .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
   .option('-w, --watch', 'setup watch mode')
-  .option('-s, --source <source>', 'set the origin project type', /^(wx)$/)
+  .option('-s, --source <source>', 'set the origin project type')
   .option(
     '-t, --target <target>',
-    'set the build type, either "wx", "aliapp" or "swan". defaults to "wx"',
-    /^(wx|aliapp|swan|my)$/
+    'set the build type, either "wx", "swan" or "my" or "tt". defaults to "wx"'
   )
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')
