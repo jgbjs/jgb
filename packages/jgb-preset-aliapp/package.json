@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-aliapp",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -8,7 +8,10 @@
     "type": "git",
     "url": "git+https://github.com/jgbjs/jgb.git"
   },
-  "files": ["lib", "typings"],
+  "files": [
+    "lib",
+    "typings"
+  ],
   "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -21,11 +24,11 @@
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",
-    "jgb-plugin-babel": "^1.6.0",
-    "jgb-plugin-css": "^1.6.0",
-    "jgb-plugin-html": "^1.6.0",
-    "jgb-plugin-json": "^1.6.0",
-    "jgb-shared": "^1.6.0",
+    "jgb-plugin-babel": "^1.6.1",
+    "jgb-plugin-css": "^1.6.1",
+    "jgb-plugin-html": "^1.6.1",
+    "jgb-plugin-json": "^1.6.1",
+    "jgb-shared": "^1.6.1",
     "tslib": "^1.9.3"
   },
   "devDependencies": {

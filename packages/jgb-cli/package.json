@@ -1,13 +1,16 @@
 {
   "name": "jgb-cli",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "main": "index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jgbjs/jgb.git"
   },
-  "files": ["bin", "lib"],
+  "files": [
+    "bin",
+    "lib"
+  ],
   "homepage": "https://github.com/jgbjs/jgb",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -28,7 +31,7 @@
     "fswatcher-child": "^1.0.5",
     "inquirer": "^6.2.0",
     "is-glob": "^4.0.0",
-    "jgb-shared": "^1.6.0",
+    "jgb-shared": "^1.6.1",
     "js-beautify": "^1.8.9",
     "mkdirp": "^0.5.1",
     "os-utils": "^0.0.14",
