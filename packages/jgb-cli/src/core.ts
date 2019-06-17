@@ -29,7 +29,7 @@ export default class Core extends AwaitEventEmitter {
   cache: FSCache;
   hooks: Array<(...args: any[]) => Promise<void>>;
 
-  constructor(options: IInitOptions) {
+    constructor(options: IInitOptions) {
     super();
     this.hooks = options.hooks || [];
     this.options = this.normalizeOptions(options);
@@ -121,7 +121,6 @@ export default class Core extends AwaitEventEmitter {
 
     for (const entry of new Set(this.entryFiles)) {
       const asset = await this.resolveAsset(entry);
-
       this.buildQueue.add(asset);
     }
 
@@ -136,6 +135,51 @@ export default class Core extends AwaitEventEmitter {
     if (!this.options.watch) {
       await this.stop();
     }
+  }
+
+  async scan() {
+    const startTime = new Date();
+
+    if (this.farm) {
+      return;
+    }
+
+    await this.initHook();
+
+    await this.emit('before-init');
+
+    await this.init();
+
+    await this.emit('before-compiler');
+
+    // another channce to modify entryFiles
+    this.entryFiles = this.normalizeEntryFiles();
+
+    if (this.options.watch) {
+      this.watcher = new Watcher();
+
+      this.watcher.on('change', this.onChange.bind(this));
+    }
+
+    this.farm = WorkerFarm.getShared(this.options, {
+      workerPath: require.resolve('./worker'),
+      core: this
+    });
+    const jsonAsset = this.entryFiles.find(item => new RegExp( /\.json$/).test(item))
+    let asset = null
+    for(const entry of new Set([jsonAsset])) {
+      asset = await this.resolveAsset(entry)
+    }
+
+    await this.loadAsset(asset)
+    await this.stop()
+    // for (const entry of new Set(this.entryFiles)) {
+    //   const asset = await this.resolveAsset(entry);
+    //   this.buildQueue.add(asset);
+    // }
+    //
+    // await this.buildQueue.run();
+
   }
 
   async processAsset(asset: Asset, isRebuild = false) {
@@ -176,7 +220,6 @@ export default class Core extends AwaitEventEmitter {
     let processed: IPipelineProcessed =
       this.cache && (await this.cache.read(asset.name));
     let cacheMiss = false;
-
     if (!processed || asset.shouldInvalidate(processed.cacheData)) {
       processed = await this.farm.run(asset.name, asset.distPath);
       cacheMiss = true;
@@ -187,14 +230,13 @@ export default class Core extends AwaitEventEmitter {
     // 耗時
     const usedTime = asset.endTime - asset.startTime;
 
-    this.farm.startPref(usedTime);
+    // this.farm.startPref(usedTime);
 
     debug(`${asset.name} processd time: ${usedTime}ms`);
 
     asset.id = processed.id;
     // asset.generated = processed.generated;
     asset.hash = processed.hash;
-
     const dependencies = processed.dependencies;
 
     await Promise.all(
