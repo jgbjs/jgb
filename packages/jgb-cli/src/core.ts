@@ -230,7 +230,7 @@ export default class Core extends AwaitEventEmitter {
     // 耗時
     const usedTime = asset.endTime - asset.startTime;
 
-    // this.farm.startPref(usedTime);
+    this.farm.startPref(usedTime);
 
     debug(`${asset.name} processd time: ${usedTime}ms`);
 
