@@ -1,4 +1,5 @@
 import * as Debug from 'debug';
+import * as fg from 'fast-glob';
 import * as fs from 'fs';
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
 import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
@@ -48,11 +49,15 @@ export default class Core extends AwaitEventEmitter {
     }
   }
 
-  normalizeEntryFiles() {
-    return []
-      .concat(this.options.entryFiles || [])
-      .filter(Boolean)
-      .map(f => Path.resolve(this.options.sourceDir, f));
+  normalizeEntryFiles(): string[] {
+    const entryFiles = this.options.entryFiles;
+    return fg.sync(
+      []
+        .concat(!entryFiles || entryFiles.length === 0 ? entryFiles : 'app.*')
+        .filter(Boolean)
+        .map(f => Path.resolve(this.options.sourceDir, f)),
+      { onlyFiles: true, unique: true }
+    );
   }
 
   normalizeOptions(options: IInitOptions): IInitOptions {
@@ -107,7 +112,6 @@ export default class Core extends AwaitEventEmitter {
 
     // another channce to modify entryFiles
     this.entryFiles = this.normalizeEntryFiles();
-
     if (this.options.watch) {
       this.watcher = new Watcher();
 

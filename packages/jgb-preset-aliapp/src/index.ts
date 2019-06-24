@@ -94,17 +94,6 @@ interface IAliAppJson {
 const EXT_REGEX = /\.(\w)+$/;
 
 export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
-  if (pluginConfig && pluginConfig.coreOptions) {
-    const entryFiles = []
-      .concat(pluginConfig.coreOptions.entryFiles)
-      .filter(Boolean);
-    if (entryFiles.length === 0) {
-      entryFiles.push('app.js', 'app.json', 'app.acss');
-
-      pluginConfig.coreOptions.entryFiles = entryFiles;
-    }
-  }
-
   attachCompilerEvent(compiler);
 
   BabelPlugin(compiler, {});
