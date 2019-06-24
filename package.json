@@ -17,7 +17,7 @@
     "clean:all": "lerna run clean",
     "watch:all": "yarn run build --watch",
     "publish:all": "lerna publish --registry https://registry.npmjs.org/",
-    "test":"lerna exec --scope=jgb-preset-* -- yarn test"
+    "test":"lerna exec --scope jgb-preset-* --scope jgb-shared -- yarn test"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",
