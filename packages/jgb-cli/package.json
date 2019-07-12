@@ -34,6 +34,7 @@
     "jgb-shared": "^1.6.1",
     "js-beautify": "^1.8.9",
     "mkdirp": "^0.5.1",
+    "ora": "^3.4.0",
     "os-utils": "^0.0.14",
     "physical-cpu-count": "^2.0.0",
     "read-metadata": "^1.0.0",
@@ -49,6 +50,9 @@
     "verror": "^1.10.0"
   },
   "devDependencies": {
+    "@types/babel-core": "^6.25.6",
+    "@types/babel-types": "^7.0.7",
+    "@types/babylon": "^6.16.5",
     "@types/debug": "^0.0.30",
     "@types/fs-extra": "^5.0.4",
     "@types/inquirer": "^0.0.43",

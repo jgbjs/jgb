@@ -76,6 +76,92 @@ export default class JsonAsset extends Asset {
     }
   }
 
+  async collectAppDependJson(ctx: JsonAsset) {
+
+
+    const dependences = new Set<string>();
+    await this.compiler.emit('collect-app-json', {
+      dependences,
+      appJson: ctx.ast,
+      ctx
+    });
+
+    for (const name of [...dependences]) {
+      const {realName, distPath} = await this.resolveAliasName(name);
+      this.addDependency(realName, {distPath});
+    }
+
+    return this.filterDependenices([...this.dependencies])
+    // return [...this.dependencies].filter((item) => new RegExp(/\.json$/).test(item[0]))
+  }
+
+  filterDependenices (dependencies: Array<any>, type = 'app') {
+    const _initKeyName = (name: string) => {
+      const cwd = process.cwd()
+      return name.replace(cwd, '')
+        .replace('/src/', '')
+        .replace('.json', '')
+        .replace('/dist/', '')
+        .replace('.js', '')
+        .replace('.ts', '')
+    }
+    let hash: any = {}
+
+    const _filter = (key: string, distPath: string) => {
+      let _key = _initKeyName(key)
+      if (!hash[_key]) {
+        hash[_key] = {}
+      }
+      let currentData = hash[_key]
+      if (/\.js$/.test(key)) {
+        currentData.js = {
+          path: key,
+          distPath
+        }
+      }
+      if (/\.ts$/.test(key)) {
+        currentData.js = {
+          path: key,
+          distPath: distPath.replace('.ts', '.js')
+        }
+      }
+      if (/\.json$/.test(key)) {
+        currentData.json = {
+          path: key,
+          distPath
+        }
+      }
+    }
+    if (type === 'app') {
+      const filterDependencies = [...dependencies].filter((item) => new RegExp(/(\.json$)|(\.js$)|(\.ts$)/).test(item[0]))
+      filterDependencies.forEach(([key, {name, distPath}]: any) => {
+        _filter(key, distPath)
+      })
+      return hash
+    }
+    if (type === 'page') {
+      const filterDependencies = [...dependencies].filter((item) => new RegExp(/(\.json$)|(\.js$)|(\.ts$)/).test(item))
+      filterDependencies.forEach((key: string) => {
+        _filter(key, key)
+      })
+      return hash
+    }
+  }
+
+  async collectPageDependJson(ctx: JsonAsset) {
+    const dependences = new Set<string>();
+
+    await this.compiler.emit('collect-page-json', {
+      dependences,
+      pageJson: ctx.ast,
+      ctx,
+    });
+
+    return this.filterDependenices([...dependences], 'page')
+    // return [...dependences].filter((item) => new RegExp(/\.json$/).test(item))
+
+  }
+
   /**
    * 查找满足条件的文件,扩展开文件名
    * @param fileNames

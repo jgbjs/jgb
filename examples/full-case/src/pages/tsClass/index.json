@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "popup": "../../components/popup/popup",
+    "lottie": "lottie-miniapp/lottie"
+  }
+}
