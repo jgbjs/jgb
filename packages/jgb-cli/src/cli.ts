@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
-import { builder, clean, create, init } from './command';
+import {builder, clean, create, init, scan} from './command';
 
 program.version((pkg as any).version, '-v, --version');
 
@@ -103,5 +103,11 @@ program
       ` $ jgb create template-name components/test-component --component`
     );
   });
+
+  program
+    .command('scan')
+    .description('collect all dependent components and page to a json file')
+    .option('-s, --source <sourcePath>', 'scan path, default source is dist"')
+    .action(scan)
 
 program.parse(process.argv);

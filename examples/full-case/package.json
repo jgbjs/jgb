@@ -20,7 +20,7 @@
     "jgb-plugin-typescript": "^1.6.1",
     "jgb-preset-weapp": "^1.6.1",
     "jgb-weapp": "^1.5.2",
-    "lodash-es": "^4.17.10",
+    "lodash-es": "^4.17.14",
     "lottie-miniapp": "^1.4.0",
     "miniapp-regenerator-runtime": "^1.0.0",
     "miniprogram-navigation-bar": "^0.0.4",
