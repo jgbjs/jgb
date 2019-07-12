@@ -106,7 +106,7 @@ program
 
   program
     .command('scan')
-    .description('a test command')
+    .description('collect all dependent components and page to a json file')
     .option('-s, --source <sourcePath>', 'scan path, default source is dist"')
     .action(scan)
 
