@@ -114,7 +114,7 @@ async function collectAppJson({
   }
 }
 
-class Core extends AwaitEventEmitter {
+export class Core extends AwaitEventEmitter {
   private currentDir = process.cwd();
   private loadedAssets = new Map<string, Asset>();
   private options: IInitOptions;
@@ -185,6 +185,7 @@ class Core extends AwaitEventEmitter {
               path: key,
               methods: await processJs(js.distPath),
               components: await collectComponents(_components),
+              type: 'component'
             }
           }))
         }
@@ -250,7 +251,8 @@ class Core extends AwaitEventEmitter {
           path: key,
           realPath: json.distPath,
           methods: await processJs(js.distPath),
-          components: await processJson(json.distPath)
+          components: await processJson(json.distPath),
+          type: 'page'
         }
       }
       return {
