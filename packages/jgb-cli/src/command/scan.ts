@@ -165,8 +165,10 @@ export class Core extends AwaitEventEmitter {
   }
 
   async scan() {
-    const spinner = ora('start scanning')
+    console.log(chalk.green('start scanning'))
+    const spinner = ora()
     await this.init()
+    spinner.start()
     const allPagePaths = await this._scanAppJson()
     // fs.writeFileSync('./res1.json', JSON.stringify(allPagePaths, null, 2))
     const ast = await Promise.all(Object.keys(allPagePaths).map(async (key: string) => {
@@ -261,13 +263,14 @@ export class Core extends AwaitEventEmitter {
       }
     }))
 
+    spinner.stop()
     console.log(`扫描结果在：${chalk.green(path.resolve('./res.json'))}`)
     fs.writeFileSync('./res.json', JSON.stringify(ast, null, 2))
   }
 
   // 扫描app.json下的page页面，返回page数组
   async _scanAppJson() {
-    this.entryFiles = this.normalizeEntryFiles();
+    this.entryFiles = [Path.resolve(`${process.cwd()}/dist/`, './app.json')]
     const jsonFile = this.entryFiles.filter(item => new RegExp(/\.json$/).test(item))
     let jsonAsset: any = null
     for (const entry of new Set(jsonFile)) {
