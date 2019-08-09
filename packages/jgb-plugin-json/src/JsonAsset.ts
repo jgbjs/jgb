@@ -77,8 +77,6 @@ export default class JsonAsset extends Asset {
   }
 
   async collectAppDependJson(ctx: JsonAsset) {
-
-
     const dependences = new Set<string>();
     await this.compiler.emit('collect-app-json', {
       dependences,
@@ -171,7 +169,7 @@ export default class JsonAsset extends Asset {
     fileNames: Set<string>,
     extensions: IterableIterator<string>
   ): Promise<Set<string>> {
-    const dependences = new Set();
+    const dependences = new Set<string>();
     const dir = path.dirname(this.name);
     const exts = [...extensions];
 
