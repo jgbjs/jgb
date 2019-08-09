@@ -1,4 +1,5 @@
 import { Asset, IInitOptions } from 'jgb-shared/lib';
+import {Utils} from 'jgb-shared'
 import * as json5 from 'json5';
 import * as path from 'path';
 
@@ -96,7 +97,7 @@ export default class JsonAsset extends Asset {
   filterDependenices (dependencies: Array<any>, type = 'app') {
     const _initKeyName = (name: string) => {
       const cwd = process.cwd()
-      return name.replace(cwd, '')
+      return Utils.pathToUnixType(name).replace(cwd, '')
         .replace('/src/', '')
         .replace('.json', '')
         .replace('/dist/', '')
