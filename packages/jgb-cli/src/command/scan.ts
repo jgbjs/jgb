@@ -249,7 +249,6 @@ export class Core extends AwaitEventEmitter {
       if (json) {
         return {
           path: key,
-          realPath: json.distPath,
           methods: await processJs(js.distPath),
           components: await processJson(json.distPath),
           type: 'page'
@@ -257,7 +256,6 @@ export class Core extends AwaitEventEmitter {
       }
       return {
         path: key,
-        realPath: '',
         methods: [],
         components: []
       }
@@ -272,7 +270,6 @@ export class Core extends AwaitEventEmitter {
     this.entryFiles = this.normalizeEntryFiles();
     const jsonFile = this.entryFiles.filter(item => new RegExp(/\.json$/).test(item))
     let jsonAsset: any = null
-    console.log('引用的入口文件：', jsonFile)
     for (const entry of new Set(jsonFile)) {
       jsonAsset = await this.resolveAsset(entry);
     }
