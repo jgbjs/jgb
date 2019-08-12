@@ -1,14 +1,14 @@
-import * as Path from 'path'
-import * as fs from 'fs'
 import * as babel from 'babel-core';
-import * as path from 'path'
-import {getJGBConfig} from '../config';
-import AwaitEventEmitter from "jgb-shared/lib/awaitEventEmitter";
-import {Asset, IInitOptions, Resolver} from "jgb-shared/lib";
-import {normalizeAlias, pathToUnixType} from "jgb-shared/lib/utils/index";
-import Compiler from "../Compiler";
-import ora from 'ora'
-import chalk from 'chalk'
+import chalk from 'chalk';
+import * as fs from 'fs';
+import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
+import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
+import ora from 'ora';
+import * as path from 'path';
+import * as Path from 'path';
+import Compiler from '../Compiler';
+import { getJGBConfig } from '../config';
 
 interface IAppJsonTabarListConfg {
   pagePath: string;
@@ -63,14 +63,14 @@ function aliasResolve(options: IInitOptions, root: string) {
 }
 
 function getNodeName(node: any): string {
-  return node.name
+  return node.name;
 }
 
 async function collectAppJson({
-                                dependences,
-                                appJson,
-                                ctx
-                              }: {
+  dependences,
+  appJson,
+  ctx
+}: {
   dependences: Set<string>;
   appJson: IAppJson;
   ctx: any;
@@ -87,7 +87,7 @@ async function collectAppJson({
   // subPackages asset
   if (Array.isArray(appJson.subPackages)) {
     // tslint:disable-next-line:no-shadowed-variable
-    appJson.subPackages.forEach(({root, pages}) => {
+    appJson.subPackages.forEach(({ root, pages }) => {
       const subPackagePages = pages.map(page => Path.join(root, page));
       assetPaths.push(...subPackagePages);
     });
@@ -124,12 +124,11 @@ export class Core extends AwaitEventEmitter {
   compiler: Compiler;
 
   constructor(options: IInitOptions) {
-    super()
+    super();
     this.options = this.normalizeOptions(options);
     this.resolver = new Resolver(this.options);
     this.compiler = new Compiler(this.options);
   }
-
 
   normalizeOptions(options: IInitOptions): IInitOptions {
     const rootDir = Path.resolve(options.rootDir || this.currentDir);
@@ -161,125 +160,142 @@ export class Core extends AwaitEventEmitter {
 
   // 获取对应page.js文件的字符串
   getJs(path: string) {
-    return fs.readFileSync(path + '.js', 'utf-8')
+    return fs.readFileSync(path + '.js', 'utf-8');
   }
 
   async scan() {
-    console.log(chalk.green('start scanning'))
-    const spinner = ora()
-    await this.init()
-    spinner.start()
-    const allPagePaths = await this._scanAppJson()
+    console.log(chalk.green('start scanning'));
+    const spinner = ora();
+    await this.init();
+    spinner.start();
+    const allPagePaths = await this._scanAppJson();
     // fs.writeFileSync('./res1.json', JSON.stringify(allPagePaths, null, 2))
-    const ast = await Promise.all(Object.keys(allPagePaths).map(async (key: string) => {
-      const collectComponents = async (components: any) => {
-        let dic: any[] = []
-        if (Object.keys(components).length > 0) {
-          dic = await Promise.all(Object.keys(components).map(async (key: string) => {
-            const current = components[key]
+    const ast = await Promise.all(
+      Object.keys(allPagePaths).map(async (key: string) => {
+        const collectComponents = async (components: any) => {
+          let dic: any[] = [];
+          if (Object.keys(components).length > 0) {
+            dic = await Promise.all(
+              Object.keys(components).map(async (key: string) => {
+                const current = components[key];
 
-            const json = current['json']
-            const js = current['js']
-            const asset: any = await await this.resolveAsset(json.distPath)
-            await asset.getDependencies()
-            const _components = await asset.collectPageDependJson(asset)
-            return {
-              path: key,
-              methods: await processJs(js.distPath),
-              components: await collectComponents(_components),
-              type: 'component'
-            }
-          }))
-        }
-        return dic
-      }
-
-      const _resolve = async (path: string) => {
-        const asset: any = await this.resolveAsset(path);
-        await asset.getDependencies()
-        return asset
-      }
-
-      const processJs = async (path: string) => {
-        const code = fs.readFileSync(path, 'utf-8')
-        const ast = babel.transform(code, {
-          sourceType: "module"
-        }).ast
-        const funcNames: string[] = []
-        babel.traverse(ast, {
-          ObjectProperty: (path, state) => {
-            const node: any = path.node
-            const {key, value}: any = node
-            // 移除computed里面的方法
-            if (key.name === 'computed') {
-              value.properties.forEach((property: any) => {
-                property.filter = true
+                const json = current.json;
+                const js = current.js;
+                const asset: any = await await this.resolveAsset(json.distPath);
+                await asset.getDependencies();
+                const _components = await asset.collectPageDependJson(asset);
+                return {
+                  path: key,
+                  methods: await processJs(js.distPath),
+                  components: await collectComponents(_components),
+                  type: 'component'
+                };
               })
-            }
+            );
+          }
+          return dic;
+        };
 
-            if (babel.types.isFunctionExpression(value) && !node.filter && key.name !== 'observer') {
-              funcNames.push(getNodeName(key))
-            }
-          },
-          AssignmentExpression: ((path, state) => {
-            const {node}: any = path
-            const {left}: any = node
-            if (babel.types.isMemberExpression(left)) {
-              const {object, property}: any = left
-              if (object && object.property
-                && babel.types.isIdentifier(object.property) && object.property.name === 'prototype') {
-                if (left.property && babel.types.isIdentifier(left.property)) {
-                  funcNames.push(getNodeName(left.property))
+        const _resolve = async (path: string) => {
+          const asset: any = await this.resolveAsset(path);
+          await asset.getDependencies();
+          return asset;
+        };
+
+        const processJs = async (path: string) => {
+          const code = fs.readFileSync(path, 'utf-8');
+          const ast = babel.transform(code, {
+            sourceType: 'module'
+          }).ast;
+          const funcNames: string[] = [];
+          babel.traverse(ast, {
+            ObjectProperty: (path, state) => {
+              const node: any = path.node;
+              const { key, value }: any = node;
+              // 移除computed里面的方法
+              if (key.name === 'computed') {
+                value.properties.forEach((property: any) => {
+                  property.filter = true;
+                });
+              }
+
+              if (
+                babel.types.isFunctionExpression(value) &&
+                !node.filter &&
+                key.name !== 'observer'
+              ) {
+                funcNames.push(getNodeName(key));
+              }
+            },
+            AssignmentExpression: (path, state) => {
+              const { node }: any = path;
+              const { left }: any = node;
+              if (babel.types.isMemberExpression(left)) {
+                const { object, property }: any = left;
+                if (
+                  object &&
+                  object.property &&
+                  babel.types.isIdentifier(object.property) &&
+                  object.property.name === 'prototype'
+                ) {
+                  if (
+                    left.property &&
+                    babel.types.isIdentifier(left.property)
+                  ) {
+                    funcNames.push(getNodeName(left.property));
+                  }
                 }
               }
             }
-          })
-        })
+          });
 
-        return funcNames
-      }
-      const processJson = async (path: string) => {
-        const asset: any = await _resolve(path)
-        const components = await asset.collectPageDependJson(asset)
-        // return components
-        return collectComponents(components)
-      }
+          return funcNames;
+        };
+        const processJson = async (path: string) => {
+          const asset: any = await _resolve(path);
+          const components = await asset.collectPageDependJson(asset);
+          // return components
+          return collectComponents(components);
+        };
 
-      const current = allPagePaths[key]
-      const js = current['js']
-      const json = current['json']
-      if (json) {
+        const current = allPagePaths[key];
+        const js = current.js;
+        const json = current.json;
+        if (json) {
+          return {
+            path: key,
+            methods: await processJs(js.distPath),
+            components: await processJson(json.distPath),
+            type: 'page'
+          };
+        }
         return {
           path: key,
-          methods: await processJs(js.distPath),
-          components: await processJson(json.distPath),
-          type: 'page'
-        }
-      }
-      return {
-        path: key,
-        methods: [],
-        components: []
-      }
-    }))
+          methods: [],
+          components: []
+        };
+      })
+    );
 
-    spinner.stop()
-    console.log(`扫描结果在：${chalk.green(path.resolve('./res.json'))}`)
-    fs.writeFileSync('./res.json', JSON.stringify(ast, null, 2))
+    spinner.stop();
+    console.log(`扫描结果在：${chalk.green(path.resolve('./res.json'))}`);
+    fs.writeFileSync('./res.json', JSON.stringify(ast, null, 2));
   }
 
   // 扫描app.json下的page页面，返回page数组
   async _scanAppJson() {
-    this.entryFiles = [Path.resolve(`${process.cwd()}/dist/`, './app.json')]
-    const jsonFile = this.entryFiles.filter(item => new RegExp(/\.json$/).test(item))
-    let jsonAsset: any = null
+    this.entryFiles = [Path.resolve(`${process.cwd()}/dist/`, './app.json')];
+    const jsonFile = this.entryFiles.filter(item =>
+      new RegExp(/\.json$/).test(item)
+    );
+    let jsonAsset: any = null;
     for (const entry of new Set(jsonFile)) {
       jsonAsset = await this.resolveAsset(entry);
     }
     // 获取当前资源的依赖
-    await jsonAsset.getDependencies()
+    await jsonAsset.getDependencies();
     // 收集pageJson
-    return await jsonAsset.collectAppDependJson(jsonAsset)
+    return await jsonAsset.collectAppDependJson(jsonAsset);
   }
 
   async init() {
@@ -287,7 +303,7 @@ export class Core extends AwaitEventEmitter {
   }
 
   async resolveAsset(name: string, parent?: string) {
-    const {path} = await this.resolver.resolve(name, parent);
+    const { path } = await this.resolver.resolve(name, parent);
 
     return this.getLoadedAsset(path);
   }
@@ -310,9 +326,7 @@ export class Core extends AwaitEventEmitter {
   }
 }
 
-export default async function scan(
-  program: any
-) {
+export default async function scan(program: any) {
   const config = await getJGBConfig();
   const core = new Core(
     Object.assign(
@@ -326,5 +340,5 @@ export default async function scan(
     )
   );
 
-  await core.scan()
+  await core.scan();
 }
