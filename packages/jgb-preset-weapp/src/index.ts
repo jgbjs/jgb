@@ -30,6 +30,10 @@ interface IAppJson {
     root: string;
     pages: string[];
   }>;
+  subpackages?: Array<{
+    root: string;
+    pages: string[];
+  }>;
 }
 
 interface IAppJsonTabarListConfg {
@@ -256,9 +260,11 @@ async function collectAppJson({
   }
 
   // subPackages asset
-  if (Array.isArray(appJson.subPackages)) {
+  // fix wechatminiprogram support [subpackages]
+  const subPackages = appJson.subPackages || appJson.subpackages;
+  if (Array.isArray(subPackages)) {
     // tslint:disable-next-line:no-shadowed-variable
-    appJson.subPackages.forEach(({ root, pages }) => {
+    subPackages.forEach(({ root, pages }) => {
       const subPackagePages = pages.map(page => Path.join(root, page));
       assetPaths.push(...subPackagePages);
     });
