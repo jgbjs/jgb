@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-weapp",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "jgb-plugin-babel": "^1.6.1",
     "jgb-plugin-css": "^1.6.1",
     "jgb-plugin-html": "^1.6.1",
-    "jgb-plugin-json": "^1.6.5",
+    "jgb-plugin-json": "^1.6.6",
     "jgb-shared": "^1.6.1",
     "tslib": "^1.9.3"
   },
