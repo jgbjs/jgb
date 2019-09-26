@@ -1,344 +1,245 @@
-import * as babel from 'babel-core';
-import chalk from 'chalk';
-import * as fs from 'fs';
-import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
-import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
-import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
-import ora from 'ora';
-import * as path from 'path';
-import * as Path from 'path';
-import Compiler from '../Compiler';
-import { getJGBConfig } from '../config';
+import {pathToUnixType} from 'jgb-shared/lib/utils/index';
+const ora = require('ora');
+const babel = require('babel-core')
+const Path = require('path')
+const fs = require('fs')
+const chalk = require('chalk')
+const json5 = require('json5')
 
-interface IAppJsonTabarListConfg {
-  pagePath: string;
-  text: string;
-  iconPath: string;
-  selectedIconPath: string;
-}
-
-interface IAppTabBar {
-  color: string;
-  selectedColor: string;
-  backgroundColor: string;
-  borderStyle: string;
-  list: IAppJsonTabarListConfg[];
-  position: string;
+let componentNum = 0
+interface ISubPackage {
+  root: string,
+  pages: string[]
 }
 
 interface IAppJson {
-  pages: string[];
-  tabBar: IAppTabBar;
-  subPackages: Array<{
-    root: string;
-    pages: string[];
-  }>;
+  pages: string[],
+  subPackages: ISubPackage[]
 }
 
-function aliasResolve(options: IInitOptions, root: string) {
-  const alias = options.alias || {};
-  const newAlias: { [key: string]: any } = {};
-  /**
-   * 先排序 字符长度由长到短排序 （优先匹配）
-   * 再补充 resolve(aliasValue)
-   */
-  Object.keys(alias)
-    .sort((a1, a2) => a2.length - a1.length)
-    .forEach(key => {
-      const aliasValue = normalizeAlias(alias[key]);
-      const aliasPath = aliasValue.path;
-      if (!Path.isAbsolute(aliasPath)) {
-        if (aliasPath.startsWith('.')) {
-          aliasValue.path = pathToUnixType(Path.resolve(root, aliasPath));
-        } else {
-          aliasValue.path = pathToUnixType(
-            Path.resolve(root, 'node_modules', aliasPath)
-          );
-        }
-      }
-
-      newAlias[key] = aliasValue;
-    });
-  return newAlias;
+interface ICore {
+  entry: string
 }
 
-function getNodeName(node: any): string {
-  return node.name;
+const isParentPathProgramNode = (path: any, step: number): boolean => {
+  let node = path
+  for (let i = 0; i < step; i++) {
+    node = node.parentPath
+  }
+  return babel.types.isProgram(node.node)
 }
 
-async function collectAppJson({
-  dependences,
-  appJson,
-  ctx
-}: {
-  dependences: Set<string>;
-  appJson: IAppJson;
-  ctx: any;
-}) {
-  const extensions = ctx.options.parser.extensions as Map<string, any>;
-  const supportExtensions = extensions.keys();
-  const assetPaths: string[] = [];
+const getNodeName = (node: any): string => node.name
 
-  // pages asset
-  if (Array.isArray(appJson.pages)) {
-    assetPaths.push(...appJson.pages);
-  }
+const formatPath = (path: string, replacedStr: string): string => pathToUnixType(Path.relative(replacedStr, path))
 
-  // subPackages asset
-  if (Array.isArray(appJson.subPackages)) {
-    // tslint:disable-next-line:no-shadowed-variable
-    appJson.subPackages.forEach(({ root, pages }) => {
-      const subPackagePages = pages.map(page => Path.join(root, page));
-      assetPaths.push(...subPackagePages);
-    });
-  }
+class Core {
+  entry: string
+  pathes: string[]
+  errPath: any[]
 
-  // expandFiles
-  if (Array.isArray(assetPaths)) {
-    for (const dep of await ctx.expandFiles(
-      new Set(assetPaths),
-      supportExtensions
-    )) {
-      dependences.add(dep);
-    }
-  }
-
-  // tabBar asset
-  if (appJson.tabBar && Array.isArray(appJson.tabBar.list)) {
-    appJson.tabBar.list.forEach(config => {
-      // tslint:disable-next-line:no-unused-expression
-      config.iconPath && dependences.add(config.iconPath);
-      // tslint:disable-next-line:no-unused-expression
-      config.selectedIconPath && dependences.add(config.selectedIconPath);
-    });
-  }
-}
-
-export class Core extends AwaitEventEmitter {
-  private currentDir = process.cwd();
-  private loadedAssets = new Map<string, Asset>();
-  private options: IInitOptions;
-  private entryFiles: string[];
-
-  resolver: Resolver;
-  compiler: Compiler;
-
-  constructor(options: IInitOptions) {
-    super();
-    this.options = this.normalizeOptions(options);
-    this.resolver = new Resolver(this.options);
-    this.compiler = new Compiler(this.options);
-  }
-
-  normalizeOptions(options: IInitOptions): IInitOptions {
-    const rootDir = Path.resolve(options.rootDir || this.currentDir);
-    return {
-      plugins: options.plugins,
-      presets: options.presets,
-      watch: !!options.watch,
-      rootDir,
-      useLocalWorker: !!options.useLocalWorker,
-      outDir: Path.resolve(options.outDir || 'dist'),
-      npmDir: Path.resolve(options.npmDir || 'node_modules'),
-      entryFiles: [].concat(options.entryFiles),
-      cache: !!options.cache,
-      sourceDir: Path.resolve(options.sourceDir || 'src'),
-      alias: aliasResolve(options, rootDir),
-      minify: !!options.minify,
-      source: options.source || 'wx',
-      target: options.target || 'wx',
-      lib: options.lib
-    };
-  }
-
-  normalizeEntryFiles() {
-    return []
-      .concat(this.options.entryFiles || [])
-      .filter(Boolean)
-      .map(f => Path.resolve(this.options.sourceDir, f));
-  }
-
-  // 获取对应page.js文件的字符串
-  getJs(path: string) {
-    return fs.readFileSync(path + '.js', 'utf-8');
+  constructor(options: ICore) {
+    this.errPath = []
+    this.entry = options.entry
   }
 
   async scan() {
-    console.log(chalk.green('start scanning'));
     const spinner = ora();
-    await this.init();
-    spinner.start();
-    const allPagePaths = await this._scanAppJson();
-    // fs.writeFileSync('./res1.json', JSON.stringify(allPagePaths, null, 2))
-    const ast = await Promise.all(
-      Object.keys(allPagePaths).map(async (key: string) => {
-        const collectComponents = async (components: any) => {
-          let dic: any[] = [];
-          if (Object.keys(components).length > 0) {
-            dic = await Promise.all(
-              Object.keys(components).map(async (key: string) => {
-                const current = components[key];
+    try {
+      spinner.start(chalk.green('start scanning'))
+      const data = await this._getAppJson(this.entry)
+      if (!data) { return console.log(chalk.red('文件内容为空')) }
+      const mainPackages = data.pages
+      const subPackages = this._getSubPackagesPath(data.subPackages)
+      this.pathes = this._mergePath(mainPackages, subPackages)
+      const res = await this._startScanPage()
+      spinner.stop()
+      this._printErrorInfo()
+      fs.writeFile(Path.resolve(this.entry, '../scan-res.json'), JSON.stringify(res, null, 2), (err: any) => {
+        if (err) {
+          return console.log(chalk.red('文件写入失败'))
+        }
+        console.log(chalk.greenBright(`文件写入至: ${Path.resolve(this.entry, '../scan-res.json')}`))
+        console.log(chalk.greenBright(`共${chalk.blueBright(this.pathes.length)}个页面, ${chalk.blueBright(componentNum)}个组件,去除${chalk.blueBright(subPackages.length + mainPackages.length - this.pathes.length)}个多余页面`))
+      })
+    } catch (e) {
+      console.log('e', e)
+    }
+  }
 
-                const json = current.json;
-                const js = current.js;
-                const asset: any = await await this.resolveAsset(json.distPath);
-                await asset.getDependencies();
-                const _components = await asset.collectPageDependJson(asset);
-                return {
-                  path: key,
-                  methods: await processJs(js.distPath),
-                  components: await collectComponents(_components),
-                  type: 'component'
-                };
-              })
-            );
+  _printErrorInfo() {
+    if (this.errPath.length) {
+      console.log(chalk.redBright('以下路径未被find: '))
+      console.log(chalk.redBright(JSON.stringify(this.errPath, null, 2)))
+    }
+  }
+
+  async _startScanPage() {
+    const res: any[] = []
+    for (const path of this.pathes) {
+      const obj: any = {}
+      obj.path = path
+      obj.methods = await this._getMethods(path) || []
+      obj.components = await this._getComponents(path) || []
+      obj.type = 'page'
+      res.push(obj)
+    }
+    return res
+  }
+
+  _getAppJson(entry: string): Promise<IAppJson> {
+    return new Promise((resolve, reject) => {
+      fs.readdir(entry, (err: any) => {
+        if (err) {
+          console.log(chalk.red('未发现dist目录'))
+          return reject(null)
+        }
+        fs.readFile(Path.resolve(entry, 'app.json'), 'utf8', (err: any, data: any) => {
+          if (err) {
+            console.log(chalk.red('未发现app.json文件'))
+            return reject(null)
           }
-          return dic;
-        };
+          return resolve(json5.parse(data))
+        })
+      })
+    })
+  }
 
-        const _resolve = async (path: string) => {
-          const asset: any = await this.resolveAsset(path);
-          await asset.getDependencies();
-          return asset;
-        };
+  _getComponents(path: string) {
+    return new Promise((resolve, reject) => {
+      const entry = Path.resolve(this.entry, `${ path }.json`)
+      const res: any[] = []
+      fs.readFile(entry, 'utf8', (async (err: any, data: any) => {
+        if (err) {
+          console.log(chalk.red(`未找到json文件: ${ entry }`))
+          return resolve(null)
+        }
+        data = json5.parse(data)
+        const usingComponents = data.usingComponents || {}
+        // tslint:disable-next-line: forin
+        for (const componentName in usingComponents) {
+          componentNum++
+          const componentPath: string = usingComponents[componentName]
+          // 去除组件路径为plugins的
+          if (componentPath.startsWith('plugin:')) { continue }
+          const obj: any = {}
+          const _path = Path.resolve(entry, '../', this._normalizePath(componentPath))
+          // console.log('this.entry', this.entry, _path)
+          obj.path = formatPath(_path, `${ this.entry }`)
+          obj.methods = await this._getMethods(_path, formatPath(path, `${this.entry}/`)) || []
+          obj.type = 'component'
+          obj.components = await this._getComponents(_path) || []
+          res.push(obj)
+        }
+        return resolve(res)
+      }))
+    })
+  }
 
-        const processJs = async (path: string) => {
-          const code = fs.readFileSync(path, 'utf-8');
-          const ast = babel.transform(code, {
-            sourceType: 'module'
-          }).ast;
-          const funcNames: string[] = [];
-          babel.traverse(ast, {
-            ObjectProperty: (path, state) => {
-              const node: any = path.node;
-              const { key, value }: any = node;
-              // 移除computed里面的方法
-              if (key.name === 'computed') {
-                value.properties.forEach((property: any) => {
-                  property.filter = true;
-                });
-              }
 
+// 获取分包的路径，返回绝对路径
+  _getSubPackagesPath(subPackages: ISubPackage[]) {
+    return subPackages.reduce((pre, subPackage) => {
+      const root = subPackage.root
+      return pre.concat(subPackage.pages.map((_path) => `${ root }/${ _path }`))
+    }, [])
+  }
+
+// 合并路径，去除重复的路径, 并去除plugin
+  _mergePath(mainPackages: string[], subPackages: string[]) {
+    mainPackages = mainPackages || []
+    subPackages = subPackages || []
+    const res: string[] = []
+    for (const path of mainPackages) {
+      let isExist = false
+      for (const sub of subPackages) {
+        if (sub.includes(path)) {
+          isExist = true
+          break
+        }
+      }
+      if (!isExist) {
+        res.push(path)
+      }
+    }
+    return res.concat(subPackages)
+  }
+
+  _getMethods(filePath: string, parentPath?: string) {
+    return new Promise((resolve, reject) => {
+      const entry = Path.resolve(this.entry, `${ filePath }.js`)
+      fs.readFile(entry, 'utf8', (err: any, code: any) => {
+        if (err) {
+          this.errPath.push({
+            [`${parentPath}`]: filePath
+          })
+          return resolve(null)
+        }
+        const ast = babel.transform(code, {
+          sourceType: 'module'
+        }).ast;
+        const funcNames: string[] = [];
+        babel.traverse(ast, {
+          ObjectProperty: (path: any, state: any) => {
+            const node: any = path.node;
+            const { key, value }: any = node;
+            // 移除computed里面的方法
+            if (key.name === 'computed') {
+              value.properties.forEach((property: any) => {
+                property.filter = true;
+              });
+            }
+            if (
+              babel.types.isFunctionExpression(value) &&
+              isParentPathProgramNode(path, 4) &&
+              !node.filter && // 不是computed属性
+              key.name !== 'observer' // 不是observer
+            ) {
+              funcNames.push(getNodeName(key));
+            }
+          },
+          AssignmentExpression: (path: any, state: any) => {
+            const { node }: any = path;
+            const { left }: any = node;
+            if (babel.types.isMemberExpression(left)) {
+              const { object, property }: any = left;
               if (
-                babel.types.isFunctionExpression(value) &&
-                !node.filter &&
-                key.name !== 'observer'
+                object &&
+                object.property &&
+                babel.types.isIdentifier(object.property) &&
+                object.property.name === 'prototype'
               ) {
-                funcNames.push(getNodeName(key));
-              }
-            },
-            AssignmentExpression: (path, state) => {
-              const { node }: any = path;
-              const { left }: any = node;
-              if (babel.types.isMemberExpression(left)) {
-                const { object, property }: any = left;
                 if (
-                  object &&
-                  object.property &&
-                  babel.types.isIdentifier(object.property) &&
-                  object.property.name === 'prototype'
+                  left.property &&
+                  babel.types.isIdentifier(left.property)
                 ) {
-                  if (
-                    left.property &&
-                    babel.types.isIdentifier(left.property)
-                  ) {
-                    funcNames.push(getNodeName(left.property));
-                  }
+                  funcNames.push(getNodeName(left.property));
                 }
               }
             }
-          });
-
-          return funcNames;
-        };
-        const processJson = async (path: string) => {
-          const asset: any = await _resolve(path);
-          const components = await asset.collectPageDependJson(asset);
-          // return components
-          return collectComponents(components);
-        };
-
-        const current = allPagePaths[key];
-        const js = current.js;
-        const json = current.json;
-        if (json) {
-          return {
-            path: key,
-            methods: await processJs(js.distPath),
-            components: await processJson(json.distPath),
-            type: 'page'
-          };
-        }
-        return {
-          path: key,
-          methods: [],
-          components: []
-        };
+          }
+        });
+        return resolve(funcNames)
       })
-    );
-
-    spinner.stop();
-    console.log(`扫描结果在：${chalk.green(path.resolve('./res.json'))}`);
-    fs.writeFileSync('./res.json', JSON.stringify(ast, null, 2));
+    })
   }
 
-  // 扫描app.json下的page页面，返回page数组
-  async _scanAppJson() {
-    this.entryFiles = [Path.resolve(`${process.cwd()}/dist/`, './app.json')];
-    const jsonFile = this.entryFiles.filter(item =>
-      new RegExp(/\.json$/).test(item)
-    );
-    let jsonAsset: any = null;
-    for (const entry of new Set(jsonFile)) {
-      jsonAsset = await this.resolveAsset(entry);
+  // 针对 /component/index/index  ==>  /path/to/component/index/index
+  _normalizePath(path: string) {
+    path = path.replace(/\\/g, '/')
+    if (path.substr(0, 1) === '/') {
+      path = `${ this.entry }/${ path.substr(1) }`
     }
-    // 获取当前资源的依赖
-    await jsonAsset.getDependencies();
-    // 收集pageJson
-    return await jsonAsset.collectAppDependJson(jsonAsset);
-  }
-
-  async init() {
-    await this.compiler.init(this.resolver);
-  }
-
-  async resolveAsset(name: string, parent?: string) {
-    const { path } = await this.resolver.resolve(name, parent);
-
-    return this.getLoadedAsset(path);
-  }
-
-  getLoadedAsset(path: string) {
-    if (this.loadedAssets.has(path)) {
-      return this.loadedAssets.get(path);
-    }
-
-    const asset = this.compiler.getAsset(path);
-    if (this.loadedAssets.has(asset.name)) {
-      return this.loadedAssets.get(asset.name);
-    }
-
-    this.loadedAssets.set(path, asset);
-    this.loadedAssets.set(asset.name, asset);
-
-    // this.watch(path, asset);
-    return asset;
+    return path
   }
 }
 
 export default async function scan(program: any) {
-  const config = await getJGBConfig();
-  const core = new Core(
-    Object.assign(
-      {
-        cache: true
-      },
-      config,
-      {
-        rootDir: program.source
-      }
-    )
-  );
-
-  await core.scan();
+  const _path = program.source || process.cwd()
+  const entry = Path.resolve(_path, 'dist')
+  const core = new Core({
+    entry
+  })
+  await core.scan()
 }
+
