@@ -24,5 +24,10 @@ module.exports = {
   plugins: [['less', {
     extensions: ['.wxss'],
     outExt: '.wxss'
-  }], 'typescript']
+  }],
+    'typescript',
+  ['wxs', {
+    extensions: ['.wxs'],
+    outExt: '.wxs'
+  }]]
 }

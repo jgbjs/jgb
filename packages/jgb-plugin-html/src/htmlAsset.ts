@@ -24,14 +24,16 @@ const ATTRS: {
     'image',
     'import',
     'include',
-    'wxs'
+    'wxs',
+    'filter'
   ],
   href: ['link', 'a', 'use'],
   srcset: ['img', 'source'],
   poster: ['video'],
   'xlink:href': ['use'],
   content: ['meta'],
-  data: ['object']
+  data: ['object'],
+  from : ['import-sjs']
 };
 
 // A list of metadata that should produce a dependency

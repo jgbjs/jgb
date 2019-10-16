@@ -6,8 +6,13 @@ module.exports = {
   plugins: [['css', {
     outExt: '.css',
     extensions: ['.wxss', 'bcss'],
-  }], ['html', {
+  }], 
+  ['html', {
     extensions: ['.wxml', 'swan'],
     outExt: '.swan'
+  }],
+  ['wxs', {
+    extensions: ['.wxs'],
+    outExt: '.filter.js'
   }]]
 }

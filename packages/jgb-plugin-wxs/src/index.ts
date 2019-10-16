@@ -1,15 +1,14 @@
 import { declare } from 'jgb-shared/lib';
 // @ts-ignore
 import * as pkg from '../package.json';
-import BabelAsset from './BabelAsset';
-
-const defaultExts = ['.js'];
+import WxsAsset from './WxsAsset'
+const defaultExts = ['.wxs'];
 
 export default declare((compiler, pluginConfig = {}) => {
   const exts = defaultExts.concat(pluginConfig.extensions || []);
   if (pluginConfig.outExt) {
-    BabelAsset.outExt = pluginConfig.outExt;
+    WxsAsset.outExt = pluginConfig.outExt;
   }
-  compiler.addAssetsType(exts, BabelAsset);
+  compiler.addAssetsType(exts, WxsAsset);
   return pkg.name;
 }) as (compiler: any, config: any) => any;
