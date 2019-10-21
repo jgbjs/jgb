@@ -142,27 +142,34 @@ export default class Resolver {
     return resolved;
   }
 
+  /**
+   * find npm package in node_modules , ensure package amostly is same reference
+   * 1. find package in root node_modules
+   * 2. find package in dir nearly parent node_modules
+   * 3. util find package or go back to 2.
+   */
   async findNodeModulePath(filename: string, dir: string) {
     const parts = this.getModuleParts(filename);
     const root = path.parse(dir).root;
+    const rootDir = this.options.rootDir;
+    if (rootDir) {
+      const result = await this.findModulePath(parts, rootDir, filename);
+      if (result) {
+        return result;
+      }
+    }
 
     while (dir !== root) {
       // Skip node_modules directories
-      if (path.basename(dir) === 'node_modules') {
+      if (path.basename(dir) === 'node_modules' || dir === rootDir) {
         dir = path.dirname(dir);
       }
 
       try {
         // First, check if the module directory exists. This prevents a lot of unnecessary checks later.
-        const moduleDir = path.join(dir, 'node_modules', parts[0]);
-        const stats = await promisify(fs.stat)(moduleDir);
-        if (stats.isDirectory()) {
-          return {
-            moduleName: parts[0],
-            subPath: parts[1],
-            moduleDir,
-            filePath: path.join(dir, 'node_modules', filename)
-          };
+        const result = await this.findModulePath(parts, dir, filename);
+        if (result) {
+          return result;
         }
       } catch (err) {
         // ignore
@@ -170,6 +177,19 @@ export default class Resolver {
 
       // Move up a directory
       dir = path.dirname(dir);
+    }
+  }
+
+  private async findModulePath(parts: string[], dir: string, filename: string) {
+    const moduleDir = path.join(dir, 'node_modules', parts[0]);
+    const stats = await promisify(fs.stat)(moduleDir);
+    if (stats.isDirectory()) {
+      return {
+        moduleName: parts[0],
+        subPath: parts[1],
+        moduleDir,
+        filePath: path.join(dir, 'node_modules', filename)
+      };
     }
   }
 
