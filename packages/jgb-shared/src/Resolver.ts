@@ -182,14 +182,18 @@ export default class Resolver {
 
   private async findModulePath(parts: string[], dir: string, filename: string) {
     const moduleDir = path.join(dir, 'node_modules', parts[0]);
-    const stats = await promisify(fs.stat)(moduleDir);
-    if (stats.isDirectory()) {
-      return {
-        moduleName: parts[0],
-        subPath: parts[1],
-        moduleDir,
-        filePath: path.join(dir, 'node_modules', filename)
-      };
+   
+    if(fsExtra.existsSync(moduleDir)){
+      const stats = await promisify(fs.stat)(moduleDir);
+      
+      if (stats && stats.isDirectory()) {
+        return {
+          moduleName: parts[0],
+          subPath: parts[1],
+          moduleDir,
+          filePath: path.join(dir, 'node_modules', filename)
+        };
+      }
     }
   }
 
