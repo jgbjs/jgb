@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
-import {builder, clean, create, init, scan} from './command';
+import { builder, clean, create, init, scan } from './command';
 
 program.version((pkg as any).version, '-v, --version');
 
@@ -22,6 +22,7 @@ program
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')
   .option('-m, --minify', 'minify asset')
+  .option('--inline-source-map', 'inline source map')
   .action(builder)
   .on('--help', () => {
     console.log();
@@ -104,10 +105,12 @@ program
     );
   });
 
-  program
-    .command('scan')
-    .description('collect all dependent components and page from jgb.config.js to a json file.')
-    .option('-s, --source <sourcePath>', 'scan path, default source is dist"')
-    .action(scan)
+program
+  .command('scan')
+  .description(
+    'collect all dependent components and page from jgb.config.js to a json file.'
+  )
+  .option('-s, --source <sourcePath>', 'scan path, default source is dist"')
+  .action(scan);
 
 program.parse(process.argv);

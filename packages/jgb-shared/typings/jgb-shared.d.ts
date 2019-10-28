@@ -64,6 +64,8 @@ export interface IInitOptions {
   useLocalWorker?: any;
   publicURL?: string;
 
+  /** 是否内联sourcemap */ 
+  inlineSourceMap?: string;
   /** 是否开启缓存 */
   cache?: boolean;
   /** 缓存目录 */

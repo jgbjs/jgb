@@ -383,17 +383,34 @@ export default class Asset {
       const sourceMapString = map
         ? map.stringify(path.basename(prettyDistPath), '/')
         : '';
+
+      await fs.ensureDir(path.dirname(distPath));
+
       if (!this.options.minify && sourceMapString) {
-        await writeFile(
-          distPath,
-          code +
-            `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
-              sourceMapString,
-              'utf-8'
-            ).toString('base64')}`
-        );
+        if (this.options.inlineSourceMap) {
+          // inline base64
+          writeFile(
+            distPath,
+            code +
+              `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+                sourceMapString,
+                'utf-8'
+              ).toString('base64')}`
+          );
+        } else {
+          // sourcemap file
+          const distMap = `${path.dirname(this.distPath)}/${path.basename(
+            this.distPath
+          )}.map`;
+          writeFile(distMap, sourceMapString);
+          writeFile(
+            distPath,
+            code +
+              `\r\n//# sourceMappingURL=./${path.basename(this.distPath)}.map`
+          );
+        }
       } else {
-        await writeFile(distPath, code);
+        writeFile(distPath, code);
       }
     }
 
@@ -464,6 +481,5 @@ export default class Asset {
 }
 
 async function writeFile(filePath: string, code: string) {
-  await fs.ensureDir(path.dirname(filePath));
-  await fs.writeFile(filePath, code);
+  fs.writeFile(filePath, code);
 }
