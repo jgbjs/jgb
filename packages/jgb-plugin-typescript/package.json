@@ -25,18 +25,18 @@
     "jgb-plugin-babel": "^1.7.2",
     "jgb-shared": "^1.7.2",
     "tslib": "^1.9.3",
-    "typescript": "3.0.1"
+    "typescript": "3.7.2"
   },
   "devDependencies": {
     "@types/debug": "^0.0.30",
     "@types/jest": "^23.3.12",
-    "@types/node": "^10.5.4",
+    "@types/node": "^12.12.6",
     "jest": "^23.6.0",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
-    "typescript": "3.0.1"
+    "typescript": "3.7.2"
   },
   "gitHead": "5c90fa2806f6b9518533a4dc9a64a4c08887cfed"
 }
