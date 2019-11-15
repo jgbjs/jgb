@@ -1,4 +1,5 @@
-import {pathToUnixType} from 'jgb-shared/lib/utils/index';
+import { pathToUnixType } from 'jgb-shared/lib/utils/index';
+
 const ora = require('ora');
 const babel = require('babel-core')
 const Path = require('path')
@@ -7,6 +8,7 @@ const chalk = require('chalk')
 const json5 = require('json5')
 
 let componentNum = 0
+
 interface ISubPackage {
   root: string,
   pages: string[]
@@ -19,6 +21,25 @@ interface IAppJson {
 
 interface ICore {
   entry: string
+}
+
+
+/**
+ * 判断被babel劫持到的ObjectExpression向上查找是否是某个对象的一个属性中的属性 例如: obj = {a: {func: () => {}}},
+ * func是a对象的一个ObjectProperty属性，但a是obj的一个属性，则返回ObjectProperty。直到找到的是program
+ * @param path type为ObjectExpression
+ */
+const recentTypeIsObjOrProgram = (path: any): ('ObjectProperty' | 'Program') => {
+  let type: ('ObjectProperty' | 'Program') = 'Program'
+  let node = path.parentPath
+  while (!babel.types.isProgram(node.node)) {
+    if (babel.types.isObjectExpression(node)) {
+      type = 'ObjectProperty'
+      break;
+    }
+    node = node.parentPath
+  }
+  return type
 }
 
 const isParentPathProgramNode = (path: any, step: number): boolean => {
@@ -48,7 +69,9 @@ class Core {
     try {
       spinner.start(chalk.green('start scanning'))
       const data = await this._getAppJson(this.entry)
-      if (!data) { return console.log(chalk.red('文件内容为空')) }
+      if (!data) {
+        return console.log(chalk.red('文件内容为空'))
+      }
       const mainPackages = data.pages
       const subPackages = this._getSubPackagesPath(data.subPackages)
       this.pathes = this._mergePath(mainPackages, subPackages)
@@ -59,11 +82,12 @@ class Core {
         if (err) {
           return console.log(chalk.red('文件写入失败'))
         }
-        console.log(chalk.greenBright(`文件写入至: ${Path.resolve(this.entry, '../scan-res.json')}`))
-        console.log(chalk.greenBright(`共${chalk.blueBright(this.pathes.length)}个页面, ${chalk.blueBright(componentNum)}个组件,去除${chalk.blueBright(subPackages.length + mainPackages.length - this.pathes.length)}个多余页面`))
+        console.log(chalk.greenBright(`文件写入至: ${ Path.resolve(this.entry, '../scan-res.json') }`))
+        console.log(chalk.greenBright(`共${ chalk.blueBright(this.pathes.length) }个页面, ${ chalk.blueBright(componentNum) }个组件,去除${ chalk.blueBright(subPackages.length + mainPackages.length - this.pathes.length) }个多余页面`))
       })
     } catch (e) {
-      console.log('e', e)
+      spinner.stop()
+      // console.log('e', e)
     }
   }
 
@@ -91,12 +115,12 @@ class Core {
     return new Promise((resolve, reject) => {
       fs.readdir(entry, (err: any) => {
         if (err) {
-          console.log(chalk.red('未发现dist目录'))
+          console.log(chalk.red('\n未发现dist目录'))
           return reject(null)
         }
         fs.readFile(Path.resolve(entry, 'app.json'), 'utf8', (err: any, data: any) => {
           if (err) {
-            console.log(chalk.red('未发现app.json文件'))
+            console.log(chalk.red('\n未发现app.json文件'))
             return reject(null)
           }
           return resolve(json5.parse(data))
@@ -111,7 +135,7 @@ class Core {
       const res: any[] = []
       fs.readFile(entry, 'utf8', (async (err: any, data: any) => {
         if (err) {
-          console.log(chalk.red(`未找到json文件: ${ entry }`))
+          console.log(chalk.red(`\n未找到json文件: ${ entry }`))
           return resolve(null)
         }
         data = json5.parse(data)
@@ -121,12 +145,14 @@ class Core {
           componentNum++
           const componentPath: string = usingComponents[componentName]
           // 去除组件路径为plugins的
-          if (componentPath.startsWith('plugin:')) { continue }
+          if (componentPath.startsWith('plugin:')) {
+            continue
+          }
           const obj: any = {}
           const _path = Path.resolve(entry, '../', this._normalizePath(componentPath))
           // console.log('this.entry', this.entry, _path)
           obj.path = formatPath(_path, `${ this.entry }`)
-          obj.methods = await this._getMethods(_path, formatPath(path, `${this.entry}/`)) || []
+          obj.methods = await this._getMethods(_path, formatPath(path, `${ this.entry }/`)) || []
           obj.type = 'component'
           obj.components = await this._getComponents(_path) || []
           res.push(obj)
@@ -151,16 +177,17 @@ class Core {
     subPackages = subPackages || []
     const res: string[] = []
     for (const path of mainPackages) {
-      let isExist = false
-      for (const sub of subPackages) {
-        if (sub.includes(path)) {
-          isExist = true
-          break
-        }
-      }
-      if (!isExist) {
-        res.push(path)
-      }
+      // let isExist = false
+      // for (const sub of subPackages) {
+      //   if (sub.includes(path)) {
+      //     isExist = true
+      //     break
+      //   }
+      // }
+      // if (!isExist) {
+      //   res.push(path)
+      // }
+      res.push(path)
     }
     return res.concat(subPackages)
   }
@@ -171,7 +198,7 @@ class Core {
       fs.readFile(entry, 'utf8', (err: any, code: any) => {
         if (err) {
           this.errPath.push({
-            [`${parentPath}`]: filePath
+            [`${ parentPath }`]: filePath
           })
           return resolve(null)
         }
@@ -189,14 +216,22 @@ class Core {
                 property.filter = true;
               });
             }
-            if (
-              babel.types.isFunctionExpression(value) &&
-              isParentPathProgramNode(path, 4) &&
+            if (recentTypeIsObjOrProgram(path.parentPath) === 'Program' &&
               !node.filter && // 不是computed属性
               key.name !== 'observer' // 不是observer
             ) {
-              funcNames.push(getNodeName(key));
+              // func: function func() {}
+              if (babel.types.isFunctionExpression(value)) {
+                funcNames.push(getNodeName(key));
+              }
+              // func: function() { return function () {} }()
+              if (babel.types.isCallExpression(value)) {
+                if (babel.types.isFunctionExpression(value.callee)) {
+                  funcNames.push(getNodeName(key));
+                }
+              }
             }
+
           },
           AssignmentExpression: (path: any, state: any) => {
             const { node }: any = path;
