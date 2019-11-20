@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-wxs",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "babel-plugin-transform-commonjs-es2015-modules": "^4.0.1",
-    "jgb-plugin-babel": "^1.7.2",
-    "jgb-shared": "^1.7.2",
+    "jgb-plugin-babel": "^1.7.3",
+    "jgb-shared": "^1.7.3",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
