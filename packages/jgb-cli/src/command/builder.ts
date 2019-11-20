@@ -14,6 +14,6 @@ export default async function builder(main: any = [], command: any = {}) {
     )
   );
 
-  // console.log(main, command);
+  // console.log(config);
   await core.start();
 }
