@@ -8,7 +8,8 @@
     "jgb-debug": "node_modules/.bin/jgb"
   },
   "scripts": {
-    "debug": "jgb-debug"
+    "debug": "jgb-debug",
+    "build:plugin":"jgb build --no-cache -d dist-plugin --config jgb.config.plugin.js "
   },
   "dependencies": {
     "flyio": "^0.6.9",
