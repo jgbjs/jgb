@@ -1,7 +1,6 @@
 // @ts-ignore
 import AliasTest from '@alias-test';
-// @ts-ignore
-import TestAlias from '@alias/testAlias.js';
+import './testAlias';
 import { JApp, JComponent, jgb } from 'jgb-weapp';
 import 'miniapp-regenerator-runtime';
 import './init.js';
@@ -33,7 +32,6 @@ JApp({
     console.log('getStorageInfo', res);
 
     testUtil(2);
-    console.log(TestAlias);
     AliasTest();
     test('1');
   }

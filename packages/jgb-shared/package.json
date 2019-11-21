@@ -18,7 +18,7 @@
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
     "prepublish": "yarn run clean && yarn run build",
-    "test": "jest -t resolveAliasName"
+    "test": "jest"
   },
   "devDependencies": {
     "@types/debug": "^0.0.30",

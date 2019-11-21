@@ -9,6 +9,7 @@
   },
   "scripts": {
     "debug": "jgb-debug",
+    "build": "jgb build --no-cache",
     "build:plugin": "jgb build --no-cache -d dist-plugin --config jgb.config.plugin.js "
   },
   "dependencies": {

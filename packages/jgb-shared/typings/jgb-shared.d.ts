@@ -48,7 +48,7 @@ export interface IInitOptions {
    * resolver alias
    */
   alias?: {
-    [key: string]: IAliasValue;
+    [key: string]: IAliasValue | IAliasValue[];
   };
 
   /**
