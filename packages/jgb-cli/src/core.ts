@@ -1,19 +1,19 @@
-import * as Debug from "debug";
-import * as fg from "fast-glob";
-import * as fs from "fs";
-import { Asset, IInitOptions, Resolver } from "jgb-shared/lib";
-import AwaitEventEmitter from "jgb-shared/lib/awaitEventEmitter";
-import { logger } from "jgb-shared/lib/Logger";
-import { normalizeAlias, pathToUnixType } from "jgb-shared/lib/utils/index";
-import WorkerFarm from "jgb-shared/lib/workerfarm/WorkerFarm";
-import * as Path from "path";
-import { promisify } from "util";
-import Compiler from "./Compiler";
-import FSCache from "./FSCache";
-import PromiseQueue from "./utils/PromiseQueue";
-import Watcher from "./Watcher";
+import * as Debug from 'debug';
+import * as fg from 'fast-glob';
+import * as fs from 'fs';
+import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
+import { logger } from 'jgb-shared/lib/Logger';
+import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
+import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
+import * as Path from 'path';
+import { promisify } from 'util';
+import Compiler from './Compiler';
+import FSCache from './FSCache';
+import PromiseQueue from './utils/PromiseQueue';
+import Watcher from './Watcher';
 
-const debug = Debug("core");
+const debug = Debug('core');
 
 export default class Core extends AwaitEventEmitter {
   private currentDir = process.cwd();
@@ -52,7 +52,7 @@ export default class Core extends AwaitEventEmitter {
   normalizeEntryFiles(): string[] {
     const entryFiles = this.options.entryFiles;
     const files = []
-      .concat(!entryFiles || entryFiles.length === 0 ? "app.*" : entryFiles)
+      .concat(!entryFiles || entryFiles.length === 0 ? 'app.*' : entryFiles)
       .filter(Boolean)
       .map(f => Path.resolve(this.options.sourceDir, f));
 
@@ -67,15 +67,15 @@ export default class Core extends AwaitEventEmitter {
       watch: !!options.watch,
       rootDir,
       useLocalWorker: !!options.useLocalWorker,
-      outDir: Path.resolve(options.outDir || "dist"),
-      npmDir: Path.resolve(options.npmDir || "node_modules"),
-      entryFiles: [].concat(options.entryFiles),
+      outDir: Path.resolve(options.outDir || 'dist'),
+      npmDir: Path.resolve(options.npmDir || 'node_modules'),
+      entryFiles: options.entryFiles,
       cache: !!options.cache,
-      sourceDir: Path.resolve(options.sourceDir || "src"),
+      sourceDir: Path.resolve(options.sourceDir || 'src'),
       alias: aliasResolve(options, rootDir),
       minify: !!options.minify,
-      source: options.source || "wx",
-      target: options.target || "wx",
+      source: options.source || 'wx',
+      target: options.target || 'wx',
       lib: options.lib
     };
   }
@@ -103,22 +103,22 @@ export default class Core extends AwaitEventEmitter {
 
     await this.initHook();
 
-    await this.emit("before-init");
+    await this.emit('before-init');
 
     await this.init();
 
-    await this.emit("before-compiler");
+    await this.emit('before-compiler');
 
     // another channce to modify entryFiles
     this.entryFiles = this.normalizeEntryFiles();
     if (this.options.watch) {
       this.watcher = new Watcher();
 
-      this.watcher.on("change", this.onChange.bind(this));
+      this.watcher.on('change', this.onChange.bind(this));
     }
 
     this.farm = WorkerFarm.getShared(this.options, {
-      workerPath: require.resolve("./worker"),
+      workerPath: require.resolve('./worker'),
       core: this
     });
 
@@ -133,7 +133,7 @@ export default class Core extends AwaitEventEmitter {
 
     logger.info(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
 
-    await this.emit("end-build");
+    await this.emit('end-build');
 
     if (!this.options.watch) {
       await this.stop();
@@ -149,11 +149,11 @@ export default class Core extends AwaitEventEmitter {
 
     await this.initHook();
 
-    await this.emit("before-init");
+    await this.emit('before-init');
 
     await this.init();
 
-    await this.emit("before-compiler");
+    await this.emit('before-compiler');
 
     // another channce to modify entryFiles
     this.entryFiles = this.normalizeEntryFiles();
@@ -161,11 +161,11 @@ export default class Core extends AwaitEventEmitter {
     if (this.options.watch) {
       this.watcher = new Watcher();
 
-      this.watcher.on("change", this.onChange.bind(this));
+      this.watcher.on('change', this.onChange.bind(this));
     }
 
     this.farm = WorkerFarm.getShared(this.options, {
-      workerPath: require.resolve("./worker"),
+      workerPath: require.resolve('./worker'),
       core: this
     });
     const jsonAsset = this.entryFiles.find(item =>
@@ -376,7 +376,10 @@ export default class Core extends AwaitEventEmitter {
   }
 }
 
-function aliasResolve(options: IInitOptions, root: string) {
+function aliasResolve(
+  options: IInitOptions,
+  root: string
+): IInitOptions['alias'] {
   const alias = options.alias || {};
   const newAlias: { [key: string]: any } = {};
   /**
@@ -386,19 +389,21 @@ function aliasResolve(options: IInitOptions, root: string) {
   Object.keys(alias)
     .sort((a1, a2) => a2.length - a1.length)
     .forEach(key => {
-      const aliasValue = normalizeAlias(alias[key]);
-      const aliasPath = aliasValue.path;
-      if (!Path.isAbsolute(aliasPath)) {
-        if (aliasPath.startsWith(".")) {
-          aliasValue.path = pathToUnixType(Path.resolve(root, aliasPath));
-        } else {
-          aliasValue.path = pathToUnixType(
-            Path.resolve(root, "node_modules", aliasPath)
-          );
-        }
-      }
+      const aliasValues = normalizeAlias(alias[key]);
 
-      newAlias[key] = aliasValue;
+      newAlias[key] = aliasValues.map(aliasValue => {
+        const aliasPath = aliasValue.path;
+        if (!Path.isAbsolute(aliasPath)) {
+          if (aliasPath.startsWith('.')) {
+            aliasValue.path = pathToUnixType(Path.resolve(root, aliasPath));
+          } else {
+            aliasValue.path = pathToUnixType(
+              Path.resolve(root, 'node_modules', aliasPath)
+            );
+          }
+        }
+        return aliasValue;
+      });
     });
   return newAlias;
 }

@@ -4,6 +4,7 @@ import * as path from 'path';
 import { promisify } from 'util';
 import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
 import { normalizeAlias, pathToUnixType } from './utils';
+import { matchAlias } from './utils/matchAlias';
 
 // debug.enable('*');
 
@@ -18,12 +19,14 @@ export default class Resolver {
    * 类似webpack resolve alias
    * 但是只匹配字符串
    */
-  alias = new Map<string, IAliasValue>();
+  alias = new Map<string, IAliasValue[]>();
 
   constructor(private options: IInitOptions) {
     if (options.alias) {
       const alias = options.alias;
-      Object.keys(alias).forEach(key => this.alias.set(key, alias[key]));
+      Object.keys(alias).forEach(key =>
+        this.alias.set(key, [].concat(alias[key]))
+      );
     }
   }
 
@@ -182,10 +185,10 @@ export default class Resolver {
 
   private async findModulePath(parts: string[], dir: string, filename: string) {
     const moduleDir = path.join(dir, 'node_modules', parts[0]);
-   
-    if(fsExtra.existsSync(moduleDir)){
+
+    if (fsExtra.existsSync(moduleDir)) {
       const stats = await promisify(fs.stat)(moduleDir);
-      
+
       if (stats && stats.isDirectory()) {
         return {
           moduleName: parts[0],
@@ -406,10 +409,17 @@ export default class Resolver {
       return fileName;
     }
     for (const key of this.alias.keys()) {
-      if (fileName.includes(key)) {
+      const match = matchAlias(key, fileName);
+      if (match) {
         const target = this.alias.get(key);
-        const normalizedAlias = normalizeAlias(target);
-        fileName = fileName.replace(key, normalizedAlias.path);
+        const [normalizedAlias] = normalizeAlias(target);
+        // tsconfig paths
+        if (key.includes('*') && match.length > 1) {
+          fileName = normalizedAlias.path.replace(/\*/g, match[1]);
+        } else {
+          fileName = fileName.replace(key, normalizedAlias.path);
+        }
+
         // if (dir) {
         //   const relativePath = path.relative(dir, fileName);
         //   return pathToUnixType(relativePath);

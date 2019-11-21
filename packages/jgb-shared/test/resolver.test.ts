@@ -84,7 +84,8 @@ describe('resolve', () => {
     sourceDir,
     extensions: new Set(['.js', '.css']),
     alias: {
-      '@alias': path.resolve(sourceDir, 'alias')
+      '@alias': path.resolve(sourceDir, 'alias'),
+      '@utils/*': path.resolve(sourceDir, 'utils')
     }
   });
   test('resolve node_module', async () => {
@@ -96,5 +97,13 @@ describe('resolve', () => {
       path.resolve(rootDir, '../node_modules/debug/src/browser.js')
     );
     expect(result.pkg).toMatchObject({ name: 'debug' });
+  });
+
+  test('resolve xinghao *', async () => {
+    const result = await resolver.resolve(
+      '@utils/index.js',
+      path.resolve(sourceDir, 'index.js')
+    );
+    expect(result.path).toBe(path.resolve(sourceDir, './utils/index.js'));
   });
 });

@@ -10,6 +10,7 @@ import Resolver from './Resolver';
 import SourceMap from './SourceMap';
 import { normalizeAlias, pathToUnixType, promoteRelativePath } from './utils';
 import isUrl from './utils/isUrl';
+import { matchAlias } from './utils/matchAlias';
 import objectHash from './utils/objectHash';
 import WorkerFarm from './workerfarm/WorkerFarm';
 
@@ -274,21 +275,20 @@ export default class Asset {
 
     while (aliasDirs.length) {
       const [aliasName, aliasValue] = aliasDirs.shift();
-      const normalizedAlias = normalizeAlias(aliasValue);
+      const [normalizedAlias] = normalizeAlias(aliasValue);
       const dir = pathToUnixType(normalizedAlias.path);
-      const distDir = normalizedAlias.dist
-        ? normalizedAlias.dist
-        : DEFAULT_NPM_DIR;
+      const distDir = normalizedAlias?.dist ?? DEFAULT_NPM_DIR;
       // in alias source dir but not in build source file
       if (name.includes(sourceDir)) {
         const relatePath = path.relative(sourceDir, name);
         distPath = path.join(this.options.outDir, relatePath);
         break;
       }
-      if (name.includes(dir)) {
+
+      if (matchAlias(dir, name)) {
         // 相对于alias目录的相对路径
         const relativeAlias = path.relative(dir, name);
-
+       
         distPath = path.join(
           this.options.outDir,
           distDir,
@@ -298,7 +298,6 @@ export default class Asset {
         break;
       }
     }
-
     /**
      * node_modules/npm => npm
      */
