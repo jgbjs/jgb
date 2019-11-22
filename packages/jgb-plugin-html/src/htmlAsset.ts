@@ -225,7 +225,7 @@ export default class HtmlAsset extends Asset {
           'slider',
           'radio',
           'switch',
-          'wxs'
+          // 'wxs'
         ],
         closingSingleTag: 'slash'
       }),
