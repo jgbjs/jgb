@@ -142,7 +142,9 @@ export default class Asset {
   }
 
   addDependency(name: string, opts?: IDepOptions) {
-    this.dependencies.set(name, Object.assign({ name }, opts));
+    if (!name.endsWith('.d.ts')) {
+      this.dependencies.set(name, Object.assign({ name }, opts));
+    }
   }
 
   async addURLDependency(url: string, from = this.name, opts?: any) {
@@ -288,7 +290,7 @@ export default class Asset {
       if (matchAlias(dir, name)) {
         // 相对于alias目录的相对路径
         const relativeAlias = path.relative(dir, name);
-       
+
         distPath = path.join(
           this.options.outDir,
           distDir,
