@@ -1,5 +1,6 @@
 import testUtil from '@/utils/index';
 import fly from 'flyio';
+import createRecycleContext from 'miniprogram-recycle-view'
 
 Page({
   data: {
@@ -7,7 +8,7 @@ Page({
   },
   onLoad() {
     testUtil(1);
-    
+    console.log('createRecycleContext ', createRecycleContext)
   },
   request() {
     fly.request('https://baidu.com/')

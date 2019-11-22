@@ -27,10 +27,10 @@
     "lottie-miniapp": "^1.4.0",
     "miniapp-regenerator-runtime": "^1.0.0",
     "miniprogram-navigation-bar": "^0.0.4",
+    "miniprogram-recycle-view": "^0.1.5",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
-    "@tuhu/dt-weapp": "^1.1.6",
     "@types/lodash": "^4.14.116",
     "babel-plugin-lodash": "^3.3.4",
     "babel-preset-env": "^1.7.0",
