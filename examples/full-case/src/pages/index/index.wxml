@@ -7,9 +7,20 @@
 <template is="tipMsg" data="{{...tipMsg}}" />
 <view class="test-import-img icon-test-upload__category-red"></view>
 <wxs src="/template/wxs.wxs" module="wxs"></wxs>
+<wxs module="wxs2">
+module.exports = {
+  test: 'test',
+  add: function(item) {
+    return item + 1
+  }
+}
+</wxs>
 <view>this is wxs value: {{wxs.test}}</view>
 <view>
 this is wxs function: {{wxs.add(1)}}
+</view>
+<view>
+this is wxs2 function: {{wxs2.add(1)}}
 </view>
 
 <view class="lottie-wrap">
