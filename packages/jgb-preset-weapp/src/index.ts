@@ -1,14 +1,14 @@
-import * as glob from "fast-glob";
-import * as fs from "fs";
-import BabelPlugin from "jgb-plugin-babel";
-import CssPlugin from "jgb-plugin-css";
-import HtmlPlugin from "jgb-plugin-html";
-import JsonPlugin from "jgb-plugin-json";
-import JsonAsset from "jgb-plugin-json/lib/JsonAsset";
-import { declare, IInitOptions } from "jgb-shared/lib";
-import { ICompiler } from "jgb-shared/lib/pluginDeclare";
-import { pathToUnixType } from "jgb-shared/lib/utils";
-import * as Path from "path";
+import * as glob from 'fast-glob';
+import * as fs from 'fs';
+import BabelPlugin from 'jgb-plugin-babel';
+import CssPlugin from 'jgb-plugin-css';
+import HtmlPlugin from 'jgb-plugin-html';
+import JsonPlugin from 'jgb-plugin-json';
+import JsonAsset from 'jgb-plugin-json/lib/JsonAsset';
+import { declare, IInitOptions } from 'jgb-shared/lib';
+import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
+import { pathToUnixType } from 'jgb-shared/lib/utils';
+import * as Path from 'path';
 
 /**
  * jgb 插件配置
@@ -74,20 +74,20 @@ export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
   BabelPlugin(compiler, {});
   JsonPlugin(compiler, {});
   HtmlPlugin(compiler, {
-    extensions: [".wxml"],
-    outExt: ".wxml"
+    extensions: ['.wxml'],
+    outExt: '.wxml'
   });
 
   CssPlugin(compiler, {
-    extensions: [".wxss"],
-    outExt: ".wxss"
+    extensions: ['.wxss'],
+    outExt: '.wxss'
   });
 });
 
 function attachCompilerEvent(compiler: ICompiler) {
-  compiler.on("collect-app-json", collectAppJson);
-  compiler.on("collect-page-json", collectPageJson);
-  compiler.on("collect-plugin-json", collectPluginJson);
+  compiler.on('collect-app-json', collectAppJson);
+  compiler.on('collect-page-json', collectPageJson);
+  compiler.on('collect-plugin-json', collectPluginJson);
 }
 
 export async function collectPageJson({
@@ -102,7 +102,7 @@ export async function collectPageJson({
   // 是否使用组件
   if (
     !pageJson.usingComponents ||
-    typeof pageJson.usingComponents !== "object"
+    typeof pageJson.usingComponents !== 'object'
   ) {
     return;
   }
@@ -122,7 +122,9 @@ export async function collectPageJson({
         dependences,
         components
       );
-    } catch (error) {}
+    } catch (error) {
+      console.error('usingComponent Error', error);
+    }
   }
 
   // expandFiles
@@ -187,8 +189,7 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
       componentPath = realPath;
     }
   } catch (error) {}
-
-  if (componentPath.startsWith(".") || componentPath.startsWith("/")) {
+  if (componentPath.startsWith('.') || componentPath.startsWith('/')) {
     return componentPath;
   }
 
@@ -198,13 +199,13 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
   }
 
   const pkg =
-    "moduleDir" in module && module.moduleDir
+    'moduleDir' in module && module.moduleDir
       ? await ctx.resolver.findPackage(module.moduleDir)
       : {};
 
   if (
     module.filePath &&
-    (fs.existsSync(module.filePath) || fs.existsSync(module.filePath + ".json"))
+    (fs.existsSync(module.filePath) || fs.existsSync(module.filePath + '.json'))
   ) {
     return module.filePath;
   }
@@ -216,7 +217,7 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
       module.subPath
     );
 
-    if (fs.existsSync(realComponentPath + ".json")) {
+    if (fs.existsSync(realComponentPath + '.json')) {
       return realComponentPath;
     }
   }
@@ -246,17 +247,16 @@ export async function usingNpmComponents(
     realName,
     absolutePath
   } = await this.resolveAliasName(value);
-
   if (distPath && relativeRequirePath) {
-    const relativeRequire = relativeRequirePath.replace(EXT_REGEX, "");
+    const relativeRequire = relativeRequirePath.replace(EXT_REGEX, '');
     pageJson.usingComponents[key] = relativeRequire;
     if (realName) {
       // alias
-      const componentPath = pathToUnixType(absolutePath.replace(EXT_REGEX, ""));
+      const componentPath = pathToUnixType(absolutePath.replace(EXT_REGEX, ''));
       components.push(componentPath);
     }
 
-    if (absolutePath.includes("node_modules")) {
+    if (absolutePath.includes('node_modules')) {
       // npm
       const pkgJson = await findPackage(this, Path.dirname(absolutePath));
       if (!pkgJson) {
@@ -267,7 +267,7 @@ export async function usingNpmComponents(
       if (pkg.miniprogram) {
         const npmProjectDir = Path.join(dir, pkg.miniprogram);
 
-        const allMatches = await glob.async(["**/**"], {
+        const allMatches = await glob.async(['**/**'], {
           cwd: npmProjectDir
         });
         if (allMatches) {
@@ -278,7 +278,7 @@ export async function usingNpmComponents(
         }
       } else {
         // only resolve
-        components.push(absolutePath.replace(EXT_REGEX, ""));
+        components.push(absolutePath.replace(EXT_REGEX, ''));
         return true;
       }
     }

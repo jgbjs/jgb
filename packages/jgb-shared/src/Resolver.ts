@@ -8,7 +8,7 @@ import { matchAlias } from './utils/matchAlias';
 
 // debug.enable('*');
 
-// const log = debug('Resolver');
+const isWin = process.platform.includes('win');
 
 export default class Resolver {
   cache = new Map();
@@ -116,8 +116,14 @@ export default class Resolver {
     }
     // Resolve aliases in the parent module for this file.
     fileName = await this.loadAlias(fileName, dir);
+
     // Return just the file path if this is a file, not in node_modules
     if (path.isAbsolute(fileName)) {
+      if (isWin && fileName[0] === '/') {
+        return {
+          filePath: path.resolve(this.options.sourceDir, fileName.slice(1))
+        };
+      }
       return {
         filePath: pathToUnixType(fileName)
       };
@@ -208,9 +214,8 @@ export default class Resolver {
   ): IterableIterator<string> {
     for (const ext of extensions) {
       const f = file + ext;
-
       if (expandAliases) {
-        const alias = this.resolveAliases(file + ext, pkg);
+        const alias = this.resolveAliases(f, pkg);
         if (alias !== f) {
           yield* this.expandFileGenerator(alias, extensions, pkg, false);
         }
