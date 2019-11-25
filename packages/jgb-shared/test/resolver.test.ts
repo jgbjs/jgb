@@ -88,6 +88,16 @@ describe('resolve', () => {
       '@utils/*': path.resolve(sourceDir, 'utils')
     }
   });
+  test('resolve absolute path file', async () => {
+    const result = await resolver.resolve(
+      '/utils/index.js',
+      path.resolve(sourceDir, 'index.js')
+    );
+    expect(result.path).toBe(
+      pathToUnixType(path.resolve(sourceDir, './utils/index.js'))
+    );
+  });
+
   test('resolve node_module', async () => {
     const result = await resolver.resolve(
       'debug',

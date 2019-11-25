@@ -1,7 +1,7 @@
 const Path = require('path')
 
 module.exports = {
-  // entryFiles: ['pages/index/index.js'],
+  // entryFiles: ['pages/index/index.json'],
   // entryFiles: ['assets/index.wxss'],
   // entryFiles: ['app.ts', 'app.wxss', 'app.json'],
   // entryFiles: ['testAlias.ts'],
