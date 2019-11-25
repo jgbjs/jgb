@@ -41,7 +41,18 @@ function processPaths(paths: any) {
       delete paths[key];
       return;
     }
-    // paths[key] = value.map(v => v.replace('*', ''));
+    // 忽略types
+    if (value.some(v => v.includes('node_modules/@types'))) {
+      delete paths[key];
+      return;
+    }
+    // add relative path
+    paths[key] = value.map(v => {
+      if (v.startsWith('.') || v.startsWith('/')) {
+        return v;
+      }
+      return `./${v}`;
+    });
   });
   return paths;
 }

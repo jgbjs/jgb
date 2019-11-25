@@ -22,7 +22,7 @@
     ],
     "paths": {
       "tslib": ["node_modules/tslib/tslib.d.ts"],
-      "@alias/*": ["./aliasTest/*"]
+      "@alias/*": ["aliasTest/*"]
     }
   }
 }
