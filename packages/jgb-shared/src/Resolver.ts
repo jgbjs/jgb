@@ -116,16 +116,17 @@ export default class Resolver {
     }
     // Resolve aliases in the parent module for this file.
     fileName = await this.loadAlias(fileName, dir);
-
+    fileName = pathToUnixType(fileName);
     // Return just the file path if this is a file, not in node_modules
     if (path.isAbsolute(fileName)) {
-      if (isWin && fileName[0] === '/') {
+      // fix absolute root is project src
+      if (fileName[0] === '/' && !fileName.includes(this.options.rootDir)) {
         return {
           filePath: path.resolve(this.options.sourceDir, fileName.slice(1))
         };
       }
       return {
-        filePath: pathToUnixType(fileName)
+        filePath: fileName
       };
     }
 
