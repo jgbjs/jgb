@@ -1,9 +1,11 @@
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
-import { builder, clean, create, init, scan } from './command';
+import { builder, clean, create, info, init, scan } from './command';
 
 program.version((pkg as any).version, '-v, --version');
+
+program.command('info').action(info);
 
 program
   .command('build [input...]')
