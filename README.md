@@ -1,5 +1,9 @@
 # JGB （金箍棒）
 
+---------------------
+
+<img src="https://api.travis-ci.com/jgbjs/jgb.svg?branch=1.x">
+
 小程序渐进式增强开发工具。
 
 ## 使用
