@@ -10,8 +10,14 @@ export default async function(asset: CssAsset) {
     return;
   }
 
+  if (!(config.plugins && config.plugins.length)) {
+    return;
+  }
+
   await asset.parseIfNeeded();
-  const res = await postcss(config.plugins).process(asset.getCSSAst(), config);
+
+  const postCssProcess = postcss(config.plugins);
+  const res = await postCssProcess.process(asset.getCSSAst(), config);
 
   asset.ast.css = res.css;
   asset.ast.dirty = false;
@@ -22,9 +28,9 @@ async function getConfig(asset: CssAsset) {
     ['.postcssrc', '.postcssrc.js', 'postcss.config.js'],
     { packageKey: 'postcss' }
   );
-
+  
   const enableModules = false;
-
+  
   if (!config) {
     return;
   }
@@ -48,7 +54,6 @@ async function getConfig(asset: CssAsset) {
   }
 
   config.plugins = await loadPlugins(config.plugins, asset.name);
-
   if (config.modules || enableModules) {
     const postcssModules = await localRequire('postcss-modules', asset.name);
     config.plugins.push(postcssModules(postcssModulesConfig));
