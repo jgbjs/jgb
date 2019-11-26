@@ -1,6 +1,6 @@
 declare module 'postcss' {
   function postcss(
-    plugins: any
+    plugins?: any
   ): {
     process: (ast: any, config: any) => any;
   };
