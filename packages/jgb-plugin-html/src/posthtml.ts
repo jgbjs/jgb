@@ -79,5 +79,7 @@ export async function getConfig(asset: Asset) {
   }
   config.plugins = await loadPlugins(plugins, asset.name);
   config.skipParse = true;
+  config.from = asset.name;
+  config.to = asset.name;
   return config;
 }
