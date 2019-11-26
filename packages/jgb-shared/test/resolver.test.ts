@@ -98,6 +98,16 @@ describe('resolve', () => {
     );
   });
 
+  test('resolve absolute component', async () => {
+    const result = await resolver.resolve(
+      '/utils/index',
+      path.resolve(sourceDir, 'index.js')
+    );
+    expect(result.path).toBe(
+      path.resolve(sourceDir, './utils/index.js')
+    );
+  });
+
   test('resolve node_module', async () => {
     const result = await resolver.resolve(
       'debug',
