@@ -76,7 +76,8 @@ export default class Core extends AwaitEventEmitter {
       minify: !!options.minify,
       source: options.source || 'wx',
       target: options.target || 'wx',
-      lib: options.lib
+      lib: options.lib,
+      inlineSourceMap: options.inlineSourceMap
     };
   }
 
