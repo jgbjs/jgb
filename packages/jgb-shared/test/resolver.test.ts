@@ -104,7 +104,7 @@ describe('resolve', () => {
       path.resolve(sourceDir, 'index.js')
     );
     expect(result.path).toBe(
-      path.resolve(sourceDir, './utils/index.js')
+      pathToUnixType(path.resolve(sourceDir, './utils/index.js'))
     );
   });
 

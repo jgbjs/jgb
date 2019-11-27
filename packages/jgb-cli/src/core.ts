@@ -384,8 +384,10 @@ function aliasResolve(
   const alias = options.alias || {};
   const newAlias: { [key: string]: any } = {};
   /**
-   * 先排序 字符长度由长到短排序 （优先匹配）
-   * 再补充 resolve(aliasValue)
+   * 先按照 jgb.config.js 中的 alias 优先
+   * 其次 tsconfig.json 中的 path
+   * 再根据字符长度由长到短排序 （优先匹配）
+   * 最后补充 resolve(aliasValue)
    */
   Object.keys(alias)
     .sort((a1, a2) => a2.length - a1.length)
