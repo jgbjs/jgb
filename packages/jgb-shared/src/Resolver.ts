@@ -25,7 +25,7 @@ export default class Resolver {
   constructor(private options: IInitOptions) {
     if (options.alias) {
       const alias = options.alias;
-      Object.keys(alias).forEach(key =>
+      sortAliasKeys(alias).forEach(key =>
         this.alias.set(key, [].concat(alias[key]))
       );
     }
@@ -629,4 +629,21 @@ export default class Resolver {
 
     return parts;
   }
+}
+
+/**
+ * alias  sort
+ * 先按照 jgb.config.js 中的 alias 优先
+ * 其次 tsconfig.json 中的 path
+ * 再根据字符长度由长到短排序 （优先匹配）
+ */
+export function sortAliasKeys(alias: IInitOptions['alias']): string[] {
+  const keys = Object.keys(alias);
+  const originAliasKeys = keys
+    .filter(key => !key.includes('*'))
+    .sort((a1, a2) => a2.length - a1.length);
+  const tsconfigAliasKeys = keys
+    .filter(key => key.includes('*'))
+    .sort((a1, a2) => a2.length - a1.length);
+  return originAliasKeys.concat(tsconfigAliasKeys);
 }
