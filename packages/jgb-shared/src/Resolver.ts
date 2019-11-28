@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
+import { memoize } from 'lodash';
 import * as path from 'path';
 import { promisify } from 'util';
 import { IAliasValue, IInitOptions } from '../typings/jgb-shared';
@@ -24,7 +25,7 @@ export default class Resolver {
   constructor(private options: IInitOptions) {
     if (options.alias) {
       const alias = options.alias;
-      Object.keys(alias).forEach(key =>
+      sortAliasKeys(alias).forEach(key =>
         this.alias.set(key, [].concat(alias[key]))
       );
     }
@@ -44,7 +45,7 @@ export default class Resolver {
       exts = [parentExt, ...exts.filter(ext => ext !== parentExt)];
     }
 
-    // console.log('resolve', fileName)
+    // console.log('resolve', fileName);
     // Resolve the module directory or local file path
     const module = await this.resolveModule(fileName, parent);
     const dir = parent ? path.dirname(parent) : process.cwd();
@@ -62,8 +63,13 @@ export default class Resolver {
       resolved = await this.loadRelative(module.filePath, exts);
     }
 
+    // console.log('module', module);
+
     if (!resolved) {
-      const err = new Error(`Cannot find module '${fileName}' from '${dir}'`);
+      const err = new Error(
+        `Cannot find module '${fileName}' from '${parent || dir}'.
+        Detail: \n ${JSON.stringify(module)}`
+      );
       // err.code = 'MODULE_NOT_FOUND';
       throw err;
     }
@@ -116,15 +122,9 @@ export default class Resolver {
     }
     // Resolve aliases in the parent module for this file.
     fileName = await this.loadAlias(fileName, dir);
-    fileName = pathToUnixType(fileName);
+    // fileName = pathToUnixType(fileName);
     // Return just the file path if this is a file, not in node_modules
     if (path.isAbsolute(fileName)) {
-      // fix absolute root is project src
-      if (fileName[0] === '/' && !fileName.includes(this.options.rootDir)) {
-        return {
-          filePath: path.resolve(this.options.sourceDir, fileName.slice(1))
-        };
-      }
       return {
         filePath: fileName
       };
@@ -236,6 +236,15 @@ export default class Resolver {
   }
 
   async loadAsFile(file: string, extensions: string[], pkg: any) {
+    const ext = path.extname(file);
+    if (ext) {
+      const alias = this.resolveAliases(file, pkg);
+      if (alias !== file) {
+        return { path: alias, pkg };
+      }
+      return { path: file, pkg };
+    }
+
     // Try all supported extensions
     for (const f of this.expandFileGenerator(file, extensions, pkg)) {
       if (await this.isFile(f)) {
@@ -247,7 +256,6 @@ export default class Resolver {
   async loadRelative(filename: string, extensions: string[]) {
     // Find a package.json file in the current package.
     const pkg = await this.findPackage(path.dirname(filename));
-
     // First try as a file, then as a directory.
     return (
       (await this.loadAsFile(filename, extensions, pkg)) ||
@@ -335,7 +343,18 @@ export default class Resolver {
     return await this.loadAsFile(path.join(dir, 'index'), extensions, pkg);
   }
 
-  resolveFilename(fileName: string, dir: string) {
+  resolveFilename = memoize(
+    (fileName: string, dir: string) => {
+      const result = this.innerResolveFilename(fileName, dir);
+      if (typeof result === 'string' && result) {
+        return pathToUnixType(result);
+      }
+      return fileName;
+    },
+    (...args: string[]) => args.join('-')
+  );
+
+  private innerResolveFilename(fileName: string, dir: string) {
     try {
       if (path.isAbsolute(fileName)) {
         // resolve system absolute path;
@@ -351,8 +370,20 @@ export default class Resolver {
             this.options.sourceDir,
             fileName.slice(1)
           );
+
+          const hasExt = path.extname(fileName);
+
           if (fsExtra.existsSync(abFileName)) {
             return abFileName;
+          }
+
+          if (!hasExt) {
+            for (const ext of this.options.extensions) {
+              const abFileNameWithExt = `${abFileName}${ext}`;
+              if (fsExtra.existsSync(abFileNameWithExt)) {
+                return abFileNameWithExt;
+              }
+            }
           }
 
           return fileName;
@@ -598,4 +629,21 @@ export default class Resolver {
 
     return parts;
   }
+}
+
+/**
+ * alias  sort
+ * 先按照 jgb.config.js 中的 alias 优先
+ * 其次 tsconfig.json 中的 path
+ * 再根据字符长度由长到短排序 （优先匹配）
+ */
+export function sortAliasKeys(alias: IInitOptions['alias']): string[] {
+  const keys = Object.keys(alias);
+  const originAliasKeys = keys
+    .filter(key => !key.includes('*'))
+    .sort((a1, a2) => a2.length - a1.length);
+  const tsconfigAliasKeys = keys
+    .filter(key => key.includes('*'))
+    .sort((a1, a2) => a2.length - a1.length);
+  return originAliasKeys.concat(tsconfigAliasKeys);
 }

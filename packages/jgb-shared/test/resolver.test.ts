@@ -1,5 +1,5 @@
 import * as path from 'path';
-import Resolver from '../src/Resolver';
+import Resolver, { sortAliasKeys } from '../src/Resolver';
 import { pathToUnixType } from '../src/utils/index';
 
 describe('resolveModule', () => {
@@ -104,7 +104,7 @@ describe('resolve', () => {
       path.resolve(sourceDir, 'index.js')
     );
     expect(result.path).toBe(
-      path.resolve(sourceDir, './utils/index.js')
+      pathToUnixType(path.resolve(sourceDir, './utils/index.js'))
     );
   });
 
@@ -125,5 +125,42 @@ describe('resolve', () => {
       path.resolve(sourceDir, 'index.js')
     );
     expect(result.path).toBe(path.resolve(sourceDir, './utils/index.js'));
+  });
+});
+
+describe('sort alias', () => {
+  it('sortAliasKeys jgb.config', () => {
+    const sortedKeys = sortAliasKeys({
+      '@abc': [],
+      '@a': [],
+      'dist/abc': []
+    });
+    expect(sortedKeys).toMatchObject(['dist/abc', '@abc', '@a']);
+  });
+
+  it('sortAliasKeys tsconfig', () => {
+    const sortedKeys = sortAliasKeys({
+      '@abc/*': [],
+      '@a/*': [],
+      'dist/abc/*': []
+    });
+    expect(sortedKeys).toMatchObject(['dist/abc/*', '@abc/*', '@a/*']);
+  });
+
+  it('sortAliasKeys common', () => {
+    const sortedKeys = sortAliasKeys({
+      '@abc/*': [],
+      '@/a': [],
+      '@a/*': [],
+      '@abc/': [],
+      'dist/abc/*': []
+    });
+    expect(sortedKeys).toMatchObject([
+      '@abc/',
+      '@/a',
+      'dist/abc/*',
+      '@abc/*',
+      '@a/*'
+    ]);
   });
 });

@@ -377,18 +377,14 @@ export default class Core extends AwaitEventEmitter {
   }
 }
 
-function aliasResolve(
+export function aliasResolve(
   options: IInitOptions,
   root: string
 ): IInitOptions['alias'] {
   const alias = options.alias || {};
   const newAlias: { [key: string]: any } = {};
-  /**
-   * 先排序 字符长度由长到短排序 （优先匹配）
-   * 再补充 resolve(aliasValue)
-   */
+  
   Object.keys(alias)
-    .sort((a1, a2) => a2.length - a1.length)
     .forEach(key => {
       const aliasValues = normalizeAlias(alias[key]);
 
