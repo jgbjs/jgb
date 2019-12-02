@@ -122,11 +122,14 @@ export default class Asset {
 
     const distPath = this.generateDistPath(absolutePath, ext);
     const parentDistPath = this.generateDistPath(this.name, ext);
-
     if (distPath && parentDistPath) {
-      relativeRequirePath = promoteRelativePath(
-        path.relative(parentDistPath, distPath)
-      );
+      if (distPath === parentDistPath) {
+        relativeRequirePath = `./${path.basename(distPath)}`;
+      } else {
+        relativeRequirePath = promoteRelativePath(
+          path.relative(parentDistPath, distPath)
+        );
+      }
     }
 
     absolutePath = pathToUnixType(absolutePath);
@@ -167,7 +170,6 @@ export default class Asset {
       relativeRequirePath,
       distPath
     } = await this.resolveAliasName(filename, parser ? parser.outExt : ext);
-
     this.addDependency(
       realName,
       Object.assign({ dynamic: true, distPath }, opts)
@@ -263,7 +265,7 @@ export default class Asset {
    * 生成文件dist路径
    */
   generateDistPath(sourcePath: string, ext: string = '') {
-    const cacheKey = `${sourcePath}${ext}`;
+    const cacheKey = `${sourcePath}-${ext}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
