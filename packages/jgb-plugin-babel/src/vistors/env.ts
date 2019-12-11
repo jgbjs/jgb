@@ -11,7 +11,8 @@ export default {
         const val = types.valueToNode(process.env[key.value]);
         morph(node, val);
         asset.isAstDirty = true;
-        asset.cacheData.env[key.value] = process.env[key.value];
+        // JSON.stringify will remove then key when value is undefined
+        asset.cacheData.env[key.value] = process.env[key.value] || '';
       }
     }
   }
