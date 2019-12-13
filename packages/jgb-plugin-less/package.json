@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-less",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -24,8 +24,8 @@
     "chalk": "^2.4.1",
     "cssnano": "^4.0.5",
     "debug": "^3.1.0",
-    "jgb-plugin-css": "^1.8.5",
-    "jgb-shared": "^1.8.5",
+    "jgb-plugin-css": "^1.8.6",
+    "jgb-shared": "^1.8.6",
     "less": "^3.8.1",
     "tslib": "^1.9.3"
   },
