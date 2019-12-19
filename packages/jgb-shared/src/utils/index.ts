@@ -54,5 +54,6 @@ export const promoteRelativePath = memoize((fPath: string) => {
 });
 
 export const pathToUnixType = memoize((fPath: string) => {
+  if (!fPath) { return ''; }
   return fPath.replace(/\\/g, '/');
 });
