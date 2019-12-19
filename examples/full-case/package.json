@@ -9,7 +9,7 @@
   },
   "scripts": {
     "debug": "jgb-debug",
-    "build": "jgb build",
+    "build": "jgb build --no-cache",
     "build:dev": "cross-env API=dev npm run build",
     "build:ut": "cross-env API=ut npm run build",
     "info": "jgb info",

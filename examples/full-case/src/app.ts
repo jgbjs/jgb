@@ -6,6 +6,7 @@ import 'miniapp-regenerator-runtime';
 import './init.js';
 import testUtil from './utils/index';
 import test from './utils/test';
+import './imgs/qa-red.png';
 
 // @ts-ignore
 const isProd = process.env.NODE_ENV === 'production';

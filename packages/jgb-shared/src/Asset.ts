@@ -325,8 +325,10 @@ export default class Asset {
       // index => index.js
       distPath += ext;
     } else if (ext && extName && extName !== ext) {
-      // index.es6 => index.js
-      distPath = distPath.replace(extName, ext);
+      if (this.options.extensions.has(extName)) {
+        // index.es6 => index.js
+        distPath = distPath.replace(extName, ext);
+      }
     }
     // fix style
     distPath = pathToUnixType(distPath);

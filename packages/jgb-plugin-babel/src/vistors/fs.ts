@@ -1,7 +1,8 @@
+import template = require('babel-template');
 import * as t from 'babel-types';
 import * as fs from 'fs';
+import { logger } from 'jgb-shared/lib/Logger';
 import * as Path from 'path';
-import * as template from 'babel-template';
 
 const bufferTemplate = template('Buffer.from(CONTENT, ENC)');
 
@@ -11,9 +12,12 @@ export default {
       return;
     }
 
-    for (let name in path.getBindingIdentifiers()) {
+    // tslint:disable-next-line: forin
+    for (const name in path.getBindingIdentifiers()) {
       const binding = path.scope.getBinding(name);
-      if (!binding) continue;
+      if (!binding) {
+        continue;
+      }
 
       binding.path.setData('__require', path.node);
     }
@@ -21,13 +25,11 @@ export default {
 
   CallExpression(path, asset) {
     if (referencesImport(path, 'fs', 'readFileSync')) {
-      let vars = {
+      const vars = {
         __dirname: Path.dirname(asset.name),
         __filename: asset.basename
       };
-      let filename,
-        args,
-        res;
+      let filename, args, res;
 
       try {
         [filename, ...args] = path
@@ -37,18 +39,19 @@ export default {
         filename = Path.resolve(filename);
         res = fs.readFileSync(filename, ...args);
       } catch (err) {
-        if (err instanceof NodeNotEvaluatedError) {
+        if ((err instanceof NodeNotEvaluatedError) as any) {
           // Warn using a code frame
           err.fileName = asset.name;
           asset.generateErrorMessage(err);
-          logger.warn(err);
+          logger.warning(err);
           return;
         }
 
         // Add location info so we log a code frame with the error
-        err.loc = path.node.arguments.length > 0
-          ? path.node.arguments[0].loc.start
-          : path.node.loc.start;
+        err.loc =
+          path.node.arguments.length > 0
+            ? path.node.arguments[0].loc.start
+            : path.node.loc.start;
         throw err;
       }
 
@@ -70,8 +73,9 @@ export default {
     }
   }
 };
-function isRequire(node, name, method) {
+function isRequire(node: any, name, method) {
   // e.g. require('fs').readFileSync
+  // @ts-ignore
   if (t.isMemberExpression(node) && node.property.name === method) {
     node = node.object;
   }
@@ -80,16 +84,18 @@ function isRequire(node, name, method) {
     return false;
   }
 
-  let {callee, arguments: args} = node;
-  let isRequire = t.isIdentifier(callee) &&
-  callee.name === 'require' &&
-  args.length === 1 &&
-  t.isStringLiteral(args[0]);
+  const { callee, arguments: args } = node;
+  const isRequire =
+    t.isIdentifier(callee) &&
+    callee.name === 'require' &&
+    args.length === 1 &&
+    t.isStringLiteral(args[0]);
 
   if (!isRequire) {
     return false;
   }
 
+  // @ts-ignore
   if (name && args[0].value !== name) {
     return false;
   }
@@ -98,13 +104,14 @@ function isRequire(node, name, method) {
 }
 
 function referencesImport(path, name, method) {
-  let callee = path.node.callee;
+  const callee = path.node.callee;
   let bindingPath;
 
   // e.g. readFileSync()
   if (t.isIdentifier(callee)) {
     bindingPath = getBindingPath(path, callee.name);
   } else if (t.isMemberExpression(callee)) {
+    // @ts-ignore
     if (callee.property.name !== method) {
       return false;
     }
@@ -113,7 +120,8 @@ function referencesImport(path, name, method) {
     if (t.isIdentifier(callee.object)) {
       bindingPath = getBindingPath(path, callee.object.name);
 
-    // require('fs').readFileSync()
+      // require('fs').readFileSync()
+      // @ts-ignore
     } else if (isRequire(callee.object, name)) {
       return true;
     }
@@ -125,8 +133,8 @@ function referencesImport(path, name, method) {
     return;
   }
 
-  let bindingNode = bindingPath.getData('__require') || bindingPath.node;
-  let parent = bindingPath.parentPath;
+  const bindingNode = bindingPath.getData('__require') || bindingPath.node;
+  const parent = bindingPath.parentPath;
 
   // e.g. import fs from 'fs';
   if (parent.isImportDeclaration()) {
@@ -139,17 +147,21 @@ function referencesImport(path, name, method) {
 
     return parent.node.source.value === name;
 
-  // e.g. var fs = require('fs');
+    // e.g. var fs = require('fs');
   } else if (
     t.isVariableDeclarator(bindingNode) ||
     t.isAssignmentExpression(bindingNode)
   ) {
-    let left = bindingNode.id || bindingNode.left;
-    let right = bindingNode.init || bindingNode.right;
+    // @ts-ignore
+    const left = bindingNode.id || bindingNode.left;
+    // @ts-ignore
+    const right = bindingNode.init || bindingNode.right;
 
     // e.g. var {readFileSync} = require('fs');
     if (t.isObjectPattern(left)) {
-      let prop = left.properties.find(p => p.value.name === callee.name);
+      // @ts-ignore
+      const prop = left.properties.find(p => p.value.name === callee.name);
+      // @ts-ignore
       if (!prop || prop.key.name !== method) {
         return false;
       }
@@ -164,7 +176,7 @@ function referencesImport(path, name, method) {
 }
 
 function getBindingPath(path, name) {
-  let binding = path.scope.getBinding(name);
+  const binding = path.scope.getBinding(name);
   return binding && binding.path;
 }
 
@@ -177,15 +189,15 @@ function NodeNotEvaluatedError(node) {
 function evaluate(path, vars) {
   // Inline variables
   path.traverse({
-    Identifier: function(ident) {
-      let key = ident.node.name;
+    Identifier(ident) {
+      const key = ident.node.name;
       if (key in vars) {
         ident.replaceWith(t.valueToNode(vars[key]));
       }
     }
   });
 
-  let res = path.evaluate();
+  const res = path.evaluate();
 
   if (!res.confident) {
     throw new NodeNotEvaluatedError(path.node);
