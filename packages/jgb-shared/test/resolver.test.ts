@@ -22,7 +22,7 @@ describe('resolveModule', () => {
     );
 
     expect(result.filePath).toBe(
-      pathToUnixType(path.resolve(sourceDir, 'test.js'))
+      pathToUnixType(path.join(sourceDir, 'test.js'))
     );
   });
 
@@ -88,6 +88,27 @@ describe('resolve', () => {
       '@utils/*': path.resolve(sourceDir, 'utils')
     }
   });
+
+  test('resolve local file', async () => {
+    const result = await resolver.resolve(
+      'utils/index.js',
+      path.resolve(sourceDir, 'index.js')
+    );
+    expect(result.path).toBe(
+      pathToUnixType(path.resolve(sourceDir, './utils/index.js'))
+    );
+  });
+
+  test('resolve local file with no ext', async () => {
+    const result = await resolver.resolve(
+      './utils/index',
+      path.resolve(sourceDir, 'index.js')
+    );
+    expect(result.path).toBe(
+      pathToUnixType(path.resolve(sourceDir, './utils/index.js'))
+    );
+  });
+
   test('resolve absolute path file', async () => {
     const result = await resolver.resolve(
       '/utils/index.js',
@@ -114,7 +135,9 @@ describe('resolve', () => {
       path.resolve(sourceDir, 'index.js')
     );
     expect(result.path).toBe(
-      path.resolve(rootDir, '../node_modules/debug/src/browser.js')
+      pathToUnixType(
+        path.resolve(rootDir, '../node_modules/debug/src/browser.js')
+      )
     );
     expect(result.pkg).toMatchObject({ name: 'debug' });
   });
@@ -124,7 +147,9 @@ describe('resolve', () => {
       '@utils/index.js',
       path.resolve(sourceDir, 'index.js')
     );
-    expect(result.path).toBe(path.resolve(sourceDir, './utils/index.js'));
+    expect(result.path).toBe(
+      pathToUnixType(path.resolve(sourceDir, './utils/index.js'))
+    );
   });
 });
 
@@ -162,5 +187,30 @@ describe('sort alias', () => {
       '@abc/*',
       '@a/*'
     ]);
+  });
+});
+
+describe('expandFiles', () => {
+  const rootDir = path.resolve(__dirname, '.');
+  const sourceDir = path.resolve(__dirname, './example');
+
+  const extensions = ['.js', '.wxss', '.json', '.wxml'];
+  const resolver = new Resolver({
+    rootDir,
+    sourceDir,
+    extensions: new Set(extensions),
+    alias: {
+      '@alias': path.resolve(sourceDir, 'alias')
+    }
+  });
+  test('expandFiles relative ', async () => {
+    const result = await resolver.expandFile('pages/index', extensions, {});
+
+    expect(result.length).toBe(4);
+  });
+
+  test('expandFiles absolute ', async () => {
+    const result = await resolver.expandFile('/pages/index', extensions, {});
+    expect(result.length).toBe(4);
   });
 });

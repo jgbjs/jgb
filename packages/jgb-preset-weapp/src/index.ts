@@ -5,6 +5,7 @@ import CssPlugin from 'jgb-plugin-css';
 import HtmlPlugin from 'jgb-plugin-html';
 import JsonPlugin from 'jgb-plugin-json';
 import JsonAsset from 'jgb-plugin-json/lib/JsonAsset';
+import WxsPlugin from 'jgb-plugin-wxs';
 import { declare, IInitOptions } from 'jgb-shared/lib';
 import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
@@ -82,6 +83,8 @@ export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
     extensions: ['.wxss'],
     outExt: '.wxss'
   });
+
+  WxsPlugin(compiler, {});
 });
 
 function attachCompilerEvent(compiler: ICompiler) {
@@ -184,11 +187,12 @@ export async function collectPluginJson({
 export async function findComponent(componentPath: string, ctx: JsonAsset) {
   // resolve alias
   try {
-    const realPath = await ctx.resolver.loadResolveAlias(componentPath);
-    if (realPath) {
-      componentPath = realPath;
+    const result = await ctx.resolver.resolve(componentPath);
+    if (result && result.path) {
+      componentPath = result.path.replace(/\.(.*)$/, '');
     }
   } catch (error) {}
+
   if (componentPath.startsWith('.') || componentPath.startsWith('/')) {
     return componentPath;
   }
@@ -247,6 +251,15 @@ export async function usingNpmComponents(
     realName,
     absolutePath
   } = await this.resolveAliasName(value);
+
+  // console.log(
+  //   value,
+  //   'usingNpmComponents',
+  //   distPath,
+  //   relativeRequirePath,
+  //   realName,
+  //   absolutePath
+  // );
   if (distPath && relativeRequirePath) {
     const relativeRequire = relativeRequirePath.replace(EXT_REGEX, '');
     pageJson.usingComponents[key] = relativeRequire;

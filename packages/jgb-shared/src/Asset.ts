@@ -114,6 +114,7 @@ export default class Asset {
       path: string;
       pkg: any;
     };
+    
     if (!this.resolver.isSameTarget) {
       absolutePath = await this.resolver.resolvePlatformModule(absolutePath);
     }
