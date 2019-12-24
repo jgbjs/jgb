@@ -1,3 +1,5 @@
+import 'v8-compile-cache';
+
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
@@ -25,6 +27,11 @@ program
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')
   .option('-m, --minify', 'minify asset')
   .option('--inline-source-map', 'inline source map')
+  .option(
+    '--log-level <level>',
+    'set the log level, either "0" (no output), "1" (errors), "2" (warnings), "3" (info), "4" (verbose) or "5" (debug, creates a log file).',
+    /^([0-5])$/
+  )
   .action(builder)
   .on('--help', () => {
     console.log();

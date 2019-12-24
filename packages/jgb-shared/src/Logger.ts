@@ -13,9 +13,17 @@ export enum LogType {
 export default class Logger {
   chalk: Chalk;
   cache = new Map();
+  logLevel: number;
 
   constructor() {
     this.chalk = new chalk.constructor({ enabled: true });
+  }
+
+  setOptions(options: any = {}) {
+    this.logLevel =
+      options && isNaN(options.logLevel) === false
+        ? Number(options.logLevel)
+        : 3;
   }
 
   log(
@@ -39,6 +47,10 @@ export default class Logger {
       return console.info(chalk.blueBright('[INFO]') + ` ${message}`);
     }
 
+    if (this.logLevel < 3) {
+      return;
+    }
+
     if (type === LogType.LOG) {
       return console.log(message);
     }
@@ -54,14 +66,23 @@ export default class Logger {
   }
 
   warning(message: any) {
+    if (this.logLevel < 2) {
+      return;
+    }
     this.log(message, LogType.WARNING);
   }
 
   error(message: any) {
+    if (this.logLevel < 1) {
+      return;
+    }
     this.log(message, LogType.ERROR);
   }
 
   info(message: any) {
+    if (this.logLevel < 3) {
+      return;
+    }
     this.log(message, LogType.INFO);
   }
 
@@ -80,6 +101,7 @@ export default class Logger {
         break;
 
       default:
+        fn = chalk.keyword('gray');
         break;
     }
 

@@ -47,6 +47,7 @@ export default class Core extends AwaitEventEmitter {
     if (this.options.cache) {
       this.cache = new FSCache(this.options);
     }
+    logger.setOptions(this.options);
   }
 
   normalizeEntryFiles(): string[] {
@@ -66,6 +67,7 @@ export default class Core extends AwaitEventEmitter {
       presets: options.presets,
       watch: !!options.watch,
       rootDir,
+      logLevel: isNaN(options.logLevel) ? 3 : options.logLevel,
       useLocalWorker: !!options.useLocalWorker,
       outDir: Path.resolve(options.outDir || 'dist'),
       npmDir: Path.resolve(options.npmDir || 'node_modules'),
@@ -383,24 +385,23 @@ export function aliasResolve(
 ): IInitOptions['alias'] {
   const alias = options.alias || {};
   const newAlias: { [key: string]: any } = {};
-  
-  Object.keys(alias)
-    .forEach(key => {
-      const aliasValues = normalizeAlias(alias[key]);
 
-      newAlias[key] = aliasValues.map(aliasValue => {
-        const aliasPath = aliasValue.path;
-        if (!Path.isAbsolute(aliasPath)) {
-          if (aliasPath.startsWith('.')) {
-            aliasValue.path = pathToUnixType(Path.resolve(root, aliasPath));
-          } else {
-            aliasValue.path = pathToUnixType(
-              Path.resolve(root, 'node_modules', aliasPath)
-            );
-          }
+  Object.keys(alias).forEach(key => {
+    const aliasValues = normalizeAlias(alias[key]);
+
+    newAlias[key] = aliasValues.map(aliasValue => {
+      const aliasPath = aliasValue.path;
+      if (!Path.isAbsolute(aliasPath)) {
+        if (aliasPath.startsWith('.')) {
+          aliasValue.path = pathToUnixType(Path.resolve(root, aliasPath));
+        } else {
+          aliasValue.path = pathToUnixType(
+            Path.resolve(root, 'node_modules', aliasPath)
+          );
         }
-        return aliasValue;
-      });
+      }
+      return aliasValue;
     });
+  });
   return newAlias;
 }
