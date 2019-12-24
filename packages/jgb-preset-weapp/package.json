@@ -28,6 +28,7 @@
     "jgb-plugin-css": "^1.8.6",
     "jgb-plugin-html": "^1.8.6",
     "jgb-plugin-json": "^1.8.6",
+    "jgb-plugin-wxs": "^1.8.6",
     "jgb-shared": "^1.8.6",
     "tslib": "^1.9.3"
   },

@@ -40,7 +40,7 @@ export default class Core extends AwaitEventEmitter {
     }
 
     this.entryFiles = this.normalizeEntryFiles();
-    this.resolver = new Resolver(this.options);
+
     this.compiler = new Compiler(this.options);
     this.buildQueue = new PromiseQueue(this.processAsset.bind(this));
 
@@ -79,7 +79,8 @@ export default class Core extends AwaitEventEmitter {
       source: options.source || 'wx',
       target: options.target || 'wx',
       lib: options.lib,
-      inlineSourceMap: options.inlineSourceMap
+      inlineSourceMap: options.inlineSourceMap,
+      resolve: options.resolve
     };
   }
 
@@ -95,6 +96,8 @@ export default class Core extends AwaitEventEmitter {
 
   async init() {
     await this.compiler.init(this.resolver);
+    this.resolver = new Resolver(this.options);
+    this.compiler.resolver = this.resolver;
   }
 
   async start() {

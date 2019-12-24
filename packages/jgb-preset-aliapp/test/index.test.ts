@@ -17,7 +17,11 @@ describe('find component', () => {
   test('resolve localcomponent', async () => {
     const componentPath = await findComponent('./localcomponent', jsonAsset);
     const ucomponentPath = Utils.pathToUnixType(componentPath);
-    expect(ucomponentPath).toBe('./localcomponent');
+    expect(ucomponentPath).toBe(
+      Utils.pathToUnixType(
+        path.resolve(path.dirname(jsonAsset.name), './localcomponent')
+      )
+    );
   });
 
   test('resolve npm component', async () => {

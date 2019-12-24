@@ -1,3 +1,5 @@
+import { ResolverFactory } from 'enhanced-resolve';
+
 export type IPluginConfig = string | [string] | [string, any];
 
 export type IAliasValue =
@@ -79,4 +81,6 @@ export interface IInitOptions {
   hooks?: Array<(...args: any[]) => Promise<void>>;
   /* 转换适配库默认： miniapp-adapter */
   lib?: string;
+
+  resolve?: Parameters<typeof ResolverFactory['createResolver']>[0];
 }
