@@ -4,7 +4,7 @@
     "examples/*",
     "packages/*"
   ],
-  "version": "1.8.7-alpha.0",
+  "version": "1.8.8-alpha.0",
   "npmClient": "yarn",
   "command": {
     "run": {
