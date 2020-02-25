@@ -82,7 +82,7 @@ describe('resolve', () => {
   const resolver = new Resolver({
     rootDir,
     sourceDir,
-    extensions: new Set(['.js', '.css']),
+    extensions: new Set(['.js', '.ts', '.css']),
     alias: {
       '@alias': path.resolve(sourceDir, 'alias'),
       '@utils/*': path.resolve(sourceDir, 'utils')
@@ -149,6 +149,37 @@ describe('resolve', () => {
     );
     expect(result.path).toBe(
       pathToUnixType(path.resolve(sourceDir, './utils/index.js'))
+    );
+  });
+
+  test('resolve file name contains . with same ext', async () => {
+    const result = await resolver.resolve(
+      './utils/test.abc',
+      path.resolve(sourceDir, 'index.js')
+    );
+    console.log(result.path);
+    expect(result.path).toBe(
+      pathToUnixType(path.resolve(sourceDir, './utils/test.abc.js'))
+    );
+  });
+
+  test('resolve file name contains . with same ext', async () => {
+    const result = await resolver.resolve(
+      './utils/test.abc',
+      path.resolve(sourceDir, 'index.js')
+    );
+    expect(result.path).toBe(
+      pathToUnixType(path.resolve(sourceDir, './utils/test.abc.js'))
+    );
+  });
+
+  test('resolve file name contains . with different ext', async () => {
+    const result = await resolver.resolve(
+      './utils.abc',
+      path.resolve(sourceDir, 'utils/index.js')
+    );
+    expect(result.path).toBe(
+      pathToUnixType(path.resolve(sourceDir, './utils/utils.abc.ts'))
     );
   });
 });

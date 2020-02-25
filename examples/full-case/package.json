@@ -8,7 +8,7 @@
     "jgb-debug": "node_modules/.bin/jgb"
   },
   "scripts": {
-    "debug": "jgb-debug",
+    "debug": "node_modules/.bin/jgb build",
     "build": "jgb build --no-cache",
     "build:dev": "cross-env API=dev npm run build",
     "build:ut": "cross-env API=ut npm run build",
