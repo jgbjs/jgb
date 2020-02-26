@@ -72,16 +72,24 @@ export default class NewResolver {
     const dir = parent ? path.dirname(parent) : this.options.sourceDir;
     return new Promise((r, reject) => {
       const context = {};
-      this.resolver.resolve(context, dir, fileName, async (err, filepath) => {
-        if (err) {
-          return reject(err);
-        }
+     
+      this.resolver.resolve(
+        context,
+        dir,
+        fileName,
+        {},
+         // @ts-ignore
+        async (err, filepath) => {
+          if (err) {
+            return reject(err);
+          }
 
-        r({
-          path: pathToUnixType(filepath),
-          pkg: await this.findPackage(path.dirname(filepath))
-        });
-      });
+          r({
+            path: pathToUnixType(filepath),
+            pkg: await this.findPackage(path.dirname(filepath))
+          });
+        }
+      );
     });
   }
 
