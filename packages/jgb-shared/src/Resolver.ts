@@ -55,7 +55,7 @@ export default class NewResolver {
           path.resolve(this.options.rootDir, 'node_modules'),
           'node_modules'
         ],
-        mainFields: ['browser', 'main'],
+        mainFields: ['main'],
         alias
       },
       options.resolve || {}
