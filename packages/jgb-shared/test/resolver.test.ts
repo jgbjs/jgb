@@ -240,8 +240,14 @@ describe('expandFiles', () => {
     expect(result.length).toBe(4);
   });
 
-  test('expandFiles absolute ', async () => {
+  test('expandFiles absolute project', async () => {
     const result = await resolver.expandFile('/pages/index', extensions, {});
+    expect(result.length).toBe(4);
+  });
+
+  test('expandFiles absolute', async () => {
+    const abPath = path.resolve(sourceDir, 'pages/index');
+    const result = await resolver.expandFile(abPath, extensions, {});
     expect(result.length).toBe(4);
   });
 });
