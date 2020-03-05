@@ -72,13 +72,13 @@ export default class NewResolver {
     const dir = parent ? path.dirname(parent) : this.options.sourceDir;
     return new Promise((r, reject) => {
       const context = {};
-     
+
       this.resolver.resolve(
         context,
         dir,
         fileName,
         {},
-         // @ts-ignore
+        // @ts-ignore
         async (err, filepath) => {
           if (err) {
             return reject(err);
@@ -158,11 +158,22 @@ export default class NewResolver {
    * 判断是否真实的绝对路径
    * 小程序中绝对路径的根目录 往往解析到小程序项目的目录
    */
-  isAbsolute = memoize(function(fileName: string) {
-    return (
-      (fileName[0] === '/' && fileName.includes(this.options.sourceDir)) ||
-      (fileName[0] !== '/' && path.isAbsolute(fileName))
-    );
+  isAbsolute = memoize(function(fileName: string = '') {
+    // unix 目录是否在sourceDir中
+
+    if (fileName[0] === '/') {
+      const dirPath = path.parse(fileName).dir;
+
+      const sourceRelativePath = path.resolve(
+        this.options.sourceDir,
+        `.${dirPath}`
+      );
+      if (fsExtra.existsSync(sourceRelativePath)) {
+        return false;
+      }
+    }
+
+    return path.isAbsolute(fileName);
   });
 
   /**
