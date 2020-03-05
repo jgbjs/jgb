@@ -74,10 +74,10 @@ describe('resolveAliasName', () => {
     const result = await asset.resolveAliasName('debug', '.js');
 
     expect(result.realName).toBe(
-      pathToUnixType(path.join(rootDir, '../node_modules/debug/src/browser.js'))
+      pathToUnixType(path.join(rootDir, '../node_modules/debug/src/index.js'))
     );
     expect(result.distPath).toBe(
-      pathToUnixType(path.join(outDir, 'npm/debug/src/browser.js'))
+      pathToUnixType(path.join(outDir, 'npm/debug/src/index.js'))
     );
   });
 });

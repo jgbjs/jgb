@@ -136,7 +136,7 @@ describe('resolve', () => {
     );
     expect(result.path).toBe(
       pathToUnixType(
-        path.resolve(rootDir, '../node_modules/debug/src/browser.js')
+        path.resolve(rootDir, '../node_modules/debug/src/index.js')
       )
     );
     expect(result.pkg).toMatchObject({ name: 'debug' });
