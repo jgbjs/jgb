@@ -1,6 +1,6 @@
 {
   "name": "jgb-shared",
-  "version": "1.8.8-alpha.0",
+  "version": "1.8.8",
   "main": "lib/index.js",
   "license": "MIT",
   "typings": "lib/index.d.ts",
