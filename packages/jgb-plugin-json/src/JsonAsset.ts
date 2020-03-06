@@ -1,30 +1,37 @@
-import { Utils } from "jgb-shared";
-import { Asset, IInitOptions } from "jgb-shared/lib";
-import * as json5 from "json5";
-import * as path from "path";
+import { Utils } from 'jgb-shared';
+import { Asset, IInitOptions } from 'jgb-shared/lib';
+import * as json5 from 'json5';
+import * as path from 'path';
 
 export default class JsonAsset extends Asset {
   constructor(fileName: string, options: IInitOptions) {
     super(fileName, options);
   }
 
-  static outExt = ".json";
+  static outExt = '.json';
 
   async parse(code: string) {
     return code ? json5.parse(code) : {};
   }
 
-  async pretransform() {
+  async transform() {
     if (this.ast) {
-      // TODO: transform json
+      // remove top key contains $
+      if (typeof this.ast === 'object') {
+        for (const key of Object.keys(this.ast)) {
+          if (key.startsWith('$')) {
+            delete this.ast[key];
+          }
+        }
+      }
     }
   }
 
   async collectDependencies() {
     const baseName = path.basename(this.name);
-    if (baseName === "app.json") {
+    if (baseName === 'app.json') {
       await this.collectAppJson(this.ast);
-    } else if (baseName === "plugin.json") {
+    } else if (baseName === 'plugin.json') {
       await this.collectPluginJson(this.ast);
     } else {
       await this.collectPageJson(this.ast);
@@ -48,7 +55,7 @@ export default class JsonAsset extends Asset {
   async collectPageJson(page: any) {
     const dependences = new Set<string>();
 
-    await this.compiler.emit("collect-page-json", {
+    await this.compiler.emit('collect-page-json', {
       ctx: this,
       dependences,
       pageJson: page
@@ -67,7 +74,7 @@ export default class JsonAsset extends Asset {
   async collectAppJson(app: any) {
     const dependences = new Set<string>();
 
-    await this.compiler.emit("collect-app-json", {
+    await this.compiler.emit('collect-app-json', {
       ctx: this,
       dependences,
       appJson: app
@@ -86,7 +93,7 @@ export default class JsonAsset extends Asset {
   async collectPluginJson(pkg: any) {
     const dependences = new Set<string>();
 
-    await this.compiler.emit("collect-plugin-json", {
+    await this.compiler.emit('collect-plugin-json', {
       ctx: this,
       dependences,
       pluginJson: pkg
@@ -100,7 +107,7 @@ export default class JsonAsset extends Asset {
 
   async collectAppDependJson(ctx: JsonAsset) {
     const dependences = new Set<string>();
-    await this.compiler.emit("collect-app-json", {
+    await this.compiler.emit('collect-app-json', {
       dependences,
       appJson: ctx.ast,
       ctx
@@ -115,16 +122,16 @@ export default class JsonAsset extends Asset {
     // return [...this.dependencies].filter((item) => new RegExp(/\.json$/).test(item[0]))
   }
 
-  filterDependenices(dependencies: any[], type = "app") {
+  filterDependenices(dependencies: any[], type = 'app') {
     const _initKeyName = (name: string) => {
       const cwd = Utils.pathToUnixType(process.cwd());
       return Utils.pathToUnixType(name)
-        .replace(cwd, "")
-        .replace("/src/", "")
-        .replace(".json", "")
-        .replace("/dist/", "")
-        .replace(".js", "")
-        .replace(".ts", "");
+        .replace(cwd, '')
+        .replace('/src/', '')
+        .replace('.json', '')
+        .replace('/dist/', '')
+        .replace('.js', '')
+        .replace('.ts', '');
     };
     const hash: any = {};
 
@@ -143,7 +150,7 @@ export default class JsonAsset extends Asset {
       if (/\.ts$/.test(key)) {
         currentData.js = {
           path: key,
-          distPath: distPath.replace(".ts", ".js")
+          distPath: distPath.replace('.ts', '.js')
         };
       }
       if (/\.json$/.test(key)) {
@@ -153,7 +160,7 @@ export default class JsonAsset extends Asset {
         };
       }
     };
-    if (type === "app") {
+    if (type === 'app') {
       const filterDependencies = [...dependencies].filter(item =>
         new RegExp(/(\.json$)|(\.js$)|(\.ts$)/).test(item[0])
       );
@@ -162,7 +169,7 @@ export default class JsonAsset extends Asset {
       });
       return hash;
     }
-    if (type === "page") {
+    if (type === 'page') {
       const filterDependencies = [...dependencies].filter(item =>
         new RegExp(/(\.json$)|(\.js$)|(\.ts$)/).test(item)
       );
@@ -176,13 +183,13 @@ export default class JsonAsset extends Asset {
   async collectPageDependJson(ctx: JsonAsset) {
     const dependences = new Set<string>();
 
-    await this.compiler.emit("collect-page-json", {
+    await this.compiler.emit('collect-page-json', {
       dependences,
       pageJson: ctx.ast,
       ctx
     });
 
-    return this.filterDependenices([...dependences], "page");
+    return this.filterDependenices([...dependences], 'page');
     // return [...dependences].filter((item) => new RegExp(/\.json$/).test(item))
   }
 
@@ -203,7 +210,6 @@ export default class JsonAsset extends Asset {
       fileName = path.isAbsolute(fileName)
         ? fileName
         : path.resolve(dir, fileName);
-
       const files = this.resolver.expandFile(fileName, exts, {}, false);
       for (const file of files) {
         const isFile = await this.resolver.isFile(file);
