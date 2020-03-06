@@ -5,9 +5,7 @@
     "declarationDir": "lib",
     "baseUrl": "src",
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "lib"
+  "include": [
+    "src"
   ]
 }

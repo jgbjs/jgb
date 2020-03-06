@@ -191,11 +191,15 @@ export default class NewResolver {
     let extGlob = '';
 
     const isAbsolutePath = this.isAbsolute(fileName);
+
+    const exts = extensions.map(ext => ext.slice(1));
     // is real absolute path
     if (isAbsolutePath) {
-      extGlob = `${fileName}.{${extensions
-        .map(ext => ext.slice(1))
-        .join(',')}}`;
+      if (extensions.length === 1) {
+        extGlob = `${fileName}.${exts[0]}`;
+      } else {
+        extGlob = `${fileName}.{${exts.join(',')}}`;
+      }
     } else {
       extGlob = path.join(
         '.',
@@ -204,11 +208,11 @@ export default class NewResolver {
     }
 
     extGlob = pathToUnixType(extGlob);
-
     // componets/comp => components/comp.*
-    return glob.sync([fileName, extGlob], {
+    return glob.sync([extGlob], {
       onlyFiles: true,
       unique: true,
+      brace: true,
       cwd: this.options.sourceDir
     }) as string[];
   }

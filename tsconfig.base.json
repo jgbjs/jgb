@@ -11,6 +11,8 @@
     "declaration": true,
     "lib": [
       "es7",
+      "ES2016",
+      "ES2015",
       "dom",
       "esnext"
     ],
