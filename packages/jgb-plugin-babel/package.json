@@ -19,6 +19,7 @@
     "build": "yarn run build:ts",
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
+    "test": "jest",
     "prepublish": "yarn run clean && yarn run build"
   },
   "dependencies": {

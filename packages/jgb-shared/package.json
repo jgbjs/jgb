@@ -30,6 +30,7 @@
     "@types/node": "12.12.6",
     "@types/resolve": "^0.0.8",
     "jest": "^23.6.0",
+    "prettier": "^1.19.1",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
@@ -47,6 +48,7 @@
     "json5": "^1.0.1",
     "lodash": "^4.17.13",
     "os-utils": "^0.0.14",
+    "preprocess": "^3.1.0",
     "resolve": "^1.8.1",
     "source-map": "^0.7.3",
     "tslib": "^1.9.3"

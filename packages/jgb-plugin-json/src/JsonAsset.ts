@@ -1,5 +1,6 @@
 import { Utils } from 'jgb-shared';
 import { Asset, IInitOptions } from 'jgb-shared/lib';
+import { FileType } from 'jgb-shared/lib/utils/preProcess';
 import * as json5 from 'json5';
 import * as path from 'path';
 
@@ -8,6 +9,7 @@ export default class JsonAsset extends Asset {
     super(fileName, options);
   }
 
+  fileType = FileType.JSON;
   static outExt = '.json';
 
   async parse(code: string) {

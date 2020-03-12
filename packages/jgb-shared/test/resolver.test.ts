@@ -157,7 +157,6 @@ describe('resolve', () => {
       './utils/test.abc',
       path.resolve(sourceDir, 'index.js')
     );
-    console.log(result.path);
     expect(result.path).toBe(
       pathToUnixType(path.resolve(sourceDir, './utils/test.abc.js'))
     );

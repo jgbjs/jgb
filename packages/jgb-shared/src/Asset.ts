@@ -12,6 +12,7 @@ import { normalizeAlias, pathToUnixType, promoteRelativePath } from './utils';
 import isUrl from './utils/isUrl';
 import { matchAlias } from './utils/matchAlias';
 import objectHash from './utils/objectHash';
+import { FileType, preProcess } from './utils/preProcess';
 import WorkerFarm from './workerfarm/WorkerFarm';
 
 const DEFAULT_NPM_DIR = 'npm';
@@ -55,6 +56,7 @@ export default class Asset {
   distPath: string;
   /** 在addAssetsType会自动注入compiler */
   parentCompiler: ICompiler;
+  fileType: FileType;
 
   private checkOptions(options: IInitOptions) {
     if (!options.sourceDir) {
@@ -114,7 +116,7 @@ export default class Asset {
       path: string;
       pkg: any;
     };
-    
+
     if (!this.resolver.isSameTarget) {
       absolutePath = await this.resolver.resolvePlatformModule(absolutePath);
     }
@@ -185,7 +187,7 @@ export default class Asset {
 
   /**
    * 处理资源
-   * 1. load
+   * 1. load && preProcess
    * 2. pretransform
    * 3. getDependencies
    * 4. transform
@@ -200,6 +202,7 @@ export default class Asset {
     const startTime = +new Date();
 
     await this.loadIfNeeded();
+    await this.preProcess();
     await this.pretransform();
     await this.getDependencies();
     await this.transform();
@@ -219,6 +222,15 @@ export default class Asset {
   async loadIfNeeded() {
     if (!this.contents) {
       this.contents = (await this.load()) || '';
+    }
+  }
+
+  /**
+   * 预处理 contents
+   */
+  async preProcess() {
+    if (this.contents) {
+      this.contents = preProcess(this.contents, this.fileType);
     }
   }
 
