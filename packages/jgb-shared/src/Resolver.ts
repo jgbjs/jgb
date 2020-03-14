@@ -27,29 +27,24 @@ const cachedInputFileSystem = new CachedInputFileSystem(
   4000
 );
 
-const defaultExts = ['.wxs', '.js', '.json', '.wxss', '.wxml'];
-
 export default class NewResolver {
   resolver: TypedResolver;
   packageCache = new Map();
   alias: Dictionary<string> = {};
 
-  constructor(private options: IInitOptions) {
+  constructor(private options: IInitOptions, ext = '') {
     const alias = Object.assign(
       {},
       resolveTsconfigPathsToAlias(options.alias || {}, this.options.sourceDir)
     );
 
-    const extensions = new Set([
-      ...defaultExts,
-      ...(this.options.extensions || [])
-    ]);
+    const extensions = [ext, ...(this.options.extensions || [])];
 
     const resolveOpt = Object.assign(
       {
         // @ts-ignore
         fileSystem: cachedInputFileSystem,
-        extensions: [...extensions],
+        extensions,
         modules: [
           // precedence resolve root node_modules
           path.resolve(this.options.rootDir, 'node_modules'),
