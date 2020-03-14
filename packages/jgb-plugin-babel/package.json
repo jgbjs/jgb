@@ -1,6 +1,6 @@
 {
   "name": "jgb-plugin-babel",
-  "version": "1.8.10-alpha.1",
+  "version": "1.8.10-alpha.2",
   "main": "lib/index.js",
   "typings": "typings/index.d.ts",
   "license": "MIT",
@@ -33,7 +33,7 @@
     "browserslist": "^4.0.1",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
-    "jgb-shared": "1.8.10-alpha.1",
+    "jgb-shared": "1.8.10-alpha.2",
     "node-libs-browser": "^2.1.0",
     "semver": "^5.5.0",
     "terser": "^3.8.1",
