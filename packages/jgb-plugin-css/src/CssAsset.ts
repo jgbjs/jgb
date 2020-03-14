@@ -1,4 +1,5 @@
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import { FileType } from 'jgb-shared/lib/utils/preProcess';
 import * as path from 'path';
 import * as postcss from 'postcss';
 import * as valueParser from 'postcss-value-parser';
@@ -12,6 +13,7 @@ const PROTOCOL_RE = /^[a-z]+:/;
 export default class CssAsset extends Asset {
   static outExt = '.css';
   cssModules: any;
+  fileType = FileType.CSS;
 
   constructor(name: string, options: IInitOptions) {
     super(name, options);

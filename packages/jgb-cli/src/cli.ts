@@ -21,7 +21,7 @@ program
   .option('-s, --source <source>', 'set the origin project type')
   .option(
     '-t, --target <target>',
-    'set the build type, either "wx", "swan" or "my" or "tt". defaults to "wx"'
+    `set the build type, either "wx", "swan" | "baidu" , "my" | "alipay" , "tt". defaults to "wx"`
   )
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')

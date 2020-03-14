@@ -17,6 +17,7 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf ./lib",
     "watch": "npm run build -- -w",
+    "test": "jest",
     "prepublish": "yarn run clean && yarn run build"
   },
   "dependencies": {

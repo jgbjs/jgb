@@ -34,6 +34,7 @@ export default class Core extends AwaitEventEmitter {
     super();
     this.hooks = options.hooks || [];
     this.options = this.normalizeOptions(options);
+    this.injectEnv();
 
     if (options.rootDir) {
       this.currentDir = options.rootDir;
@@ -58,6 +59,13 @@ export default class Core extends AwaitEventEmitter {
       .map(f => Path.resolve(this.options.sourceDir, f));
 
     return fg.sync(files, { onlyFiles: true, unique: true });
+  }
+
+  /**
+   * 注入所需的环境变量
+   */
+  injectEnv() {
+    process.env.JGB_ENV = this.options.target;
   }
 
   normalizeOptions(options: IInitOptions): IInitOptions {

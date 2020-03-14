@@ -10,6 +10,7 @@ import { Asset, IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import SourceMap from 'jgb-shared/lib/SourceMap';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
+import { FileType } from 'jgb-shared/lib/utils/preProcess';
 import * as Path from 'path';
 import * as path from 'path';
 import { promisify } from 'util';
@@ -43,6 +44,7 @@ export default class BabelAsset extends Asset {
   isAstDirty = false;
   sourceMap: any;
 
+  fileType = FileType.JS;
   static outExt = '.js';
 
   async getParserOptions(): Promise<any> {
