@@ -120,7 +120,7 @@ export async function collectPageJson({
 
   for (const [key, value] of Object.entries(pageJson.usingComponents)) {
     // 插件
-    if (value.startsWith('plugins://')) {
+    if (value.startsWith('plugin://')) {
       continue;
     }
     const componentPath = await findComponent(value, ctx);
