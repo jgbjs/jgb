@@ -1,6 +1,6 @@
 {
   "name": "jgb-cli",
-  "version": "1.8.9-alpha.0",
+  "version": "1.8.10-alpha.0",
   "main": "index.js",
   "license": "MIT",
   "repository": {
@@ -23,6 +23,8 @@
     "jgb": "bin/cli.js"
   },
   "dependencies": {
+    "@types/commander": "^2.12.2",
+    "@types/json5": "^0.0.30",
     "babel-core": "^6.26.3",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
@@ -34,7 +36,7 @@
     "fswatcher-child": "^1.0.5",
     "inquirer": "^6.2.0",
     "is-glob": "^4.0.0",
-    "jgb-shared": "^1.8.9-alpha.0",
+    "jgb-shared": "^1.8.10-alpha.0",
     "js-beautify": "^1.8.9",
     "mkdirp": "^0.5.1",
     "ora": "^3.4.0",

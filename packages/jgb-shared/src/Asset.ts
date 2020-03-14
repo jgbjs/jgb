@@ -72,8 +72,9 @@ export default class Asset {
     this.checkOptions(options);
     this.basename = path.basename(name);
     this.relativeName = path.relative(options.sourceDir, name);
-    const resolver = WorkerFarm.getSharedResolver();
-    this.resolver = resolver || new Resolver(options);
+    // const resolver = WorkerFarm.getSharedResolver();
+    const ext = path.extname(name);
+    this.resolver = new Resolver(options, ext);
   }
 
   /**

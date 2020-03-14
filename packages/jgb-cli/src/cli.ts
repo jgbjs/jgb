@@ -119,7 +119,8 @@ program
   .description(
     'collect all dependent components and page from jgb.config.js to a json file.'
   )
-  .option('-s, --source <sourcePath>', 'scan path, default source is dist"')
+  .option('-s, --source <sourcePath>', 'scan path, default source is dist')
+  .option('-p, --page-params', 'collect page params from pageJson.$pageParams')
   .action(scan);
 
 program.parse(process.argv);

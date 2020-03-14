@@ -84,7 +84,10 @@ export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
     outExt: '.wxss'
   });
 
-  WxsPlugin(compiler, {});
+  WxsPlugin(compiler, {
+    extensions: ['.wxs'],
+    outExt: '.wxs'
+  });
 });
 
 function attachCompilerEvent(compiler: ICompiler) {
@@ -116,6 +119,10 @@ export async function collectPageJson({
   const usingComponent = usingNpmComponents.bind(ctx);
 
   for (const [key, value] of Object.entries(pageJson.usingComponents)) {
+    // 插件
+    if (value.startsWith('plugins://')) {
+      continue;
+    }
     const componentPath = await findComponent(value, ctx);
     try {
       await usingComponent(
