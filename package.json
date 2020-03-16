@@ -16,8 +16,8 @@
     "build": "tsc -b packages/jgb-shared packages/jgb-cli packages/jgb-plugin-babel packages/jgb-plugin-css packages/jgb-plugin-html packages/jgb-plugin-json packages/jgb-plugin-less packages/jgb-plugin-typescript packages/jgb-plugin-wxs packages/jgb-preset-aliapp packages/jgb-preset-weapp",
     "clean:all": "lerna run clean",
     "watch:all": "yarn run build --watch",
-    "release:lerna": "lerna publish --registry https://registry.npmjs.org/ --force-publish=* --exact --skip-temp-tag",
-    "release:beta": "lerna publish --registry https://registry.npmjs.org/ --force-publish=* --exact --skip-temp-tag --npm-tag=beta",
+    "release:lerna": "lerna publish  --force-publish=* --exact --skip-temp-tag",
+    "release:beta": "lerna publish  --force-publish=* --exact --skip-temp-tag --npm-tag=beta",
     "test": "lerna exec --scope jgb-preset-* --scope jgb-shared --scope jgb-cli --scope jgb-plugin-json -- yarn test"
   },
   "devDependencies": {
