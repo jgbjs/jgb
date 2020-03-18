@@ -2,7 +2,7 @@ const Path = require('path')
 
 module.exports = {
   inlineSourceMap: true,
-  // entryFiles: ['test.ts'],
+  entryFiles: ['app.*', 'rq.wxs'],
   // entryFiles: ['assets/index.wxss'],
   // entryFiles: ['app.ts', 'app.wxss', 'app.json'],
   // entryFiles: ['testAlias.ts'],

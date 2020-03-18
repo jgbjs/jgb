@@ -1,8 +1,8 @@
 import babel from 'jgb-plugin-babel/lib/babel';
 import BabelAsset from 'jgb-plugin-babel/lib/BabelAsset';
-import { IAssetGenerate } from 'jgb-shared/lib/Asset';
 
 export default class WxsAsset extends BabelAsset {
+  static outExt = '.wxs';
   /**
    * wxs 不需要sourcemap
    */
@@ -29,11 +29,15 @@ export default class WxsAsset extends BabelAsset {
     };
 
     if (isAliapp(target)) {
-      this.babelConfig.plugins.push('babel-plugin-transform-commonjs-es2015-modules');
+      this.babelConfig.plugins.push(
+        'babel-plugin-transform-commonjs-es2015-modules'
+      );
     }
 
     if (isBaidu(target)) {
-      this.babelConfig.plugins.push('babel-plugin-transform-commonjs-es2015-modules');
+      this.babelConfig.plugins.push(
+        'babel-plugin-transform-commonjs-es2015-modules'
+      );
     }
 
     await babel(this);
@@ -44,12 +48,18 @@ export default class WxsAsset extends BabelAsset {
    */
   async generate(): Promise<any> {
     const result = await super.generate();
-
     return {
       code: result.code,
       map: '',
       ext: WxsAsset.outExt
     };
+  }
+
+  /**
+   * 重写 wxs resolveAliasName 固定为输出的outExt
+   */
+  async resolveAliasName(name: string, ext: string = '') {
+    return super.resolveAliasName(name, WxsAsset.outExt);
   }
 }
 

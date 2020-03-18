@@ -140,10 +140,7 @@ export default class BabelAsset extends Asset {
       }
       const ext = Path.extname(opts.node.value);
       if (ext) {
-        // ext in extensions && .ts !== .js ===> .ts => .js
-        if (this.options.extensions.has(ext) && ext !== BabelAsset.outExt) {
-          opts.node.value = opts.node.value.replace(ext, BabelAsset.outExt);
-        } else if (!this.options.extensions.has(ext)) {
+        if (!this.options.extensions.has(ext)) {
           // if import file not in extension then Comment it
           if (node) {
             node.type = 'EmptyStatement';
