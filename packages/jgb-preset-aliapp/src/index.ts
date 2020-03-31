@@ -179,7 +179,7 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
   try {
     const result = await ctx.resolver.resolve(componentPath);
     if (result && result.path) {
-      componentPath = result.path.replace(/\.(.*)$/, '');
+      componentPath = result.path.replace(/\.(\w+)$/, '');
     }
   } catch (error) {}
 
