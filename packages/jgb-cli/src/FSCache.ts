@@ -1,12 +1,11 @@
-import * as glob from 'fast-glob';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
-import * as isGlob from 'is-glob';
 import { IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import { md5, objectHash } from 'jgb-shared/lib/utils';
 import * as mkdir from 'mkdirp';
 import * as path from 'path';
+import { IPipelineProcessed } from 'Pipeline.js';
 import { promisify } from 'util';
 import * as VError from 'verror';
 import * as pkg from '../package.json';
@@ -117,10 +116,14 @@ export default class FSCache {
       await this.ensureDirExists();
       const cacheFile = await this.getCacheFile(filename);
       if (data.dependencies instanceof Map) {
-        data.dependencies = [...data.dependencies].map(([fileName, asset]) => {
-          return [fileName, { ...asset, asset: null }];
-        });
-      } else if (Array.isArray(data.dependencies)) {
+        throw new Error('data not match, pleace run command: jgb clean');
+      }
+      // if (data.dependencies instanceof Map) {
+      //   data.dependencies = [...data.dependencies].map(([fileName, asset]) => {
+      //     return [fileName, { ...asset, asset: null }];
+      //   });
+      // } else
+      if (Array.isArray(data.dependencies)) {
         data.dependencies = [...data.dependencies].map(asset => {
           return [asset.name, { ...asset, asset: null }];
         });

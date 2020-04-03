@@ -8,7 +8,8 @@
     "jgb-debug": "node_modules/.bin/jgb"
   },
   "scripts": {
-    "debug": "node_modules/.bin/jgb build",
+    "jgb": "node_modules/.bin/jgb",
+    "build:log": "yarn jgb build --log-level 1",
     "build": "jgb build --no-cache",
     "build:dev": "cross-env API=dev npm run build",
     "build:ut": "cross-env API=ut npm run build",

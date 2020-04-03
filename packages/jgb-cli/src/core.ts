@@ -10,6 +10,7 @@ import * as Path from 'path';
 import { promisify } from 'util';
 import Compiler from './Compiler';
 import FSCache from './FSCache';
+import { IPipelineProcessed } from './Pipeline';
 import PromiseQueue from './utils/PromiseQueue';
 import Watcher from './Watcher';
 
@@ -66,6 +67,7 @@ export default class Core extends AwaitEventEmitter {
    */
   injectEnv() {
     process.env.JGB_ENV = this.options.target;
+    process.env.JGB_LOG_LEVEL = `${this.options.logLevel}`;
   }
 
   normalizeOptions(options: IInitOptions): IInitOptions {
@@ -115,48 +117,58 @@ export default class Core extends AwaitEventEmitter {
       return;
     }
 
-    await this.initHook();
+    logger.progress(`编译中...`);
 
-    await this.emit('before-init');
+    try {
+      await this.initHook();
 
-    await this.init();
+      await this.emit('before-init');
 
-    await this.emit('before-compiler');
+      await this.init();
 
-    // another channce to modify entryFiles
-    this.entryFiles = this.normalizeEntryFiles();
-    if (this.options.watch) {
-      this.watcher = new Watcher();
+      await this.emit('before-compiler');
 
-      this.watcher.on('change', this.onChange.bind(this));
-    }
+      // another channce to modify entryFiles
+      this.entryFiles = this.normalizeEntryFiles();
+      if (this.options.watch) {
+        this.watcher = new Watcher();
 
-    this.farm = WorkerFarm.getShared(this.options, {
-      workerPath: require.resolve('./worker'),
-      core: this
-    });
+        this.watcher.on('change', this.onChange.bind(this));
+      }
 
-    for (const entry of new Set(this.entryFiles)) {
-      const asset = await this.resolveAsset(entry);
-      this.buildQueue.add(asset);
-    }
+      this.farm = WorkerFarm.getShared(this.options, {
+        workerPath: require.resolve('./worker'),
+        core: this
+      });
 
-    await this.buildQueue.run();
+      for (const entry of new Set(this.entryFiles)) {
+        const asset = await this.resolveAsset(entry);
+        this.buildQueue.add(asset);
+      }
 
-    const endTime = new Date();
+      await this.buildQueue.run();
+    } catch (error) {
+      if (error.fileName) {
+        logger.error(`file: ${error.fileName}`);
+      }
+      logger.error(error.stack);
+      if (!this.options.watch) {
+        await this.stop();
+        process.exit(1);
+      }
+    } finally {
+      const endTime = new Date();
 
-    logger.info(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
+      await this.emit('end-build');
 
-    await this.emit('end-build');
-
-    if (!this.options.watch) {
-      await this.stop();
+      console.log(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
+      if (!this.options.watch) {
+        await this.stop();
+      }
     }
   }
 
   async scan() {
-    const startTime = new Date();
-
     if (this.farm) {
       return;
     }
@@ -248,8 +260,6 @@ export default class Core extends AwaitEventEmitter {
     // 耗時
     const usedTime = asset.endTime - asset.startTime;
 
-    this.farm.startPref(usedTime);
-
     debug(`${asset.name} processd time: ${usedTime}ms`);
 
     asset.id = processed.id;
@@ -278,7 +288,7 @@ export default class Core extends AwaitEventEmitter {
             assetDep.distPath = dep.distPath;
           }
 
-          await this.loadAsset(assetDep);
+          this.buildQueue.add(assetDep);
 
           dep.asset = assetDep;
           dep.resolved = assetDep.name;
@@ -291,7 +301,7 @@ export default class Core extends AwaitEventEmitter {
     );
 
     if (this.cache && cacheMiss) {
-      await this.cache.write(asset.name, processed);
+      this.cache.write(asset.name, processed);
     }
   }
 
@@ -355,7 +365,7 @@ export default class Core extends AwaitEventEmitter {
     if (this.farm) {
       this.farm.end();
     }
-
+    logger.stopSpinner();
     // fix sometimes won't stop
     setTimeout(() => process.exit(), 1000);
   }

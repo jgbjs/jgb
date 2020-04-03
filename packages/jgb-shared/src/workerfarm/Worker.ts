@@ -4,7 +4,7 @@ import { jsonToError } from './errorUtils';
 
 let WORKER_ID = 0;
 
-const childModule: any = require.resolve('../../lib/workerfarm/child');
+const childModule: string = require.resolve('../../lib/workerfarm/child');
 
 export default class Worker extends EventEmitter {
   id: number;
@@ -16,7 +16,7 @@ export default class Worker extends EventEmitter {
   ready = false;
   stopped = false;
   isStopping = false;
-  child: any;
+  child: childProcess.ChildProcess;
 
   constructor(private options: any) {
     super();
@@ -116,7 +116,6 @@ export default class Worker extends EventEmitter {
 
     const idx = this.callId++;
     this.calls.set(idx, call);
-
     this.send({
       idx,
       type: 'request',
@@ -135,7 +134,6 @@ export default class Worker extends EventEmitter {
     const type = data.type;
     const content = data.content;
     const contentType = data.contentType;
-
     if (type === 'request') {
       this.emit('request', data);
     } else if (type === 'response') {
