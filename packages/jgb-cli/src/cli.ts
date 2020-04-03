@@ -1,9 +1,13 @@
 import 'v8-compile-cache';
 
+import Sentry = require('@sentry/node');
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
 import { builder, clean, create, info, init, scan } from './command';
+Sentry.init({
+  dsn: 'https://a9e2f53ba5f049c999759cca888e0c51@sentry.io/1412146'
+});
 
 program.version((pkg as any).version, '-v, --version');
 
