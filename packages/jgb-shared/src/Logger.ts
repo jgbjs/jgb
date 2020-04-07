@@ -27,10 +27,8 @@ export default class Logger {
   }
 
   setOptions(options: any = {}) {
-    this.logLevel =
-      isNaN(options.logLevel || process.env.JGB_LOG_LEVEL) === false
-        ? Number(options.logLevel)
-        : 3;
+    const logLevel = options.logLevel ?? process.env.JGB_LOG_LEVEL;
+    this.logLevel = isNaN(logLevel) === false ? Number(logLevel) : 3;
   }
 
   countLines(message) {
