@@ -69,8 +69,7 @@ export interface IInitOptions {
   publicURL?: string;
 
   /** 是否内联sourcemap */
-
-  inlineSourceMap?: string;
+  inlineSourceMap?: boolean;
   /** 是否开启缓存 */
   cache?: boolean;
   /** 缓存目录 */
@@ -79,8 +78,10 @@ export interface IInitOptions {
   minify?: boolean;
   /* 提供编译钩子回调 */
   hooks?: Array<(...args: any[]) => Promise<void>>;
-  /* 转换适配库默认： miniapp-adapter */
+  /** 转换适配库默认： miniapp-adapter */
   lib?: string;
+  /** jgb-cli version */
+  cliVersion?: string;
 
   resolve?: Parameters<typeof ResolverFactory['createResolver']>[0];
 }

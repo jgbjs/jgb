@@ -197,7 +197,7 @@ export default class Asset {
    */
   async process() {
     if (!this.id) {
-      this.id = this.relativeName;
+      this.id = this.name;
     }
 
     const startTime = +new Date();
@@ -209,15 +209,7 @@ export default class Asset {
     await this.transform();
     this.generated = await this.generate();
     const generated: IAssetGenerate[] = [].concat(this.generated);
-    for (const { code, ext, map } of generated) {
-      this.hash = await this.generateHash();
-      const { distPath, ignore } = await this.output(code, ext, map);
-      const endTime = +new Date();
-
-      if (!ignore) {
-        logger.log(`${distPath}`, '编译', endTime - startTime);
-      }
-    }
+    return generated;
   }
 
   async loadIfNeeded() {
@@ -335,6 +327,14 @@ export default class Asset {
 
     const extName = path.extname(distPath);
 
+    // index.target.js => index.js
+    if (!this.isSameTarget && distPath.includes(`.${this.options.target}.`)) {
+      distPath = distPath.replace(
+        new RegExp(`\\.${this.options.target}\\.`),
+        '.'
+      );
+    }
+
     if (!extName) {
       // index => index.js
       distPath += ext;
@@ -344,30 +344,31 @@ export default class Asset {
         distPath = distPath.replace(extName, ext);
       }
     }
+
     // fix style
     distPath = pathToUnixType(distPath);
-    // index.target.js => index.js
-    if (!this.isSameTarget && distPath.includes(`.${this.options.target}.`)) {
-      distPath = distPath.replace(
-        new RegExp(`\\.${this.options.target}\\.`),
-        '.'
-      );
-    }
 
     cache.set(cacheKey, distPath);
 
     return distPath;
   }
 
+  getPrettyDistPath(distPath: string) {
+    return promoteRelativePath(path.relative(this.options.outDir, distPath));
+  }
+
   /**
    * 生成输出目录distPath
    * @param code
    * @param ext
+   * @returns distPath 文件路径
+   * @returns ignore 是否忽略输出
    */
   async output(
     code: string,
     ext: string = '',
-    map: SourceMap
+    map: SourceMap,
+    useCache: boolean
   ): Promise<{
     distPath: string;
     ignore: boolean;
@@ -375,62 +376,40 @@ export default class Asset {
     /* 是否忽略编译 */
     let ignore = true;
 
-    let distPath =
-      this.generateDistPath(this.name, ext) ||
-      path.resolve(this.options.outDir, this.relativeName);
+    const distPath = this.generateDistPath(this.name, ext);
 
-    let prettyDistPath = distPath;
-    const extName = path.extname(this.basename);
-
-    if (!ext && !path.extname(distPath)) {
-      // index => index.js
-      distPath += ext;
-    } else if (extName !== ext) {
-      // index.es6 => index.js
-      distPath = distPath.replace(extName, ext);
-    }
+    const prettyDistPath = this.getPrettyDistPath(distPath);
 
     this.distPath = distPath;
 
-    prettyDistPath = promoteRelativePath(
-      path.relative(this.options.outDir, distPath)
-    );
-
     // if distPath not in outDir
     if (!prettyDistPath.startsWith('..')) {
-      ignore = false;
-      const sourceMapString = map
-        ? map.stringify(path.basename(prettyDistPath), '/')
-        : '';
-
-      await fs.ensureDir(path.dirname(distPath));
-
-      if (!this.options.minify && sourceMapString) {
-        if (this.options.inlineSourceMap) {
+      if (!this.options.minify && typeof map !== 'undefined') {
+        map = await new SourceMap().addMap(map);
+        const sourceMapString = map.stringify(
+          path.basename(prettyDistPath),
+          '/'
+        );
+        if (this.options.inlineSourceMap === true) {
           // inline base64
-          writeFile(
-            distPath,
-            code +
-              `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
-                sourceMapString,
-                'utf-8'
-              ).toString('base64')}`
-          );
+          code += `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+            sourceMapString,
+            'utf-8'
+          ).toString('base64')}`;
         } else {
           // sourcemap file
           const distMap = `${path.dirname(this.distPath)}/${path.basename(
             this.distPath
           )}.map`;
-          writeFile(distMap, sourceMapString);
-          writeFile(
-            distPath,
-            code +
-              `\r\n//# sourceMappingURL=./${path.basename(this.distPath)}.map`
-          );
+          // output sourcemap
+          await this.writeFile(distMap, sourceMapString);
+          code += `\r\n//# sourceMappingURL=./${path.basename(
+            this.distPath
+          )}.map`;
         }
-      } else {
-        writeFile(distPath, code);
       }
+
+      ignore = !(await this.writeFile(distPath, code, !useCache));
     }
 
     return {
@@ -439,8 +418,29 @@ export default class Asset {
     };
   }
 
+  /**
+   * 写入文件数据
+   * @returns boolean 返回是否成功写入数据
+   */
+  private async writeFile(distPath: string, code: string, force = false) {
+    // 是否存在文件
+    const isExist = await fs.pathExists(distPath);
+    if (!isExist || force) {
+      await fs.ensureDir(path.dirname(distPath));
+      await writeFile(distPath, code);
+      return true;
+    }
+    return false;
+    // const outCode = await fs.readFile(distPath, { encoding: 'utf-8' });
+    // if (code !== outCode) {
+    //   await writeFile(distPath, code);
+    //   return true;
+    // }
+    // return false;
+  }
+
   async generateHash() {
-    return objectHash(this.generated);
+    return objectHash(this.contents);
   }
 
   /**
@@ -500,5 +500,5 @@ export default class Asset {
 }
 
 async function writeFile(filePath: string, code: string) {
-  fs.writeFile(filePath, code);
+  await fs.writeFile(filePath, code);
 }

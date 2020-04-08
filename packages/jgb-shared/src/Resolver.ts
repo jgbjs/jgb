@@ -27,9 +27,11 @@ const cachedInputFileSystem = new CachedInputFileSystem(
   4000
 );
 
+const packageCache = new Map();
+
 export default class NewResolver {
   resolver: TypedResolver;
-  packageCache = new Map();
+
   alias: Dictionary<string> = {};
 
   constructor(private options: IInitOptions, ext = '') {
@@ -81,7 +83,7 @@ export default class NewResolver {
 
           r({
             path: pathToUnixType(filepath),
-            pkg: await this.findPackage(path.dirname(filepath))
+            pkg: await findPackage(path.dirname(filepath))
           });
         }
       );
@@ -381,17 +383,7 @@ export default class NewResolver {
   }
 
   async findPackage(dir: string) {
-    // Find the nearest package.json file within the current node_modules folder
-    const root = path.parse(dir).root;
-    while (dir !== root && path.basename(dir) !== 'node_modules') {
-      try {
-        return await this.readPackage(dir);
-      } catch (err) {
-        // ignore
-      }
-
-      dir = path.dirname(dir);
-    }
+    return findPackage(dir);
   }
 
   async isFile(file: string) {
@@ -433,28 +425,7 @@ export default class NewResolver {
   }
 
   async readPackage(dir: string) {
-    const file = path.join(dir, 'package.json');
-    if (this.packageCache.has(file)) {
-      return this.packageCache.get(file);
-    }
-
-    const json = await promisify(fs.readFile)(file, { encoding: 'utf8' });
-    const pkg = JSON.parse(json);
-
-    pkg.pkgfile = file;
-    pkg.pkgdir = dir;
-
-    // If the package has a `source` field, check if it is behind a symlink.
-    // If so, we treat the module as source code rather than a pre-compiled module.
-    if (pkg.source) {
-      const realpath = await promisify(fs.realpath)(file);
-      if (realpath === file) {
-        delete pkg.source;
-      }
-    }
-
-    this.packageCache.set(file, pkg);
-    return pkg;
+    return readPackage(dir);
   }
 }
 
@@ -485,6 +456,50 @@ function resolveAlias(v: IAliasValue, resolveBase: string) {
     return path.resolve(resolveBase, v.replace('/*', '').replace('*', ''));
   } else {
     return path.resolve(resolveBase, v.path.replace('/*', '').replace('*', ''));
+  }
+}
+
+/**
+ * 读取当前目录的 package.json
+ */
+export async function readPackage(dir: string) {
+  const file = path.join(dir, 'package.json');
+  if (packageCache.has(file)) {
+    return packageCache.get(file);
+  }
+
+  const pkg = await fsExtra.readJSON(file);
+
+  pkg.pkgfile = file;
+  pkg.pkgdir = dir;
+
+  // If the package has a `source` field, check if it is behind a symlink.
+  // If so, we treat the module as source code rather than a pre-compiled module.
+  if (pkg.source) {
+    const realpath = await promisify(fs.realpath)(file);
+    if (realpath === file) {
+      delete pkg.source;
+    }
+  }
+
+  packageCache.set(file, pkg);
+  return pkg;
+}
+
+/**
+ * 查找并读取package.json
+ */
+export async function findPackage(dir: string) {
+  // Find the nearest package.json file within the current node_modules folder
+  const root = path.parse(dir).root;
+  while (dir !== root && path.basename(dir) !== 'node_modules') {
+    try {
+      return await readPackage(dir);
+    } catch (err) {
+      // ignore
+    }
+
+    dir = path.dirname(dir);
   }
 }
 

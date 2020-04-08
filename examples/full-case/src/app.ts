@@ -11,6 +11,8 @@ import './test';
 
 // @ts-ignore
 const isProd = process.env.NODE_ENV === 'production';
+// @ts-ignore
+const APP_ENV = process.env.APP_ENV === 'WEIXIN';
 
 JComponent.intercept(opts => {
   console.log('JComponent.intercept', opts);
