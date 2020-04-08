@@ -1,5 +1,5 @@
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
-import { IDepOptions } from 'jgb-shared/lib/Asset';
+import { IAssetGenerate, IDepOptions } from 'jgb-shared/lib/Asset';
 import { logger } from 'jgb-shared/lib/Logger';
 import Compiler from './Compiler';
 
@@ -8,6 +8,7 @@ export interface IPipelineProcessed {
   dependencies: IDepOptions[];
   hash: string;
   cacheData?: any;
+  generated: IAssetGenerate | IAssetGenerate[];
 }
 
 export default class Pipeline {
@@ -45,7 +46,8 @@ export default class Pipeline {
       id: asset.id,
       dependencies: Array.from(asset.dependencies.values()),
       hash: asset.hash,
-      cacheData: asset.cacheData
+      cacheData: asset.cacheData,
+      generated: asset.generated,
     };
   }
 
