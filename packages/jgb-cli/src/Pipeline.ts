@@ -55,6 +55,7 @@ export default class Pipeline {
     try {
       await asset.process();
     } catch (err) {
+      err.fileName = asset.name;
       // logger.error(`file: ${asset.name}`);
       // logger.error(` errMsg: ${err.message}`);
       // logger.error(err.stack);
