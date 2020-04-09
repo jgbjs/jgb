@@ -8,6 +8,7 @@ import { logger } from 'jgb-shared/lib/Logger';
 import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
+import * as semver from 'semver';
 import { promisify } from 'util';
 import Compiler from './Compiler';
 import FSCache from './FSCache';
@@ -31,6 +32,8 @@ export default class Core extends AwaitEventEmitter {
   farm: WorkerFarm;
   cache: FSCache;
   hooks: Array<(...args: any[]) => Promise<void>>;
+  /** 使用core来output资源 */
+  useCoreOutput = true;
 
   constructor(options: IInitOptions) {
     super();
@@ -111,6 +114,13 @@ export default class Core extends AwaitEventEmitter {
     await this.compiler.init(this.resolver);
     this.resolver = new Resolver(this.options);
     this.compiler.resolver = this.resolver;
+
+    const sharedVersion: string = await this.resolver
+      .resolve('jgb-shared', process.cwd())
+      .then((jgbSharedInfo) => jgbSharedInfo?.pkg?.version);
+    if (sharedVersion && semver.gtr(sharedVersion, '~1.8.11')) {
+      this.useCoreOutput = false;
+    }
   }
 
   async start() {
@@ -312,16 +322,19 @@ export default class Core extends AwaitEventEmitter {
       return;
     }
 
-    const generated: IAssetGenerate[] = [].concat(asset.generated);
-    for (const { code, ext, map } of generated) {
-      const { distPath, ignore } = await asset.output(
-        code,
-        ext,
-        map,
-        !cacheMiss
-      );
-      if (!ignore) {
-        logger.log(`${distPath}`, '编译', usedTime);
+    // 兼容老版本
+    if (this.useCoreOutput) {
+      const generated: IAssetGenerate[] = [].concat(asset.generated);
+      for (const { code, ext, map } of generated) {
+        const { distPath, ignore } = await asset.output(
+          code,
+          ext,
+          map,
+          !cacheMiss
+        );
+        if (!ignore) {
+          logger.log(`${distPath}`, '编译', usedTime);
+        }
       }
     }
 

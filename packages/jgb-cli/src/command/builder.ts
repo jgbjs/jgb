@@ -21,7 +21,7 @@ export default async function builder(main: any = [], command: any = {}) {
     )
   );
   const pkg = await Config.load(process.cwd(), ['package.json']);
-  const npmPackages = []
+  const npmPackages = ['jgb-shared']
     .concat(Object.keys(pkg.dependencies), Object.keys(pkg.devDependencies))
     .filter((key) => key.includes('jgb-plugin') || key.includes('jgb-preset'));
 
@@ -32,7 +32,7 @@ export default async function builder(main: any = [], command: any = {}) {
   for (const npm of Object.keys(info)) {
     const value = info[npm];
     const { installed } = value;
-    const isValid = semver.satisfies(installed, `^${command.cliVersion}`);
+    const isValid = semver.satisfies(installed, `~${command.cliVersion}`);
     if (!isValid) {
       logger.warning(
         `please update ${npm}@${installed}, current jgb-cli@${command.cliVersion}.`
