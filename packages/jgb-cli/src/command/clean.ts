@@ -1,8 +1,8 @@
 import * as rimraf from 'rimraf';
 import { getJGBConfig } from '../config';
 
-export default async function clean(main: any = [], command: any = {}) {
-  const config = await getJGBConfig(command.config);
+export default async function clean(command: any = {}) {
+  const config: any = await getJGBConfig(command.config);
 
   if (!config) {
     return;
@@ -10,7 +10,7 @@ export default async function clean(main: any = [], command: any = {}) {
 
   const cacheDir = config.cacheDir || '.cache';
   const distDir = config.outDir || 'dist';
-  const cleanCache = config.cache;
+  const cleanCache = command.withCache;
   const cleanDir = [cleanCache && cacheDir, distDir].filter(
     (dir) => typeof dir === 'string'
   );

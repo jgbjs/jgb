@@ -59,8 +59,8 @@ program
 program
   .command('clean')
   .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
-  .option('--no-cache', 'do not clean cache dir')
-  .description('clean project dist and cache dir')
+  .option('--with-cache', 'clean [cache] dir')
+  .description('clean project. default dir: [dist]')
   .action(clean);
 
 program
