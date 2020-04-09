@@ -1,7 +1,7 @@
 {
   "name": "transform-swan",
   "private": true,
-  "version": "1.9.0-alpha.0",
+  "version": "1.9.0-alpha.1",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
@@ -15,15 +15,15 @@
     "babel-plugin-transform-node-env-inline": "^0.2.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "jgb-cli": "1.9.0-alpha.0",
-    "jgb-plugin-babel": "1.9.0-alpha.0",
-    "jgb-plugin-css": "1.9.0-alpha.0",
-    "jgb-plugin-html": "1.9.0-alpha.0",
-    "jgb-plugin-json": "1.9.0-alpha.0",
-    "jgb-preset-weapp": "1.9.0-alpha.0",
+    "jgb-cli": "1.9.0-alpha.1",
+    "jgb-plugin-babel": "1.9.0-alpha.1",
+    "jgb-plugin-css": "1.9.0-alpha.1",
+    "jgb-plugin-html": "1.9.0-alpha.1",
+    "jgb-plugin-json": "1.9.0-alpha.1",
+    "jgb-preset-weapp": "1.9.0-alpha.1",
     "posthtml-transform-miniprogram": "^0.5.1"
   },
   "dependencies": {
-    "jgb-plugin-wxs": "1.9.0-alpha.0"
+    "jgb-plugin-wxs": "1.9.0-alpha.1"
   }
 }
