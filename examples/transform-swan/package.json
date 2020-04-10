@@ -4,6 +4,10 @@
   "version": "1.9.0-alpha.3",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "jgb": "jgb",
+    "build": "yarn jgb build -t swan"
+  },
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "babel-plugin-inline-package-json": "^2.0.0",
@@ -20,8 +24,7 @@
     "jgb-plugin-css": "1.9.0-alpha.3",
     "jgb-plugin-html": "1.9.0-alpha.3",
     "jgb-plugin-json": "1.9.0-alpha.3",
-    "jgb-preset-weapp": "1.9.0-alpha.3",
-    "posthtml-transform-miniprogram": "^0.5.1"
+    "jgb-preset-weapp": "1.9.0-alpha.3"
   },
   "dependencies": {
     "jgb-plugin-wxs": "1.9.0-alpha.3"
