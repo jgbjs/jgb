@@ -1,6 +1,6 @@
 {
   "name": "jgb-shared",
-  "version": "1.6.1",
+  "version": "1.9.0-alpha.3",
   "main": "lib/index.js",
   "license": "MIT",
   "typings": "lib/index.d.ts",
@@ -18,33 +18,38 @@
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
     "prepublish": "yarn run clean && yarn run build",
-    "test": "jest -t resolveAliasName"
+    "test": "jest"
   },
   "devDependencies": {
     "@types/debug": "^0.0.30",
+    "@types/enhanced-resolve": "^3.0.6",
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^23.3.12",
     "@types/json5": "^0.0.29",
-    "@types/lodash": "^4.14.115",
-    "@types/node": "^10.5.4",
+    "@types/lodash": "^4.14.117",
+    "@types/node": "12.12.6",
     "@types/resolve": "^0.0.8",
     "jest": "^23.6.0",
+    "prettier": "^1.19.1",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.5",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
-    "typescript": "3.0.1"
+    "typescript": "^3.7.2"
   },
   "dependencies": {
     "@types/glob": "^5.0.35",
     "@types/lodash": "^4.14.117",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
+    "enhanced-resolve": "^4.1.1",
     "fs-extra": "^7.0.0",
     "glob": "^7.1.2",
     "json5": "^1.0.1",
     "lodash": "^4.17.13",
+    "ora": "^4.0.3",
     "os-utils": "^0.0.14",
+    "preprocess": "^3.1.0",
     "resolve": "^1.8.1",
     "source-map": "^0.7.3",
     "tslib": "^1.9.3"

@@ -1,9 +1,19 @@
+import 'v8-compile-cache';
+
+import Sentry = require('@sentry/node');
 import chalk from 'chalk';
 import * as program from 'commander';
 import * as pkg from '../package.json';
-import {builder, clean, create, init, scan} from './command';
+import { builder, clean, create, info, init, scan } from './command';
+Sentry.init({
+  dsn: 'https://a9e2f53ba5f049c999759cca888e0c51@sentry.io/1412146',
+});
 
-program.version((pkg as any).version, '-v, --version');
+const version = (pkg as any).version;
+
+program.version(version, '-v, --version');
+
+program.command('info').action(info);
 
 program
   .command('build [input...]')
@@ -17,11 +27,18 @@ program
   .option('-s, --source <source>', 'set the origin project type')
   .option(
     '-t, --target <target>',
-    'set the build type, either "wx", "swan" or "my" or "tt". defaults to "wx"'
+    `set the build type, either "wx", "swan" | "baidu" , "my" | "alipay" , "tt". defaults to "wx"`
   )
   .option('--no-cache', 'set this build system do not use cache')
   .option('--cache-dir <path>', 'set the cache directory. defaults to ".cache"')
   .option('-m, --minify', 'minify asset')
+  .option('--inline-source-map', 'inline source map')
+  .option('--cli-version <version>', 'jgb-cli version', version)
+  .option(
+    '--log-level <level>',
+    'set the log level, either "0" (no output), "1" (errors), "2" (warnings), "3" (info), "4" (verbose) or "5" (debug, creates a log file).',
+    /^([0-5])$/
+  )
   .action(builder)
   .on('--help', () => {
     console.log();
@@ -42,7 +59,8 @@ program
 program
   .command('clean')
   .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
-  .description('clean project dist and cache dir')
+  .option('--with-cache', 'clean [cache] dir')
+  .description('clean project. default dir: [dist]')
   .action(clean);
 
 program
@@ -104,10 +122,13 @@ program
     );
   });
 
-  program
-    .command('scan')
-    .description('collect all dependent components and page from jgb.config.js to a json file.')
-    .option('-s, --source <sourcePath>', 'scan path, default source is dist"')
-    .action(scan)
+program
+  .command('scan')
+  .description(
+    'collect all dependent components and page from jgb.config.js to a json file.'
+  )
+  .option('-s, --source <sourcePath>', 'scan path, default source is dist')
+  .option('-p, --page-params', 'collect page params from pageJson.$pageParams')
+  .action(scan);
 
 program.parse(process.argv);

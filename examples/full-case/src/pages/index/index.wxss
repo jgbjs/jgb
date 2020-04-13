@@ -1,5 +1,5 @@
 @import '../../utils/index.wxss';
-@lazysprite "test-upload";
+// @lazysprite "test-upload";
 
 view {
   color: #f0f;

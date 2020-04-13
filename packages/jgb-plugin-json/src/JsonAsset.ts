@@ -1,5 +1,6 @@
-import { Asset, IInitOptions } from 'jgb-shared/lib';
 import { Utils } from 'jgb-shared';
+import { Asset, IInitOptions } from 'jgb-shared/lib';
+import { FileType } from 'jgb-shared/lib/utils/preProcess';
 import * as json5 from 'json5';
 import * as path from 'path';
 
@@ -8,15 +9,23 @@ export default class JsonAsset extends Asset {
     super(fileName, options);
   }
 
+  fileType = FileType.JSON;
   static outExt = '.json';
 
   async parse(code: string) {
     return code ? json5.parse(code) : {};
   }
 
-  async pretransform() {
+  async transform() {
     if (this.ast) {
-      // TODO: transform json
+      // remove top key contains $
+      if (typeof this.ast === 'object') {
+        for (const key of Object.keys(this.ast)) {
+          if (key.startsWith('$')) {
+            delete this.ast[key];
+          }
+        }
+      }
     }
   }
 
@@ -24,6 +33,8 @@ export default class JsonAsset extends Asset {
     const baseName = path.basename(this.name);
     if (baseName === 'app.json') {
       await this.collectAppJson(this.ast);
+    } else if (baseName === 'plugin.json') {
+      await this.collectPluginJson(this.ast);
     } else {
       await this.collectPageJson(this.ast);
     }
@@ -60,7 +71,7 @@ export default class JsonAsset extends Asset {
 
   /**
    * 搜集 app.json 中页面配置和其他依赖资源
-   * @param pkg
+   * @param app
    */
   async collectAppJson(app: any) {
     const dependences = new Set<string>();
@@ -69,6 +80,25 @@ export default class JsonAsset extends Asset {
       ctx: this,
       dependences,
       appJson: app
+    });
+
+    for (const name of [...dependences]) {
+      const { realName, distPath } = await this.resolveAliasName(name);
+      this.addDependency(realName, { distPath });
+    }
+  }
+
+  /**
+   * 搜集 plugin.json 中页面配置和其他依赖资源
+   * @param pkg
+   */
+  async collectPluginJson(pkg: any) {
+    const dependences = new Set<string>();
+
+    await this.compiler.emit('collect-plugin-json', {
+      ctx: this,
+      dependences,
+      pluginJson: pkg
     });
 
     for (const name of [...dependences]) {
@@ -94,7 +124,7 @@ export default class JsonAsset extends Asset {
     // return [...this.dependencies].filter((item) => new RegExp(/\.json$/).test(item[0]))
   }
 
-  filterDependenices(dependencies: Array<any>, type = 'app') {
+  filterDependenices(dependencies: any[], type = 'app') {
     const _initKeyName = (name: string) => {
       const cwd = Utils.pathToUnixType(process.cwd());
       return Utils.pathToUnixType(name)
@@ -105,14 +135,14 @@ export default class JsonAsset extends Asset {
         .replace('.js', '')
         .replace('.ts', '');
     };
-    let hash: any = {};
+    const hash: any = {};
 
     const _filter = (key: string, distPath: string) => {
       let _key = _initKeyName(key);
       if (!hash[_key]) {
         hash[_key] = {};
       }
-      let currentData = hash[_key];
+      const currentData = hash[_key];
       if (/\.js$/.test(key)) {
         currentData.js = {
           path: key,
@@ -182,7 +212,6 @@ export default class JsonAsset extends Asset {
       fileName = path.isAbsolute(fileName)
         ? fileName
         : path.resolve(dir, fileName);
-
       const files = this.resolver.expandFile(fileName, exts, {}, false);
       for (const file of files) {
         const isFile = await this.resolver.isFile(file);

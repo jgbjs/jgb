@@ -1,37 +1,46 @@
 {
   "name": "full-case",
   "private": true,
-  "version": "1.6.6",
+  "version": "1.9.0-alpha.3",
   "main": "index.js",
   "license": "MIT",
   "bin": {
     "jgb-debug": "node_modules/.bin/jgb"
   },
   "scripts": {
-    "debug": "jgb-debug"
+    "jgb": "node_modules/.bin/jgb",
+    "build:log": "yarn jgb build --log-level 1",
+    "build": "jgb build --no-cache",
+    "build:dev": "cross-env API=dev npm run build",
+    "build:ut": "cross-env API=ut npm run build",
+    "info": "jgb info",
+    "build:plugin": "jgb build --no-cache -d dist-plugin --config jgb.config.plugin.js "
   },
   "dependencies": {
     "flyio": "^0.6.9",
-    "jgb-cli": "^1.6.5",
-    "jgb-plugin-babel": "^1.6.1",
-    "jgb-plugin-css": "^1.6.1",
-    "jgb-plugin-json": "^1.6.6",
-    "jgb-plugin-less": "^1.6.1",
-    "jgb-plugin-typescript": "^1.6.1",
-    "jgb-preset-weapp": "^1.6.6",
+    "jgb-cli": "1.9.0-alpha.3",
+    "jgb-plugin-babel": "1.9.0-alpha.3",
+    "jgb-plugin-css": "1.9.0-alpha.3",
+    "jgb-plugin-json": "1.9.0-alpha.3",
+    "jgb-plugin-less": "1.9.0-alpha.3",
+    "jgb-plugin-typescript": "1.9.0-alpha.3",
+    "jgb-plugin-wxs": "1.9.0-alpha.3",
+    "jgb-preset-weapp": "1.9.0-alpha.3",
     "jgb-weapp": "^1.5.2",
+    "lodash": "4.17.15",
     "lodash-es": "^4.17.14",
     "lottie-miniapp": "^1.4.0",
     "miniapp-regenerator-runtime": "^1.0.0",
     "miniprogram-navigation-bar": "^0.0.4",
+    "miniprogram-recycle-view": "^0.1.5",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
-    "@tuhu/dt-weapp": "^1.1.6",
     "@types/lodash": "^4.14.116",
     "babel-plugin-lodash": "^3.3.4",
     "babel-preset-env": "^1.7.0",
     "free-upload-image": "^1.0.1",
+    "postcss-autoreset": "^2.0.2",
     "postcss-lazysprite-miniprogram": "^1.0.1"
   }
 }

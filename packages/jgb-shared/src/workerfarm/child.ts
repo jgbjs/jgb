@@ -18,7 +18,6 @@ class Child {
     if (data === 'die') {
       return this.end();
     }
-
     const type = data.type;
     if (type === 'response') {
       return this.handleResponse(data);

@@ -1,6 +1,6 @@
 import { declare } from 'jgb-shared/lib';
 // @ts-ignore
-import * as pkg from '../package.json'
+import * as pkg from '../package.json';
 import BabelAsset from './BabelAsset';
 
 const defaultExts = ['.js'];
@@ -11,5 +11,5 @@ export default declare((compiler, pluginConfig = {}) => {
     BabelAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, BabelAsset);
-  return pkg.name
-});
+  return pkg.name;
+}) as (compiler: any, config: any) => any;

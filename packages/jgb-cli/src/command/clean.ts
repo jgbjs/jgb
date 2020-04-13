@@ -1,8 +1,8 @@
 import * as rimraf from 'rimraf';
 import { getJGBConfig } from '../config';
 
-export default async function clean(main: any = [], command: any = {}) {
-  const config = await getJGBConfig(command.config);
+export default async function clean(command: any = {}) {
+  const config: any = await getJGBConfig(command.config);
 
   if (!config) {
     return;
@@ -10,10 +10,15 @@ export default async function clean(main: any = [], command: any = {}) {
 
   const cacheDir = config.cacheDir || '.cache';
   const distDir = config.outDir || 'dist';
+  const cleanCache = command.withCache;
+  const cleanDir = [cleanCache && cacheDir, distDir].filter(
+    (dir) => typeof dir === 'string'
+  );
 
-  console.log(`clean [${cacheDir}], [${distDir}] ...`);
+  console.log(`clean  ${cleanDir.map((dir) => `[${dir}]`).join(' , ')} ...`);
 
-  const rmCachePromise = new Promise(resolve => rimraf(cacheDir, resolve));
-  const rmDistPromise = new Promise(resolve => rimraf(distDir, resolve));
-  await Promise.all([rmCachePromise, rmDistPromise]);
+  const cleanTask = cleanDir.map(
+    (dir) => new Promise((resolve) => rimraf(dir, resolve))
+  );
+  await Promise.all(cleanTask);
 }

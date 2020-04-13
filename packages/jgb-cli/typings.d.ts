@@ -62,10 +62,3 @@ declare module 'rimraf' {
   export = rimraf;
   namespace rimraf {}
 }
-
-interface IPipelineProcessed {
-  id: string;
-  dependencies: any[];
-  hash: string;
-  cacheData?: any;
-}

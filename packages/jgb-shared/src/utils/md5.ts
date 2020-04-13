@@ -11,7 +11,7 @@ export default function md5(
     .digest(encoding);
 }
 
-export function file(filename: string) {
+export function file(filename: string): Promise<string> {
   return new Promise((resolve, reject) => {
     fs.createReadStream(filename)
       .pipe(crypto.createHash('md5').setEncoding('hex'))

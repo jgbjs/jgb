@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-aliapp",
-  "version": "1.6.6",
+  "version": "1.9.0-alpha.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -24,11 +24,11 @@
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",
-    "jgb-plugin-babel": "^1.6.1",
-    "jgb-plugin-css": "^1.6.1",
-    "jgb-plugin-html": "^1.6.1",
-    "jgb-plugin-json": "^1.6.6",
-    "jgb-shared": "^1.6.1",
+    "jgb-plugin-babel": "1.9.0-alpha.3",
+    "jgb-plugin-css": "1.9.0-alpha.3",
+    "jgb-plugin-html": "1.9.0-alpha.3",
+    "jgb-plugin-json": "1.9.0-alpha.3",
+    "jgb-shared": "1.9.0-alpha.3",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
@@ -36,7 +36,7 @@
     "@types/debug": "^0.0.30",
     "@types/fs-extra": "^5.0.5",
     "@types/jest": "^23.3.12",
-    "@types/node": "^10.5.4",
+    "@types/node": "12.12.6",
     "jest": "^23.6.0",
     "miniprogram-recycle-view": "^0.1.0",
     "rimraf": "^2.6.2",
@@ -44,7 +44,7 @@
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
     "tw-component": "^1.1.1",
-    "typescript": "3.0.1"
+    "typescript": "^3.7.2"
   },
   "gitHead": "5c90fa2806f6b9518533a4dc9a64a4c08887cfed"
 }

@@ -4,14 +4,15 @@
     "examples/*",
     "packages/*"
   ],
-  "version": "1.6.6",
+  "version": "1.9.0-alpha.3",
   "npmClient": "yarn",
   "command": {
     "run": {
       "npmClient": "yarn"
     },
     "publish": {
-      "message": "chore(release): publish %s"
+      "message": "chore(release): publish %s",
+      "registry": "https://registry.npmjs.org/"
     }
   }
 }

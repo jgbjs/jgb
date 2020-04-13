@@ -1,0 +1,1 @@
+const wxs = require('./template/wxs.wxs')

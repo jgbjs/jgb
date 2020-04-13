@@ -14,7 +14,7 @@ export default {
         asset.cacheData.env[key.value] = process.env[key.value];
       }
     }
-  }
+  },
 };
 
 // replace object properties

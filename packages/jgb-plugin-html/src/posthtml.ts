@@ -36,35 +36,30 @@ export async function getConfig(asset: Asset) {
   let config = await asset.getConfig(
     ['.posthtmlrc', '.posthtmlrc.js', 'posthtml.config.js'],
     {
-      packageKey: 'posthtml'
+      packageKey: 'posthtml',
     }
   );
   const { source, target } = asset.options;
   // 但两个都指定值且不相同时
   const shouldAddTransform = source && target && source !== target;
-  if (!config /* && !asset.options.minify */) {
-    if (shouldAddTransform) {
-      const selfPlugins = {
-        'posthtml-transform-miniprogram': {
-          source,
-          target
-        }
-      };
-      return {
-        plugins: await loadPlugins(selfPlugins, asset.name)
-      };
-    }
-    return;
-  }
 
   config = config || {};
-  const plugins = config.plugins;
-
-  if (typeof plugins === 'object') {
+  const plugins = config.plugins || [];
+  if (Array.isArray(plugins)) {
+    if (shouldAddTransform) {
+      plugins.push([
+        'posthtml-transform-miniprogram',
+        {
+          source,
+          target,
+        },
+      ]);
+    }
+  } else if (typeof plugins === 'object') {
     if (shouldAddTransform) {
       plugins['posthtml-transform-miniprogram'] = {
         source,
-        target
+        target,
       };
     }
     // This is deprecated in favor of result messages but kept for compatibility
@@ -72,12 +67,14 @@ export async function getConfig(asset: Asset) {
     const depConfig = {
       addDependencyTo: {
         addDependency: (name: any) =>
-          asset.addDependency(name, { includedInParent: true })
-      }
+          asset.addDependency(name, { includedInParent: true }),
+      },
     };
-    Object.keys(plugins).forEach(p => Object.assign(plugins[p], depConfig));
+    Object.keys(plugins).forEach((p) => Object.assign(plugins[p], depConfig));
   }
   config.plugins = await loadPlugins(plugins, asset.name);
   config.skipParse = true;
+  config.from = asset.name;
+  config.to = asset.name;
   return config;
 }

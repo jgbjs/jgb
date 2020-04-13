@@ -10,7 +10,9 @@ import Resolver from './Resolver';
 import SourceMap from './SourceMap';
 import { normalizeAlias, pathToUnixType, promoteRelativePath } from './utils';
 import isUrl from './utils/isUrl';
+import { matchAlias } from './utils/matchAlias';
 import objectHash from './utils/objectHash';
+import { FileType, preProcess } from './utils/preProcess';
 import WorkerFarm from './workerfarm/WorkerFarm';
 
 const DEFAULT_NPM_DIR = 'npm';
@@ -54,6 +56,7 @@ export default class Asset {
   distPath: string;
   /** 在addAssetsType会自动注入compiler */
   parentCompiler: ICompiler;
+  fileType: FileType;
 
   private checkOptions(options: IInitOptions) {
     if (!options.sourceDir) {
@@ -69,8 +72,9 @@ export default class Asset {
     this.checkOptions(options);
     this.basename = path.basename(name);
     this.relativeName = path.relative(options.sourceDir, name);
-    const resolver = WorkerFarm.getSharedResolver();
-    this.resolver = resolver || new Resolver(options);
+    // const resolver = WorkerFarm.getSharedResolver();
+    const ext = path.extname(name);
+    this.resolver = new Resolver(options, ext);
   }
 
   /**
@@ -113,6 +117,7 @@ export default class Asset {
       path: string;
       pkg: any;
     };
+
     if (!this.resolver.isSameTarget) {
       absolutePath = await this.resolver.resolvePlatformModule(absolutePath);
     }
@@ -121,11 +126,14 @@ export default class Asset {
 
     const distPath = this.generateDistPath(absolutePath, ext);
     const parentDistPath = this.generateDistPath(this.name, ext);
-
     if (distPath && parentDistPath) {
-      relativeRequirePath = promoteRelativePath(
-        path.relative(parentDistPath, distPath)
-      );
+      if (distPath === parentDistPath) {
+        relativeRequirePath = `./${path.basename(distPath)}`;
+      } else {
+        relativeRequirePath = promoteRelativePath(
+          path.relative(parentDistPath, distPath)
+        );
+      }
     }
 
     absolutePath = pathToUnixType(absolutePath);
@@ -141,7 +149,9 @@ export default class Asset {
   }
 
   addDependency(name: string, opts?: IDepOptions) {
-    this.dependencies.set(name, Object.assign({ name }, opts));
+    if (!name.endsWith('.d.ts')) {
+      this.dependencies.set(name, Object.assign({ name }, opts));
+    }
   }
 
   async addURLDependency(url: string, from = this.name, opts?: any) {
@@ -164,7 +174,6 @@ export default class Asset {
       relativeRequirePath,
       distPath
     } = await this.resolveAliasName(filename, parser ? parser.outExt : ext);
-
     this.addDependency(
       realName,
       Object.assign({ dynamic: true, distPath }, opts)
@@ -179,7 +188,7 @@ export default class Asset {
 
   /**
    * 处理资源
-   * 1. load
+   * 1. load && preProcess
    * 2. pretransform
    * 3. getDependencies
    * 4. transform
@@ -188,31 +197,33 @@ export default class Asset {
    */
   async process() {
     if (!this.id) {
-      this.id = this.relativeName;
+      this.id = this.name;
     }
 
     const startTime = +new Date();
 
     await this.loadIfNeeded();
+    await this.preProcess();
     await this.pretransform();
     await this.getDependencies();
     await this.transform();
     this.generated = await this.generate();
     const generated: IAssetGenerate[] = [].concat(this.generated);
-    for (const { code, ext, map } of generated) {
-      this.hash = await this.generateHash();
-      const { distPath, ignore } = await this.output(code, ext, map);
-      const endTime = +new Date();
-
-      if (!ignore) {
-        logger.log(`${distPath}`, '编译', endTime - startTime);
-      }
-    }
+    return generated;
   }
 
   async loadIfNeeded() {
     if (!this.contents) {
       this.contents = (await this.load()) || '';
+    }
+  }
+
+  /**
+   * 预处理 contents
+   */
+  async preProcess() {
+    if (this.contents) {
+      this.contents = preProcess(this.contents, this.fileType);
     }
   }
 
@@ -260,7 +271,7 @@ export default class Asset {
    * 生成文件dist路径
    */
   generateDistPath(sourcePath: string, ext: string = '') {
-    const cacheKey = `${sourcePath}${ext}`;
+    const cacheKey = `${sourcePath}-${ext}`;
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey);
     }
@@ -274,18 +285,17 @@ export default class Asset {
 
     while (aliasDirs.length) {
       const [aliasName, aliasValue] = aliasDirs.shift();
-      const normalizedAlias = normalizeAlias(aliasValue);
+      const [normalizedAlias] = normalizeAlias(aliasValue);
       const dir = pathToUnixType(normalizedAlias.path);
-      const distDir = normalizedAlias.dist
-        ? normalizedAlias.dist
-        : DEFAULT_NPM_DIR;
+      const distDir = normalizedAlias?.dist ?? DEFAULT_NPM_DIR;
       // in alias source dir but not in build source file
       if (name.includes(sourceDir)) {
         const relatePath = path.relative(sourceDir, name);
         distPath = path.join(this.options.outDir, relatePath);
         break;
       }
-      if (name.includes(dir)) {
+
+      if (matchAlias(dir, name)) {
         // 相对于alias目录的相对路径
         const relativeAlias = path.relative(dir, name);
 
@@ -298,7 +308,6 @@ export default class Asset {
         break;
       }
     }
-
     /**
      * node_modules/npm => npm
      */
@@ -318,15 +327,6 @@ export default class Asset {
 
     const extName = path.extname(distPath);
 
-    if (!extName) {
-      // index => index.js
-      distPath += ext;
-    } else if (ext && extName && extName !== ext) {
-      // index.es6 => index.js
-      distPath = distPath.replace(extName, ext);
-    }
-    // fix style
-    distPath = pathToUnixType(distPath);
     // index.target.js => index.js
     if (!this.isSameTarget && distPath.includes(`.${this.options.target}.`)) {
       distPath = distPath.replace(
@@ -335,20 +335,40 @@ export default class Asset {
       );
     }
 
+    if (!extName) {
+      // index => index.js
+      distPath += ext;
+    } else if (ext && extName && extName !== ext) {
+      if (this.options.extensions.has(extName)) {
+        // index.es6 => index.js
+        distPath = distPath.replace(extName, ext);
+      }
+    }
+
+    // fix style
+    distPath = pathToUnixType(distPath);
+
     cache.set(cacheKey, distPath);
 
     return distPath;
+  }
+
+  getPrettyDistPath(distPath: string) {
+    return promoteRelativePath(path.relative(this.options.outDir, distPath));
   }
 
   /**
    * 生成输出目录distPath
    * @param code
    * @param ext
+   * @returns distPath 文件路径
+   * @returns ignore 是否忽略输出
    */
   async output(
     code: string,
     ext: string = '',
-    map: SourceMap
+    map: SourceMap,
+    useCache: boolean
   ): Promise<{
     distPath: string;
     ignore: boolean;
@@ -356,45 +376,40 @@ export default class Asset {
     /* 是否忽略编译 */
     let ignore = true;
 
-    let distPath =
-      this.generateDistPath(this.name, ext) ||
-      path.resolve(this.options.outDir, this.relativeName);
+    const distPath = this.generateDistPath(this.name, ext);
 
-    let prettyDistPath = distPath;
-    const extName = path.extname(this.basename);
-
-    if (!ext && !path.extname(distPath)) {
-      // index => index.js
-      distPath += ext;
-    } else if (extName !== ext) {
-      // index.es6 => index.js
-      distPath = distPath.replace(extName, ext);
-    }
+    const prettyDistPath = this.getPrettyDistPath(distPath);
 
     this.distPath = distPath;
 
-    prettyDistPath = promoteRelativePath(
-      path.relative(this.options.outDir, distPath)
-    );
-
     // if distPath not in outDir
     if (!prettyDistPath.startsWith('..')) {
-      ignore = false;
-      const sourceMapString = map
-        ? map.stringify(path.basename(prettyDistPath), '/')
-        : '';
-      if (!this.options.minify && sourceMapString) {
-        await writeFile(
-          distPath,
-          code +
-            `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
-              sourceMapString,
-              'utf-8'
-            ).toString('base64')}`
+      if (!this.options.minify && typeof map !== 'undefined') {
+        map = await new SourceMap().addMap(map);
+        const sourceMapString = map.stringify(
+          path.basename(prettyDistPath),
+          '/'
         );
-      } else {
-        await writeFile(distPath, code);
+        if (this.options.inlineSourceMap === true) {
+          // inline base64
+          code += `\r\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+            sourceMapString,
+            'utf-8'
+          ).toString('base64')}`;
+        } else {
+          // sourcemap file
+          const distMap = `${path.dirname(this.distPath)}/${path.basename(
+            this.distPath
+          )}.map`;
+          // output sourcemap
+          await this.writeFile(distMap, sourceMapString);
+          code += `\r\n//# sourceMappingURL=./${path.basename(
+            this.distPath
+          )}.map`;
+        }
       }
+
+      ignore = !(await this.writeFile(distPath, code, !useCache));
     }
 
     return {
@@ -403,8 +418,29 @@ export default class Asset {
     };
   }
 
+  /**
+   * 写入文件数据
+   * @returns boolean 返回是否成功写入数据
+   */
+  private async writeFile(distPath: string, code: string, force = false) {
+    // 是否存在文件
+    const isExist = await fs.pathExists(distPath);
+    if (!isExist || force) {
+      await fs.ensureDir(path.dirname(distPath));
+      await writeFile(distPath, code);
+      return true;
+    }
+    return false;
+    // const outCode = await fs.readFile(distPath, { encoding: 'utf-8' });
+    // if (code !== outCode) {
+    //   await writeFile(distPath, code);
+    //   return true;
+    // }
+    // return false;
+  }
+
   async generateHash() {
-    return objectHash(this.generated);
+    return objectHash(this.contents);
   }
 
   /**
@@ -464,6 +500,5 @@ export default class Asset {
 }
 
 async function writeFile(filePath: string, code: string) {
-  await fs.ensureDir(path.dirname(filePath));
   await fs.writeFile(filePath, code);
 }

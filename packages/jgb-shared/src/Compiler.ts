@@ -1,4 +1,3 @@
-
 import * as path from 'path';
 import Asset from './Asset';
 import AwaitEventEmitter from './awaitEventEmitter';
@@ -25,7 +24,7 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     await this.loadPlugins(options.plugins);
   }
 
-  async init(resolver: Resolver) {
+  async init(resolver?: Resolver) {
     await this.preload(this.options);
     this.resolver = resolver;
     const exts = [...this.extensions.keys()];
@@ -85,8 +84,8 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
 
   /**
    * addAssetsType 时会自动添加parentCompiler
-   * @param exts 
-   * @param asset 
+   * @param exts
+   * @param asset
    */
   addAssetsType(exts: string | string[], asset: string | TypeAsset) {
     [].concat(exts).forEach(ext => {

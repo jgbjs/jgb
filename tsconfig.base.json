@@ -11,11 +11,15 @@
     "declaration": true,
     "lib": [
       "es7",
+      "ES2016",
+      "ES2015",
       "dom",
       "esnext"
     ],
     "paths": {
-      "tslib": ["node_modules/tslib/tslib.d.ts"]
+      "tslib": [
+        "node_modules/tslib/tslib.d.ts"
+      ]
     }
   }
 }

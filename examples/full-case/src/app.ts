@@ -1,23 +1,29 @@
 // @ts-ignore
 import AliasTest from '@alias-test';
-// @ts-ignore
-import TestAlias from '@alias/testAlias.js';
+import './testAlias';
 import { JApp, JComponent, jgb } from 'jgb-weapp';
 import 'miniapp-regenerator-runtime';
 import './init.js';
 import testUtil from './utils/index';
 import test from './utils/test';
+import './imgs/qa-red.png';
+import './test';
 
 // @ts-ignore
 const isProd = process.env.NODE_ENV === 'production';
+// @ts-ignore
+const APP_ENV = process.env.APP_ENV === 'WEIXIN';
 
 JComponent.intercept(opts => {
   console.log('JComponent.intercept', opts);
-  opts.methods = Object.assign({
-    test() {
-      console.log('JComponent.intercept.test')
-    }
-  },opts.methods)
+  opts.methods = Object.assign(
+    {
+      test() {
+        console.log('JComponent.intercept.test');
+      }
+    },
+    opts.methods
+  );
   return opts;
 });
 
@@ -33,8 +39,9 @@ JApp({
     console.log('getStorageInfo', res);
 
     testUtil(2);
-    console.log(TestAlias);
     AliasTest();
     test('1');
   }
 });
+
+// A.?sc[]);

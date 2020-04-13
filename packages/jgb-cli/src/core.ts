@@ -1,15 +1,18 @@
 import * as Debug from 'debug';
 import * as fg from 'fast-glob';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import { IAssetGenerate } from 'jgb-shared/lib/Asset';
 import AwaitEventEmitter from 'jgb-shared/lib/awaitEventEmitter';
 import { logger } from 'jgb-shared/lib/Logger';
 import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
+import * as semver from 'semver';
 import { promisify } from 'util';
 import Compiler from './Compiler';
 import FSCache from './FSCache';
+import { IPipelineProcessed } from './Pipeline';
 import PromiseQueue from './utils/PromiseQueue';
 import Watcher from './Watcher';
 
@@ -29,35 +32,47 @@ export default class Core extends AwaitEventEmitter {
   farm: WorkerFarm;
   cache: FSCache;
   hooks: Array<(...args: any[]) => Promise<void>>;
+  /** 使用core来output资源 */
+  useCoreOutput = true;
 
-    constructor(options: IInitOptions) {
+  constructor(options: IInitOptions) {
     super();
     this.hooks = options.hooks || [];
     this.options = this.normalizeOptions(options);
+    this.injectEnv();
 
     if (options.rootDir) {
       this.currentDir = options.rootDir;
     }
 
     this.entryFiles = this.normalizeEntryFiles();
-    this.resolver = new Resolver(this.options);
+
     this.compiler = new Compiler(this.options);
     this.buildQueue = new PromiseQueue(this.processAsset.bind(this));
 
     if (this.options.cache) {
       this.cache = new FSCache(this.options);
     }
+    logger.setOptions(this.options);
   }
 
   normalizeEntryFiles(): string[] {
     const entryFiles = this.options.entryFiles;
-    return fg.sync(
-      []
-        .concat(!entryFiles || entryFiles.length === 0 ? entryFiles : 'app.*')
-        .filter(Boolean)
-        .map(f => Path.resolve(this.options.sourceDir, f)),
-      { onlyFiles: true, unique: true }
-    );
+    const files = []
+      .concat(!entryFiles || entryFiles.length === 0 ? 'app.*' : entryFiles)
+      .filter(Boolean)
+      .map((f) => Path.resolve(this.options.sourceDir, f));
+
+    return fg.sync(files, { onlyFiles: true, unique: true });
+  }
+
+  /**
+   * 注入所需的环境变量
+   */
+  injectEnv() {
+    process.env.JGB_ENV = this.options.target;
+    process.env.JGB_LOG_LEVEL = `${this.options.logLevel}`;
+    process.env.JGB_VERSION = this.options.cliVersion;
   }
 
   normalizeOptions(options: IInitOptions): IInitOptions {
@@ -67,17 +82,21 @@ export default class Core extends AwaitEventEmitter {
       presets: options.presets,
       watch: !!options.watch,
       rootDir,
+      logLevel: isNaN(options.logLevel) ? 3 : options.logLevel,
       useLocalWorker: !!options.useLocalWorker,
       outDir: Path.resolve(options.outDir || 'dist'),
       npmDir: Path.resolve(options.npmDir || 'node_modules'),
-      entryFiles: [].concat(options.entryFiles),
+      entryFiles: options.entryFiles,
       cache: !!options.cache,
       sourceDir: Path.resolve(options.sourceDir || 'src'),
       alias: aliasResolve(options, rootDir),
       minify: !!options.minify,
       source: options.source || 'wx',
       target: options.target || 'wx',
-      lib: options.lib
+      lib: options.lib,
+      inlineSourceMap: !!options.inlineSourceMap,
+      resolve: options.resolve,
+      cliVersion: options.cliVersion,
     };
   }
 
@@ -86,13 +105,26 @@ export default class Core extends AwaitEventEmitter {
       return;
     }
 
-    const allHooks = this.hooks.map(async fn => await fn(this));
+    const allHooks = this.hooks.map(async (fn) => await fn(this));
 
     await Promise.all(allHooks);
   }
 
   async init() {
     await this.compiler.init(this.resolver);
+    this.resolver = new Resolver(this.options);
+    this.compiler.resolver = this.resolver;
+
+    try {
+      const sharedVersion: string = await this.resolver
+        .resolve('jgb-shared', process.cwd())
+        .then((jgbSharedInfo) => jgbSharedInfo?.pkg?.version);
+      if (sharedVersion && !semver.gtr(sharedVersion, '~1.8.11')) {
+        this.useCoreOutput = false;
+      }
+    } catch (error) {}
+
+    logger.info(`use ${this.useCoreOutput ? 'master' : 'worker'} output`);
   }
 
   async start() {
@@ -102,48 +134,58 @@ export default class Core extends AwaitEventEmitter {
       return;
     }
 
-    await this.initHook();
+    logger.progress(`编译中...`);
 
-    await this.emit('before-init');
+    try {
+      await this.initHook();
 
-    await this.init();
+      await this.emit('before-init');
 
-    await this.emit('before-compiler');
+      await this.init();
 
-    // another channce to modify entryFiles
-    this.entryFiles = this.normalizeEntryFiles();
-    if (this.options.watch) {
-      this.watcher = new Watcher();
+      await this.emit('before-compiler');
 
-      this.watcher.on('change', this.onChange.bind(this));
-    }
+      // another channce to modify entryFiles
+      this.entryFiles = this.normalizeEntryFiles();
+      if (this.options.watch) {
+        this.watcher = new Watcher();
 
-    this.farm = WorkerFarm.getShared(this.options, {
-      workerPath: require.resolve('./worker'),
-      core: this
-    });
+        this.watcher.on('change', this.onChange.bind(this));
+      }
 
-    for (const entry of new Set(this.entryFiles)) {
-      const asset = await this.resolveAsset(entry);
-      this.buildQueue.add(asset);
-    }
+      this.farm = WorkerFarm.getShared(this.options, {
+        workerPath: require.resolve('./worker'),
+        core: this,
+      });
 
-    await this.buildQueue.run();
+      for (const entry of new Set(this.entryFiles)) {
+        const asset = await this.resolveAsset(entry);
+        this.buildQueue.add(asset);
+      }
 
-    const endTime = new Date();
+      await this.buildQueue.run();
+    } catch (error) {
+      if (error.fileName) {
+        logger.error(`file: ${error.fileName}`);
+      }
+      logger.error(error.stack);
+      if (!this.options.watch) {
+        await this.stop();
+        process.exit(1);
+      }
+    } finally {
+      const endTime = new Date();
 
-    logger.info(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
+      await this.emit('end-build');
 
-    await this.emit('end-build');
-
-    if (!this.options.watch) {
-      await this.stop();
+      console.log(`编译耗时:${endTime.getTime() - startTime.getTime()}ms`);
+      if (!this.options.watch) {
+        await this.stop();
+      }
     }
   }
 
   async scan() {
-    const startTime = new Date();
-
     if (this.farm) {
       return;
     }
@@ -167,23 +209,24 @@ export default class Core extends AwaitEventEmitter {
 
     this.farm = WorkerFarm.getShared(this.options, {
       workerPath: require.resolve('./worker'),
-      core: this
+      core: this,
     });
-    const jsonAsset = this.entryFiles.find(item => new RegExp( /\.json$/).test(item))
-    let asset = null
-    for(const entry of new Set([jsonAsset])) {
-      asset = await this.resolveAsset(entry)
+    const jsonAsset = this.entryFiles.find((item) =>
+      new RegExp(/\.json$/).test(item)
+    );
+    let asset = null;
+    for (const entry of new Set([jsonAsset])) {
+      asset = await this.resolveAsset(entry);
     }
 
-    await this.loadAsset(asset)
-    await this.stop()
+    await this.loadAsset(asset);
+    await this.stop();
     // for (const entry of new Set(this.entryFiles)) {
     //   const asset = await this.resolveAsset(entry);
     //   this.buildQueue.add(asset);
     // }
     //
     // await this.buildQueue.run();
-
   }
 
   async processAsset(asset: Asset, isRebuild = false) {
@@ -210,7 +253,7 @@ export default class Core extends AwaitEventEmitter {
     return this.getLoadedAsset(path);
   }
 
-  async loadAsset(asset: Asset) {
+  async loadAsset(asset: Asset, cacheMiss = false) {
     if (asset.processed) {
       return;
     }
@@ -223,8 +266,11 @@ export default class Core extends AwaitEventEmitter {
 
     let processed: IPipelineProcessed =
       this.cache && (await this.cache.read(asset.name));
-    let cacheMiss = false;
-    if (!processed || asset.shouldInvalidate(processed.cacheData)) {
+    if (
+      cacheMiss ||
+      !processed ||
+      asset.shouldInvalidate(processed.cacheData)
+    ) {
       processed = await this.farm.run(asset.name, asset.distPath);
       cacheMiss = true;
     }
@@ -234,17 +280,15 @@ export default class Core extends AwaitEventEmitter {
     // 耗時
     const usedTime = asset.endTime - asset.startTime;
 
-    this.farm.startPref(usedTime);
-
     debug(`${asset.name} processd time: ${usedTime}ms`);
 
     asset.id = processed.id;
-    // asset.generated = processed.generated;
+    asset.generated = processed.generated;
     asset.hash = processed.hash;
     const dependencies = processed.dependencies;
 
-    await Promise.all(
-      dependencies.map(async dep => {
+    try {
+      for (let dep of dependencies) {
         // from cache dep
         if (Array.isArray(dep) && dep.length > 1) {
           dep = dep[1];
@@ -254,34 +298,56 @@ export default class Core extends AwaitEventEmitter {
         // that changing it triggers a recompile of the parent.
         if (dep.includedInParent) {
           this.watch(dep.name, asset);
-          return;
+          continue;
         }
 
         dep.parent = asset.name;
         const assetDep = await this.resolveDep(asset, dep);
-        if (assetDep) {
+        if (assetDep && fs.existsSync(assetDep.name)) {
           if (dep.distPath) {
             assetDep.distPath = dep.distPath;
           }
 
-          await this.loadAsset(assetDep);
+          this.buildQueue.add(assetDep);
 
-          dep.asset = assetDep;
+          dep.parent = asset.name;
           dep.resolved = assetDep.name;
         } else {
-          logger.warning(`can not resolveDep: ${dep.name}`);
+          throw new Error(`Cannot found ${assetDep.name} from ${asset.name}`);
         }
+      }
+    } catch (error) {
+      if (cacheMiss) {
+        throw error;
+      }
+      // 缓存中的依赖可能失效，需要重新加载
+      asset.processed = false;
+      await this.loadAsset(asset, true);
+      return;
+    }
 
-        return assetDep;
-      })
-    );
+    // 兼容老版本
+    if (this.useCoreOutput) {
+      const generated: IAssetGenerate[] = [].concat(asset.generated);
+      for (const { code, ext, map } of generated) {
+        const { distPath, ignore } = await asset.output(
+          code,
+          ext,
+          map,
+          !cacheMiss
+        );
+        if (!ignore) {
+          logger.log(`${distPath}`, '编译', usedTime);
+        }
+      }
+    }
 
     if (this.cache && cacheMiss) {
-      await this.cache.write(asset.name, processed);
+      this.cache.write(asset.name, processed);
     }
   }
 
-  async resolveDep(asset: Asset, dep: any, install = true) {
+  async resolveDep(asset: Asset, dep: any) {
     try {
       if (Array.isArray(dep) && dep.length === 2) {
         dep = dep[1];
@@ -313,7 +379,6 @@ export default class Core extends AwaitEventEmitter {
     }
 
     this.loadedAssets.set(path, asset);
-    this.loadedAssets.set(asset.name, asset);
 
     this.watch(path, asset);
     return asset;
@@ -324,7 +389,7 @@ export default class Core extends AwaitEventEmitter {
       return;
     }
 
-    path = await promisify(fs.realpath)(path);
+    path = await fs.realpath(path);
 
     if (!this.watchedAssets.has(path)) {
       this.watcher.watch(path);
@@ -341,13 +406,13 @@ export default class Core extends AwaitEventEmitter {
     if (this.farm) {
       this.farm.end();
     }
-
+    logger.stopSpinner();
     // fix sometimes won't stop
     setTimeout(() => process.exit(), 1000);
   }
 
   async unwatch(path: string, asset: Asset) {
-    path = await promisify(fs.realpath)(path);
+    path = await fs.realpath(path);
     if (!this.watchedAssets.has(path)) {
       return;
     }
@@ -376,17 +441,17 @@ export default class Core extends AwaitEventEmitter {
   }
 }
 
-function aliasResolve(options: IInitOptions, root: string) {
+export function aliasResolve(
+  options: IInitOptions,
+  root: string
+): IInitOptions['alias'] {
   const alias = options.alias || {};
   const newAlias: { [key: string]: any } = {};
-  /**
-   * 先排序 字符长度由长到短排序 （优先匹配）
-   * 再补充 resolve(aliasValue)
-   */
-  Object.keys(alias)
-    .sort((a1, a2) => a2.length - a1.length)
-    .forEach(key => {
-      const aliasValue = normalizeAlias(alias[key]);
+
+  Object.keys(alias).forEach((key) => {
+    const aliasValues = normalizeAlias(alias[key]);
+
+    newAlias[key] = aliasValues.map((aliasValue) => {
       const aliasPath = aliasValue.path;
       if (!Path.isAbsolute(aliasPath)) {
         if (aliasPath.startsWith('.')) {
@@ -397,8 +462,8 @@ function aliasResolve(options: IInitOptions, root: string) {
           );
         }
       }
-
-      newAlias[key] = aliasValue;
+      return aliasValue;
     });
+  });
   return newAlias;
 }

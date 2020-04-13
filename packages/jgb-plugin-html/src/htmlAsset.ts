@@ -1,6 +1,7 @@
 // tslint:disable-next-line:ordered-imports
 import { Asset, IInitOptions, Utils } from 'jgb-shared/lib';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
+import { FileType } from 'jgb-shared/lib/utils/preProcess';
 import * as render from 'posthtml-render';
 import * as api from 'posthtml/lib/api';
 import htmlnanoTransform from './htmlnano';
@@ -24,14 +25,16 @@ const ATTRS: {
     'image',
     'import',
     'include',
-    'wxs'
+    'wxs',
+    'filter'
   ],
   href: ['link', 'a', 'use'],
   srcset: ['img', 'source'],
   poster: ['video'],
   'xlink:href': ['use'],
   content: ['meta'],
-  data: ['object']
+  data: ['object'],
+  from : ['import-sjs']
 };
 
 // A list of metadata that should produce a dependency
@@ -89,6 +92,7 @@ export default class HtmlAsset extends Asset {
     super(fileName, options);
   }
 
+  fileType = FileType.HTML;
   static outExt = '.html';
 
   async parse(code: string): Promise<any> {
@@ -223,7 +227,7 @@ export default class HtmlAsset extends Asset {
           'slider',
           'radio',
           'switch',
-          'wxs'
+          // 'wxs'
         ],
         closingSingleTag: 'slash'
       }),

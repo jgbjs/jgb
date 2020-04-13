@@ -30,7 +30,11 @@ describe('find component', () => {
   test('resolve localcomponent', async () => {
     const componentPath = await findComponent('./localcomponent', jsonAsset);
     const ucomponentPath = Utils.pathToUnixType(componentPath);
-    expect(ucomponentPath).toBe('./localcomponent');
+    expect(ucomponentPath).toBe(
+      Utils.pathToUnixType(
+        path.resolve(path.dirname(jsonAsset.name), './localcomponent')
+      )
+    );
   });
 
   test('resolve npm component', async () => {
@@ -148,6 +152,32 @@ describe('usingComponent', () => {
     );
   });
 
+  test('absolute component', async () => {
+    const pageJson = {
+      usingComponents: {
+        component: '/localcomponent'
+      }
+    };
+    const dependences = new Set<string>();
+    const components = [] as string[];
+    await usingNpmComponents.call(
+      jsonAsset,
+      'component',
+      await findComponent(pageJson.usingComponents.component, jsonAsset),
+      pageJson,
+      dependences,
+      components
+    );
+    const ucomponentPath = Utils.pathToUnixType(
+      pageJson.usingComponents.component
+    );
+    expect(ucomponentPath).toBe('./localcomponent');
+    expect(components.length).toBe(1);
+    expect(components[0]).toBe(
+      Utils.pathToUnixType(path.resolve(examplePath, './localcomponent'))
+    );
+  });
+
   test('npm component use pkg.miniprogram', async () => {
     const pageJson = {
       usingComponents: {
@@ -234,7 +264,8 @@ describe('usingComponent', () => {
   test(`alias npm scope component`, async () => {
     const pageJson = {
       usingComponents: {
-        component: '@tuhu/miniprogram-recycle-view/miniprogram_dist/recycle-view'
+        component:
+          '@tuhu/miniprogram-recycle-view/miniprogram_dist/recycle-view'
       }
     };
 

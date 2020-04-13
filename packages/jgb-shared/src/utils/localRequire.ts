@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as Path from 'path';
-import * as Resolve from 'resolve';
+import Resolve = require('resolve');
 
 const cache = new Map();
 

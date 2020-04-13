@@ -17,21 +17,29 @@ export default async function loadPlugins(plugins: any, relative: any) {
   }
 }
 
-async function loadPlugin(plugin: any, relative: string, options?: any) {
+async function loadPlugin(
+  plugin: string | [string, any],
+  relative: string,
+  options?: any
+) {
+  let loadedPlugin: any;
+  let pluginName: string;
   if (typeof plugin === 'string') {
-    plugin = await localRequire(plugin, relative);
-    plugin = plugin.default || plugin;
-
-    if (typeof options !== 'object') {
-      options = {};
-    }
-
-    if (Object.keys(options).length > 0) {
-      plugin = plugin(options);
-    }
-
-    plugin = plugin.default || plugin;
+    pluginName = plugin;
+  } else {
+    [pluginName, options] = plugin;
+  }
+  loadedPlugin = await localRequire(pluginName, relative);
+  loadedPlugin = loadedPlugin.default || loadedPlugin;
+  if (typeof options !== 'object') {
+    options = {};
   }
 
-  return plugin;
+  if (Object.keys(options).length > 0) {
+    loadedPlugin = loadedPlugin(options);
+  }
+
+  loadedPlugin = loadedPlugin.default || loadedPlugin;
+
+  return loadedPlugin;
 }

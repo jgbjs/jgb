@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { throttle } from 'lodash';
 import * as os from 'os';
 import Asset from '../Asset';
 import { logger } from '../Logger';
@@ -8,12 +7,20 @@ import Worker from './Worker';
 
 let shared: WorkerFarm = null;
 
+interface ICall {
+  method: string;
+  args: any;
+  retries: number;
+  resolve: () => any;
+  reject: () => any;
+}
+
 export default class WorkerFarm extends EventEmitter {
   options: any;
   warmWorkers = 0;
   cpuUsage = 0;
   workers = new Map<number, Worker>();
-  callQueue: any[] = [];
+  callQueue: ICall[] = [];
   localWorker: any;
   run: (asset: Asset | string, distPath: string) => any;
   ending: boolean;
@@ -155,10 +162,7 @@ export default class WorkerFarm extends EventEmitter {
       this.startChild();
     }
 
-    // 能够工作并且任务量最少优先的worker
-    const workers = [...this.workers.values()]
-      .filter(worker => !(!worker.ready || worker.stopped || worker.isStopping))
-      .sort((w1, w2) => w1.calls.size - w2.calls.size);
+    const workers = this.workers.values();
 
     const maxConcurrentCallsPerWorker = this.options
       .maxConcurrentCallsPerWorker;
@@ -166,6 +170,10 @@ export default class WorkerFarm extends EventEmitter {
     for (const worker of workers) {
       if (!this.callQueue.length) {
         break;
+      }
+
+      if (!worker.ready || worker.stopped || worker.isStopping) {
+        continue;
       }
 
       if (worker.calls.size < maxConcurrentCallsPerWorker) {
@@ -193,7 +201,6 @@ export default class WorkerFarm extends EventEmitter {
     if (!location) {
       throw new Error('Unknown request');
     }
-
     // 加载模块
     const mod = require(location);
     try {
@@ -254,27 +261,6 @@ export default class WorkerFarm extends EventEmitter {
     this.startMaxWorkers();
   }
 
-  /**
-   * 开启worker优化
-   */
-  @_throttle(1000)
-  async startPref(usedTime = 1000) {
-    const workers = [...this.workers.values()];
-    if (usedTime > 1000) {
-      const noStoppedWorkers = workers.filter(w => !w.isStopping);
-      if (noStoppedWorkers.length > 1) {
-        const targetWorker = noStoppedWorkers.pop();
-        targetWorker.isStopping = true;
-      }
-    } else if (usedTime < 100) {
-      const stopedWorkers = workers.filter(worker => worker.isStopping);
-      if (stopedWorkers.length) {
-        const targetWorker = stopedWorkers[0];
-        targetWorker.isStopping = false;
-      }
-    }
-  }
-
   persistBundlerOptions() {
     for (const worker of this.workers.values()) {
       worker.init(this.bundlerOptions);
@@ -297,7 +283,8 @@ export default class WorkerFarm extends EventEmitter {
   shouldUseRemoteWorkers() {
     return (
       !this.options.useLocalWorker ||
-      (this.warmWorkers >= this.workers.size || !this.options.warmWorkers)
+      this.warmWorkers >= this.workers.size ||
+      !this.options.warmWorkers
     );
   }
 
@@ -362,19 +349,9 @@ export default class WorkerFarm extends EventEmitter {
   /**
    * 每个Worker并发数
    *
-   * @default process.env.JGB_MAX_CONCURRENT_CALLS || 1
+   * @default process.env.JGB_MAX_CONCURRENT_CALLS || 2
    */
   static getConcurrentCallsPerWorker() {
-    return parseInt(process.env.JGB_MAX_CONCURRENT_CALLS, 10) || 1;
+    return parseInt(process.env.JGB_MAX_CONCURRENT_CALLS, 10) || 2;
   }
-}
-
-function _throttle(wait = 0, options = {}) {
-  return (target: any, name: string, descriptor: PropertyDescriptor) => {
-    const fn = descriptor.value;
-
-    descriptor.value = throttle(fn, wait, options);
-
-    return descriptor;
-  };
 }

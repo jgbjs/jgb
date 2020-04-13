@@ -1,3 +1,4 @@
+import { memoize } from 'lodash';
 import * as path from 'path';
 import { IAliasValue } from '../../typings/jgb-shared';
 import isUrl from './isUrl';
@@ -11,7 +12,15 @@ export { isUrl, loadPlugins, localRequire, md5, objectHash, urlJoin };
 export * from './localRequire';
 export * from './md5';
 
-export function normalizeAlias(alias: IAliasValue) {
+export function normalizeAlias(alias: IAliasValue | IAliasValue[]) {
+  if (Array.isArray(alias)) {
+    return alias.map(a => innerNormalizeAlias(a));
+  }
+
+  return [innerNormalizeAlias(alias)];
+}
+
+function innerNormalizeAlias(alias: IAliasValue) {
   if (typeof alias === 'string') {
     return {
       path: alias
@@ -25,7 +34,7 @@ export function normalizeAlias(alias: IAliasValue) {
  * 修正relatviePath
  * @param fPath
  */
-export function promoteRelativePath(fPath: string) {
+export const promoteRelativePath = memoize((fPath: string) => {
   const fPathArr = fPath.split(path.sep);
   let dotCount = 0;
   fPathArr.forEach(item => {
@@ -42,8 +51,9 @@ export function promoteRelativePath(fPath: string) {
     return fPathArr.join('/');
   }
   return fPath;
-}
+});
 
-export function pathToUnixType(fPath: string) {
+export const pathToUnixType = memoize((fPath: string) => {
+  if (!fPath) { return ''; }
   return fPath.replace(/\\/g, '/');
-}
+});

@@ -1,11 +1,10 @@
+import * as babel from 'babel-core';
+import chalk from 'chalk';
+import * as fs from 'fs';
 import { pathToUnixType } from 'jgb-shared/lib/utils/index';
-
-const ora = require('ora');
-const babel = require('babel-core')
-const Path = require('path')
-const fs = require('fs')
-const chalk = require('chalk')
-const json5 = require('json5')
+import * as json5 from 'json5';
+import ora from 'ora';
+import * as Path from 'path';
 
 let componentNum = 0
 
@@ -42,6 +41,51 @@ const recentTypeIsObjOrProgram = (path: any): ('ObjectProperty' | 'Program') => 
   return type
 }
 
+/**
+ * 收集页面参数
+ */
+interface ICollectPageParam {
+  /**
+   * 页面路径
+   * @example `/pages/home/home`
+   */
+  path: string;
+  /**
+   * 页面标题 page.json 中的 "navigationBarTitleText"
+   * @example `"途虎养车"`
+   */
+  title: string;
+  /**
+   * 页面所需参数options, page.json 中的 "$pageParams"
+   * @example
+   * ```js
+   *  {
+   *    "url": {
+   *      "isRequired": true,
+   *      "comment": "web地址",
+   *      "example": "https://wx.tuhu.cn/vue/vueTest/pages/kawash/mdlist?_project=wx"
+   *    }
+   *  }
+   * ```
+   */
+  params: IPageJsonParam;
+}
+
+interface IPageJsonParam {
+  /**
+   * 参数是否必需
+   */
+  isRequired: boolean;
+  /**
+   * 参数意义备注
+   */
+  comment: string;
+  /**
+   * 参数示例
+   */
+  example: string;
+}
+
 const isParentPathProgramNode = (path: any, step: number): boolean => {
   let node = path
   for (let i = 0; i < step; i++) {
@@ -64,7 +108,10 @@ class Core {
     this.entry = options.entry
   }
 
-  async scan() {
+  async scan(scanPageParams = false) {
+    if (scanPageParams) {
+      return this.scanPageParams();
+    }
     const spinner = ora();
     try {
       spinner.start(chalk.green('start scanning'))
@@ -83,7 +130,38 @@ class Core {
           return console.log(chalk.red('文件写入失败'))
         }
         console.log(chalk.greenBright(`文件写入至: ${ Path.resolve(this.entry, '../scan-res.json') }`))
-        console.log(chalk.greenBright(`共${ chalk.blueBright(this.pathes.length) }个页面, ${ chalk.blueBright(componentNum) }个组件,去除${ chalk.blueBright(subPackages.length + mainPackages.length - this.pathes.length) }个多余页面`))
+        console.log(chalk.greenBright(`共${ chalk.blueBright(`${ this.pathes.length }`) }个页面, ${ chalk.blueBright(`${ componentNum }`) }个组件,去除${ chalk.blueBright(`${ subPackages.length + mainPackages.length - this.pathes.length }`) }个多余页面`))
+      })
+    } catch (e) {
+      console.log('e', e)
+    }
+  }
+
+  /**
+   * 扫描收集 page.json 中的 $pageParams 页面参数
+   */
+  async scanPageParams() {
+    const spinner = ora();
+    try {
+      spinner.start(chalk.green('start scanning'))
+      const data = await this._getAppJson(this.entry)
+      if (!data) {
+        return console.log(chalk.red('文件内容为空'))
+      }
+      const mainPackages = data.pages
+      const subPackages = this._getSubPackagesPath(data.subPackages)
+      const paths = this._mergePath(mainPackages, subPackages)
+      const res = await this._collectPages(paths);
+      spinner.stop();
+      const resFilename = 'scan-page-params.json';
+      const absoluteResFile = Path.resolve(this.entry, '..', resFilename);
+      fs.writeFile(absoluteResFile, JSON.stringify(res, null, 2), (err) => {
+        if (err) {
+          return console.log(chalk.red('文件写入失败'))
+        }
+        console.log(chalk.greenBright(`文件写入至: ${ absoluteResFile }`))
+
+        console.log(chalk.greenBright(`共${ chalk.blueBright(`${ paths.length }`) }个页面, ,去除${ chalk.blueBright(`${ subPackages.length + mainPackages.length - paths.length }`) }个多余页面`))
       })
     } catch (e) {
       spinner.stop()
@@ -118,9 +196,9 @@ class Core {
           console.log(chalk.red('\n未发现dist目录'))
           return reject(null)
         }
-        fs.readFile(Path.resolve(entry, 'app.json'), 'utf8', (err: any, data: any) => {
-          if (err) {
-            console.log(chalk.red('\n未发现app.json文件'))
+        fs.readFile(Path.resolve(entry, 'app.json'), 'utf8', (error: any, data: any) => {
+          if (error) {
+            console.log(chalk.red('未发现app.json文件'))
             return reject(null)
           }
           return resolve(json5.parse(data))
@@ -149,12 +227,12 @@ class Core {
             continue
           }
           const obj: any = {}
-          const _path = Path.resolve(entry, '../', this._normalizePath(componentPath))
+          const absCompPath = Path.resolve(entry, '../', this._normalizePath(componentPath))
           // console.log('this.entry', this.entry, _path)
-          obj.path = formatPath(_path, `${ this.entry }`)
-          obj.methods = await this._getMethods(_path, formatPath(path, `${ this.entry }/`)) || []
+          obj.path = formatPath(absCompPath, `${ this.entry }`)
+          obj.methods = await this._getMethods(absCompPath, formatPath(path, `${ this.entry }/`)) || []
           obj.type = 'component'
-          obj.components = await this._getComponents(_path) || []
+          obj.components = await this._getComponents(absCompPath) || []
           res.push(obj)
         }
         return resolve(res)
@@ -167,7 +245,7 @@ class Core {
   _getSubPackagesPath(subPackages: ISubPackage[]) {
     return subPackages.reduce((pre, subPackage) => {
       const root = subPackage.root
-      return pre.concat(subPackage.pages.map((_path) => `${ root }/${ _path }`))
+      return pre.concat(subPackage.pages.map((path) => `${ root }/${ path }`))
     }, [])
   }
 
@@ -272,14 +350,64 @@ class Core {
     }
     return path
   }
+
+  /**
+   * 收集全部页面参数
+   * @param {string[]} paths 所有要收集的页面路径
+   */
+  private async _collectPages(paths: string[]) {
+    const res: ICollectPageParam[] = [];
+    for (const path of paths) {
+      const collectedJson = await this._collectPageParams(path);
+      if (collectedJson) {
+        res.push(collectedJson);
+      }
+    }
+    return res;
+  }
+
+  /**
+   * 收集页面参数
+   * @param {string} path 页面路径
+   */
+  private async _collectPageParams(path: string) {
+    return new Promise<ICollectPageParam | null>((resolve, reject) => {
+      const pageJsonPath = Path.resolve(this.entry, `${ path }.json`);
+      fs.readFile(pageJsonPath, 'utf8', (err, data) => {
+        if (err) {
+          console.log(pageJsonPath, err);
+          resolve(null);
+          return;
+        }
+
+        try {
+          const json = json5.parse(data);
+          const pageParams = json.$pageParams || null;
+          const pageTitle = json.navigationBarTitleText || '';
+          resolve({
+            path,
+            title: pageTitle,
+            params: pageParams,
+          });
+        } catch (e) {
+          console.log(pageJsonPath, e);
+          resolve(null);
+        }
+      })
+    })
+  }
 }
 
 export default async function scan(program: any) {
-  const _path = program.source || process.cwd()
-  const entry = Path.resolve(_path, 'dist')
+  const path = program.source || process.cwd();
+  let entry = Path.resolve(path, 'dist');
+  const { pageParams } = program;
+  // 有 pageParams 参数时，需要扫描原始文件
+  if (pageParams) {
+    entry = Path.resolve(path, 'src');
+  }
   const core = new Core({
     entry
   })
-  await core.scan()
+  await core.scan(pageParams)
 }
-

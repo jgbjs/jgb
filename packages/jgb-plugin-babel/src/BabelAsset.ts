@@ -2,7 +2,7 @@ import * as Babel from 'babel-core';
 import { File as BabelFile } from 'babel-core/lib/transformation/file';
 import generate from 'babel-generator';
 import traverse from 'babel-traverse';
-// import * as t from 'babel-types';
+import * as t from 'babel-types';
 import * as babylon from 'babylon';
 import * as walk from 'babylon-walk';
 import * as fs from 'fs';
@@ -10,6 +10,7 @@ import { Asset, IInitOptions } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import SourceMap from 'jgb-shared/lib/SourceMap';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
+import { FileType } from 'jgb-shared/lib/utils/preProcess';
 import * as Path from 'path';
 import * as path from 'path';
 import { promisify } from 'util';
@@ -43,6 +44,7 @@ export default class BabelAsset extends Asset {
   isAstDirty = false;
   sourceMap: any;
 
+  fileType = FileType.JS;
   static outExt = '.js';
 
   async getParserOptions(): Promise<any> {
@@ -91,7 +93,7 @@ export default class BabelAsset extends Asset {
   }
 
   mightHaveDependencies() {
-    return true
+    return true;
     // return (
     //   !/.js$/.test(this.name) ||
     //   IMPORT_RE.test(this.contents) ||
@@ -119,7 +121,7 @@ export default class BabelAsset extends Asset {
     return walk.simple(this.ast, visitor, this);
   }
 
-  async addDependency(name: string, opts: any = {}) {
+  async addDependency(name: string, opts: any = {}, node?: Babel.Node) {
     let resolveCollectDependency: any;
     // tslint:disable-next-line:no-unused-expression
     this.waitResolveCollectDependencies.push(
@@ -137,9 +139,22 @@ export default class BabelAsset extends Asset {
         opts.node.value = relativeRequirePath;
       }
       const ext = Path.extname(opts.node.value);
-      // .ts => .js
-      if (ext && ext !== BabelAsset.outExt) {
-        opts.node.value = opts.node.value.replace(ext, BabelAsset.outExt);
+      if (ext) {
+        if (!this.options.extensions.has(ext)) {
+          // if import file not in extension then Comment it
+          if (node) {
+            node.type = 'EmptyStatement';
+            const commnentLine = {
+              type: 'CommentLine',
+              value: `import '${opts.node.value}'`
+            } as any;
+            if (Array.isArray(node.leadingComments)) {
+              node.leadingComments.push(commnentLine);
+            } else {
+              node.leadingComments = [commnentLine];
+            }
+          }
+        }
       }
     }
     opts.distPath = distPath;
@@ -261,9 +276,7 @@ export default class BabelAsset extends Asset {
                 return result;
               } catch (err) {
                 logger.warning(
-                  `Could not load source file "${source}" in source map of "${
-                    this.relativeName
-                  }".`
+                  `Could not load source file "${source}" in source map of "${this.relativeName}".`
                 );
               }
             })
@@ -294,7 +307,7 @@ export default class BabelAsset extends Asset {
       if (generated.map) {
         generated.map.sources = [pathToUnixType(this.relativeName)];
         generated.map.sourcesContent = [this.contents];
-        const rawMap = await new SourceMap().addMap(generated.map)
+        const rawMap = await new SourceMap().addMap(generated.map);
 
         // Check if we already have a source map (e.g. from TypeScript or CoffeeScript)
         // In that case, we need to map the original source map to the babel generated one.
@@ -303,7 +316,8 @@ export default class BabelAsset extends Asset {
           : await new SourceMap().extendSourceMap(this.sourceMap, rawMap);
       }
     } else {
-      code = typeof this.outputCode === 'string'  ? this.outputCode : this.contents;
+      code =
+        typeof this.outputCode === 'string' ? this.outputCode : this.contents;
     }
     code = npmHack(this.basename, code);
 

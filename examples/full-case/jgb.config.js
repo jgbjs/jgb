@@ -1,10 +1,11 @@
 const Path = require('path')
 
 module.exports = {
-  // entryFiles: ['pages/index/index.js'],
+  inlineSourceMap: true,
+  entryFiles: ['app.ts'],
   // entryFiles: ['assets/index.wxss'],
   // entryFiles: ['app.ts', 'app.wxss', 'app.json'],
-  // entryFiles: ['pages/weapp/weapp.*'],
+  // entryFiles: ['testAlias.ts'],
   cache: false,
   alias: {
     '@/components': './src/components',
@@ -13,7 +14,7 @@ module.exports = {
     // 'lodash': 'lodash-es',
     '@/utils': './src/utils',
     "@/src": './src',
-    '@alias': './aliasTest',
+    // '@alias': './aliasTest',
     '@alias-test': Path.resolve('../alias-test/src/'),
     '@navbar': {
       path: './node_modules/miniprogram-navigation-bar',
@@ -24,5 +25,10 @@ module.exports = {
   plugins: [['less', {
     extensions: ['.wxss'],
     outExt: '.wxss'
-  }], 'typescript']
+  }],
+    'typescript',
+  ['wxs', {
+    extensions: ['.wxs'],
+    outExt: '.wxs'
+  }]]
 }

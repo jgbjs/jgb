@@ -1,3 +1,5 @@
+import { ResolverFactory } from 'enhanced-resolve';
+
 export type IPluginConfig = string | [string] | [string, any];
 
 export type IAliasValue =
@@ -48,8 +50,10 @@ export interface IInitOptions {
    * resolver alias
    */
   alias?: {
-    [key: string]: IAliasValue;
+    [key: string]: IAliasValue | IAliasValue[];
   };
+
+  logLevel?: number;
 
   /**
    * 是否监听
@@ -64,6 +68,8 @@ export interface IInitOptions {
   useLocalWorker?: any;
   publicURL?: string;
 
+  /** 是否内联sourcemap */
+  inlineSourceMap?: boolean;
   /** 是否开启缓存 */
   cache?: boolean;
   /** 缓存目录 */
@@ -72,6 +78,10 @@ export interface IInitOptions {
   minify?: boolean;
   /* 提供编译钩子回调 */
   hooks?: Array<(...args: any[]) => Promise<void>>;
-  /* 转换适配库默认： miniapp-adapter */
+  /** 转换适配库默认： miniapp-adapter */
   lib?: string;
+  /** jgb-cli version */
+  cliVersion?: string;
+
+  resolve?: Parameters<typeof ResolverFactory['createResolver']>[0];
 }

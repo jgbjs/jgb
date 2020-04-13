@@ -1,7 +1,15 @@
 import { Asset, IInitOptions, Resolver } from 'jgb-shared/lib';
+import { IAssetGenerate, IDepOptions } from 'jgb-shared/lib/Asset';
 import { logger } from 'jgb-shared/lib/Logger';
-import * as VError from 'verror';
 import Compiler from './Compiler';
+
+export interface IPipelineProcessed {
+  id: string;
+  dependencies: IDepOptions[];
+  hash: string;
+  cacheData?: any;
+  generated: IAssetGenerate | IAssetGenerate[];
+}
 
 export default class Pipeline {
   compiler: Compiler;
@@ -31,26 +39,27 @@ export default class Pipeline {
     if (distPath) {
       asset.distPath = distPath;
     }
+
     await this.processAsset(asset);
 
     return {
       id: asset.id,
       dependencies: Array.from(asset.dependencies.values()),
       hash: asset.hash,
-      cacheData: asset.cacheData
+      cacheData: asset.cacheData,
+      generated: asset.generated,
     };
   }
 
-  async processAsset(asset: Asset): Promise<any> {
+  async processAsset(asset: Asset) {
     try {
       await asset.process();
     } catch (err) {
-      // @ts-ignore
-      logger.error(`
-      file: ${asset.name}
-      errMsg: ${err.message}
-      ${err.stack}
-      `)
+      err.fileName = asset.name;
+      // logger.error(`file: ${asset.name}`);
+      // logger.error(` errMsg: ${err.message}`);
+      // logger.error(err.stack);
+      throw err;
     }
 
     return asset.generated;

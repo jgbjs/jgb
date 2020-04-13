@@ -143,6 +143,10 @@ async function collectPageJson({
   const usingComponent = usingNpmComponents.bind(ctx);
 
   for (const [key, value] of Object.entries(pageJson.usingComponents)) {
+    // 插件
+    if (value.startsWith('plugin://')) {
+      continue;
+    }
     const componentPath = await findComponent(value, ctx);
     try {
       await usingComponent(
@@ -173,9 +177,9 @@ async function collectPageJson({
 export async function findComponent(componentPath: string, ctx: JsonAsset) {
   // resolve alias
   try {
-    const realPath = await ctx.resolver.loadResolveAlias(componentPath);
-    if (realPath) {
-      componentPath = realPath;
+    const result = await ctx.resolver.resolve(componentPath);
+    if (result && result.path) {
+      componentPath = result.path.replace(/\.(\w+)$/, '');
     }
   } catch (error) {}
 

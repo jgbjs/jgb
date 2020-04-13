@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "./lib/",
     "baseUrl": "src",
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "skipDefaultLibCheck": true,
+    "esModuleInterop": true
   },
   "typeRoots": [
     "./typings",
@@ -12,6 +15,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "lib"
+    "lib",
+    "test"
   ]
 }

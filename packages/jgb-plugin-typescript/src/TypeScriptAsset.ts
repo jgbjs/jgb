@@ -13,7 +13,7 @@ export default class TypeScriptAsset extends BabelAsset {
 
   async parse(code: string): Promise<any> {
     // require typescript, installed locally in the app
-    const typescript = await safeLocalRequire(
+    const typescript: typeof Typescript = await safeLocalRequire(
       'typescript',
       this.name,
       () => Typescript
@@ -28,9 +28,9 @@ export default class TypeScriptAsset extends BabelAsset {
         // see https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html
         esModuleInterop: true,
         noEmit: false,
-        sourceMap: true
-      },
-      fileName: this.relativeName
+        sourceMap: true,
+      } as Typescript.CompilerOptions,
+      fileName: this.relativeName,
     };
 
     const tsconfig = await this.getConfig(['tsconfig.json']);
@@ -44,11 +44,10 @@ export default class TypeScriptAsset extends BabelAsset {
     }
     transpilerOptions.compilerOptions.noEmit = false;
     transpilerOptions.compilerOptions.sourceMap = true; // this.options.sourceMaps;
-
     // Transpile Module using TypeScript and parse result as ast format through babylon
     const transpiled = typescript.transpileModule(code, transpilerOptions);
 
-    let sourceMap = transpiled.sourceMapText;
+    let sourceMap: any = transpiled.sourceMapText;
 
     if (sourceMap) {
       sourceMap = JSON.parse(sourceMap);
