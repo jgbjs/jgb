@@ -231,7 +231,12 @@ class Core {
                 }
               }
             }
-
+            if (key.name === 'methods') {
+              const methods = value.properties
+                && Array.isArray(value.properties)
+                && value.properties.map((item: any) => item.key.name) || []
+              funcNames.push(...methods)
+            }
           },
           AssignmentExpression: (path: any, state: any) => {
             const { node }: any = path;
