@@ -46,6 +46,7 @@ export default class NewResolver {
       {
         // @ts-ignore
         fileSystem: cachedInputFileSystem,
+        symlinks: false,
         extensions,
         modules: [
           // precedence resolve root node_modules
