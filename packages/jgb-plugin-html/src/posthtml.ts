@@ -62,6 +62,9 @@ export async function getConfig(asset: Asset) {
         target,
       };
     }
+  }
+
+  if (typeof plugins === 'object') {
     // This is deprecated in favor of result messages but kept for compatibility
     // See https://github.com/posthtml/posthtml-include/blob/e4f2a57c2e52ff721eed747b65eddf7d7a1451e3/index.js#L18-L26
     const depConfig = {
@@ -72,6 +75,7 @@ export async function getConfig(asset: Asset) {
     };
     Object.keys(plugins).forEach((p) => Object.assign(plugins[p], depConfig));
   }
+
   config.plugins = await loadPlugins(plugins, asset.name);
   config.skipParse = true;
   config.from = asset.name;
