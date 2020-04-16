@@ -18,10 +18,13 @@ export default async function loadPlugins(plugins: any, relative: any) {
 }
 
 async function loadPlugin(
-  plugin: string | [string, any],
+  plugin: string | [string, any] | Function,
   relative: string,
   options?: any
 ) {
+  if (typeof plugin === 'function') {
+    return plugin;
+  }
   let loadedPlugin: any;
   let pluginName: string;
   if (typeof plugin === 'string') {
