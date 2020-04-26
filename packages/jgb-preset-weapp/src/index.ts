@@ -52,6 +52,16 @@ interface IAppJson {
     root: string;
     pages: string[];
   }>;
+  /**
+   * Worker 代码放置的目录
+   */
+  workers: string;
+  /**
+   * 全局组件
+   */
+  usingComponents: {
+    [componentName: string]: string;
+  };
 }
 
 interface IAppJsonTabarListConfg {
@@ -76,17 +86,17 @@ export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
   JsonPlugin(compiler, {});
   HtmlPlugin(compiler, {
     extensions: ['.wxml'],
-    outExt: '.wxml'
+    outExt: '.wxml',
   });
 
   CssPlugin(compiler, {
     extensions: ['.wxss'],
-    outExt: '.wxss'
+    outExt: '.wxss',
   });
 
   WxsPlugin(compiler, {
     extensions: ['.wxs'],
-    outExt: '.wxs'
+    outExt: '.wxs',
   });
 });
 
@@ -99,17 +109,22 @@ function attachCompilerEvent(compiler: ICompiler) {
 export async function collectPageJson({
   dependences,
   pageJson,
-  ctx
+  ctx,
 }: {
   dependences: Set<string>;
   pageJson: IPageJson;
   ctx: JsonAsset;
 }) {
+  await addComponents(dependences, pageJson, ctx);
+}
+
+async function addComponents(
+  dependences: Set<string>,
+  json: IPageJson | IAppJson,
+  ctx: JsonAsset
+) {
   // 是否使用组件
-  if (
-    !pageJson.usingComponents ||
-    typeof pageJson.usingComponents !== 'object'
-  ) {
+  if (!json.usingComponents || typeof json.usingComponents !== 'object') {
     return;
   }
   const extensions = ctx.options.parser.extensions as Map<string, any>;
@@ -118,20 +133,14 @@ export async function collectPageJson({
 
   const usingComponent = usingNpmComponents.bind(ctx);
 
-  for (const [key, value] of Object.entries(pageJson.usingComponents)) {
+  for (const [key, value] of Object.entries(json.usingComponents)) {
     // 插件
     if (value.startsWith('plugin://')) {
       continue;
     }
     const componentPath = await findComponent(value, ctx);
     try {
-      await usingComponent(
-        key,
-        componentPath,
-        pageJson,
-        dependences,
-        components
-      );
+      await usingComponent(key, componentPath, json, dependences, components);
     } catch (error) {
       console.error('usingComponent Error', error);
     }
@@ -151,7 +160,7 @@ export async function collectPageJson({
 export async function collectPluginJson({
   dependences,
   pluginJson,
-  ctx
+  ctx,
 }: {
   dependences: Set<string>;
   pluginJson: IPluginJson;
@@ -256,7 +265,7 @@ export async function usingNpmComponents(
     distPath,
     relativeRequirePath,
     realName,
-    absolutePath
+    absolutePath,
   } = await this.resolveAliasName(value);
 
   // console.log(
@@ -288,7 +297,7 @@ export async function usingNpmComponents(
         const npmProjectDir = Path.join(dir, pkg.miniprogram);
 
         const allMatches = await glob.async(['**/**'], {
-          cwd: npmProjectDir
+          cwd: npmProjectDir,
         });
         if (allMatches) {
           allMatches.forEach((file: string) => {
@@ -311,7 +320,7 @@ async function findPackage(ctx: JsonAsset, dir: string) {
     const pkg = await ctx.resolver.findPackage(dir);
     return {
       pkg,
-      dir: pkg.pkgdir
+      dir: pkg.pkgdir,
     };
   } catch (err) {
     // ignore
@@ -321,7 +330,7 @@ async function findPackage(ctx: JsonAsset, dir: string) {
 async function collectAppJson({
   dependences,
   appJson,
-  ctx
+  ctx,
 }: {
   dependences: Set<string>;
   appJson: IAppJson;
@@ -342,9 +351,25 @@ async function collectAppJson({
   if (Array.isArray(subPackages)) {
     // tslint:disable-next-line:no-shadowed-variable
     subPackages.forEach(({ root, pages }) => {
-      const subPackagePages = pages.map(page => Path.join(root, page));
+      const subPackagePages = pages.map((page) => Path.join(root, page));
       assetPaths.push(...subPackagePages);
     });
+  }
+
+  // workers 目录
+  const workers = appJson.workers;
+  if (workers) {
+    const workersGlob = Path.join(ctx.options.sourceDir, workers, '**/**');
+    const files = glob.sync(workersGlob);
+    for (const file of files) {
+      dependences.add(file.toString());
+    }
+  }
+
+  // 全局组件
+  const usingComponents = appJson.usingComponents;
+  if (usingComponents) {
+    await addComponents(dependences, appJson, ctx);
   }
 
   // expandFiles
@@ -359,7 +384,7 @@ async function collectAppJson({
 
   // tabBar asset
   if (appJson.tabBar && Array.isArray(appJson.tabBar.list)) {
-    appJson.tabBar.list.forEach(config => {
+    appJson.tabBar.list.forEach((config) => {
       // tslint:disable-next-line:no-unused-expression
       config.iconPath && dependences.add(config.iconPath);
       // tslint:disable-next-line:no-unused-expression
