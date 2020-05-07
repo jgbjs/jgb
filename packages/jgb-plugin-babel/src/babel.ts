@@ -14,14 +14,14 @@ const ENV_PLUGINS = require('babel-preset-env/data/plugins');
 
 const JSX_EXTENSIONS: { [key: string]: boolean } = {
   '.jsx': true,
-  '.tsx': true
+  '.tsx': true,
 };
 
 const JSX_PRAGMA: { [key: string]: string } = {
   react: 'React.createElement',
   preact: 'h',
   nervjs: 'Nerv.createElement',
-  hyperapp: 'h'
+  hyperapp: 'h',
 };
 
 const ENV_PRESETS: {
@@ -31,7 +31,7 @@ const ENV_PRESETS: {
   es2016: true,
   es2017: true,
   latest: true,
-  env: true
+  env: true,
 };
 
 async function loadPlugin(name: string, assetName: string) {
@@ -55,7 +55,7 @@ export async function getConfig(asset: BabelAsset): Promise<any> {
     delete config.internal;
     Object.defineProperty(config, 'internal', {
       value: internal,
-      configurable: true
+      configurable: true,
     });
   }
   return config;
@@ -78,7 +78,7 @@ export default async function babelTransform(asset: BabelAsset) {
   // const babel = FallBackBabel
 
   let res: any = {
-    ignore: true
+    ignore: true,
   };
 
   res = babel.transformFromAst(asset.ast, asset.contents, config);
@@ -92,7 +92,7 @@ export default async function babelTransform(asset: BabelAsset) {
 function generateIgnore(ignores = [] as string[], isDifferenceTarget) {
   if (isDifferenceTarget) {
     // 移除node_modules相关的忽略
-    return ignores.filter(ig => !ig.includes('node_modules'));
+    return ignores.filter((ig) => !ig.includes('node_modules'));
   }
   return [...new Set(ignores.concat('node_modules/**/*.js'))];
 }
@@ -119,9 +119,9 @@ async function getBabelConfig(asset: BabelAsset) {
     presets: [
       await safeLocalRequire('babel-preset-env', asset.name, () =>
         require('babel-preset-env')
-      )
+      ),
     ],
-    ignore: generateIgnore([], isDifferenceTarget)
+    ignore: generateIgnore([], isDifferenceTarget),
   };
   isSource = isSource || !!babelrc;
 
@@ -132,15 +132,14 @@ async function getBabelConfig(asset: BabelAsset) {
     babelrc.ignore = generateIgnore(babelrc.ignore || [], isDifferenceTarget);
 
     if (isDifferenceTarget) {
-      babelrc.plugins = (babelrc.plugins || []).concat([
-        [
-          await loadPlugin('babel-plugin-transform-miniprogram', asset.name),
-          {
-            source,
-            target,
-            lib
-          }
-        ]
+      babelrc.plugins = babelrc.plugins || [];
+      babelrc.plugins.unshift([
+        await loadPlugin('babel-plugin-transform-miniprogram', asset.name),
+        {
+          source,
+          target,
+          lib,
+        },
       ]);
     }
   }
@@ -194,7 +193,7 @@ async function getBabelConfig(asset: BabelAsset) {
 }
 
 function hasPlugin(arr: any[], plugin: any) {
-  return Array.isArray(arr) && arr.some(p => getPluginName(p) === plugin);
+  return Array.isArray(arr) && arr.some((p) => getPluginName(p) === plugin);
 }
 
 function getPluginName(p: any) {
@@ -248,7 +247,7 @@ async function getBabelRc(asset: BabelAsset, isSource: boolean) {
 
 async function findBabelRc(asset: BabelAsset) {
   return await asset.getConfig(['.babelrc', '.babelrc.js'], {
-    packageKey: 'babel'
+    packageKey: 'babel',
   });
 }
 
@@ -338,7 +337,7 @@ async function getJSXConfig(asset: BabelAsset, isSourceModule: boolean) {
   if (pragma || JSX_EXTENSIONS[path.extname(asset.name)]) {
     return {
       plugins: [[require('babel-plugin-transform-react-jsx'), { pragma }]],
-      internal: true
+      internal: true,
     };
   }
 }
