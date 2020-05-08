@@ -22,7 +22,10 @@ export default async function builder(main: any = [], command: any = {}) {
   );
   const pkg = await Config.load(process.cwd(), ['package.json']);
   const npmPackages = ['jgb-shared']
-    .concat(Object.keys(pkg.dependencies), Object.keys(pkg.devDependencies))
+    .concat(
+      Object.keys(pkg.dependencies || {}),
+      Object.keys(pkg.devDependencies || {})
+    )
     .filter((key) => key.includes('jgb-plugin') || key.includes('jgb-preset'));
 
   const [, info] = await envinfo.helpers.getnpmPackages(npmPackages, {
