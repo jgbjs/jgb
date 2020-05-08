@@ -1,10 +1,8 @@
 // @ts-ignore
 import * as envinfo from 'envinfo';
-import { Config } from 'jgb-shared/lib';
 
 export default async function () {
-  const pkg = await Config.load(__dirname, ['package.json']);
-
+  const pkg = require('../../package.json');
   envinfo.run(
     Object.assign(
       {},
@@ -17,7 +15,7 @@ export default async function () {
     ),
     {
       console: true,
-      title: `jgb-cli ${pkg.version} environment info`,
+      title: `jgb-cli v${pkg?.version} environment info`,
     }
   );
 }
