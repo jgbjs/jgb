@@ -2,7 +2,7 @@ import * as rimraf from 'rimraf';
 import { getJGBConfig } from '../config';
 
 export default async function clean(command: any = {}) {
-  const config: any = await getJGBConfig(command.config);
+  const config = await getJGBConfig(command.config);
 
   if (!config) {
     return;

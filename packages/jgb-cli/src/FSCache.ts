@@ -35,7 +35,9 @@ export default class FSCache {
   optionsHash: any;
 
   constructor(options: IInitOptions) {
-    this.dir = path.resolve(options.cacheDir || '.cache');
+    this.dir = path.resolve(
+      options.cacheDir || `.cache/${options.target || 'wx'}`
+    );
     const hash = OPTION_KEYS.reduce((p: any, k) => ((p[k] = options[k]), p), {
       version: pkg.version,
     });
