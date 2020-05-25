@@ -4,22 +4,29 @@ import { Config } from 'jgb-shared/lib';
 import { logger } from 'jgb-shared/lib/Logger';
 import { transformTarget } from 'jgb-shared/lib/platforms';
 import semver = require('semver');
-import { getJGBConfig } from '../config';
+import { getJGBConfig, normalizeConfig } from '../config';
 import Core from '../core';
 
 export default async function builder(main: any = [], command: any = {}) {
   const config = await getJGBConfig(command.config);
 
   command.target = transformTarget(command.target || 'wx');
+  
   const core = new Core(
-    Object.assign(
-      {
-        cache: true,
-      },
-      config,
-      command
-    )
+    normalizeConfig({
+      cache: true,
+      ...config,
+      ...command,
+    })
   );
+
+  await updateInfo(command);
+
+  // console.log(config);
+  await core.start();
+}
+
+async function updateInfo(command: any) {
   const pkg = await Config.load(process.cwd(), ['package.json']);
   const npmPackages = ['jgb-shared']
     .concat(
@@ -42,7 +49,4 @@ export default async function builder(main: any = [], command: any = {}) {
       );
     }
   }
-
-  // console.log(config);
-  await core.start();
 }
