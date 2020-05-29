@@ -31,7 +31,7 @@ export async function getJGBConfig(configName?: string) {
 }
 
 export function normalizeConfig(config: IInitOptions) {
-  config.source = config.target || 'wx';
+  config.source = config.source || 'wx';
   config.target = config.target || 'wx';
   config.cacheDir = config.cacheDir || `.cache/${config.target}`;
   config.sourceDir = config.sourceDir || `src`;

@@ -18,6 +18,8 @@ export default async function builder(main: any = [], command: any = {}) {
     ...config,
     ...command,
   });
+  
+  console.log('config', config)
 
   command.target = transformTarget(command.target || 'wx');
 
