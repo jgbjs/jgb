@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-weapp",
-  "version": "1.9.2-alpha.2",
+  "version": "1.9.2",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -24,12 +24,12 @@
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",
-    "jgb-plugin-babel": "1.9.2-alpha.2",
-    "jgb-plugin-css": "1.9.2-alpha.2",
-    "jgb-plugin-html": "1.9.2-alpha.2",
-    "jgb-plugin-json": "1.9.2-alpha.2",
-    "jgb-plugin-wxs": "1.9.2-alpha.2",
-    "jgb-shared": "1.9.2-alpha.2",
+    "jgb-plugin-babel": "1.9.2",
+    "jgb-plugin-css": "1.9.2",
+    "jgb-plugin-html": "1.9.2",
+    "jgb-plugin-json": "1.9.2",
+    "jgb-plugin-wxs": "1.9.2",
+    "jgb-shared": "1.9.2",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
