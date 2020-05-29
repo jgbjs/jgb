@@ -11,6 +11,8 @@ Sentry.init({
 
 const version = (pkg as any).version;
 
+program.storeOptionsAsProperties(false).passCommandToAction(false);
+
 program.version(version, '-v, --version');
 
 program.command('info').action(info);
@@ -59,7 +61,10 @@ program
 program
   .command('clean')
   .option('--config <config>', 'jgb config path. defaults is "jgb.config.js"')
-  .option('--with-cache', 'clean [cache] dir')
+  .option(
+    '-d, --out-dir <path>',
+    'set the output directory. defaults to "dist"'
+  )
   .description('clean project. default dir: [dist]')
   .action(clean);
 

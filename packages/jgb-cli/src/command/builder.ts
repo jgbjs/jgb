@@ -8,21 +8,23 @@ import { getJGBConfig, normalizeConfig } from '../config';
 import Core from '../core';
 
 export default async function builder(main: any = [], command: any = {}) {
-  const config = await getJGBConfig(command.config);
+  let config = await getJGBConfig(command.config);
+  if (!config) {
+    return;
+  }
+
+  config = normalizeConfig({
+    cache: true,
+    ...config,
+    ...command,
+  });
 
   command.target = transformTarget(command.target || 'wx');
-  
-  const core = new Core(
-    normalizeConfig({
-      cache: true,
-      ...config,
-      ...command,
-    })
-  );
+
+  const core = new Core(config);
 
   await updateInfo(command);
 
-  // console.log(config);
   await core.start();
 }
 

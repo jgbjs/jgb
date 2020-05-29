@@ -1,19 +1,21 @@
 import * as rimraf from 'rimraf';
-import { getJGBConfig } from '../config';
+import { getJGBConfig, normalizeConfig } from '../config';
 
 export default async function clean(command: any = {}) {
-  const config = await getJGBConfig(command.config);
+  let config = await getJGBConfig(command.config);
 
   if (!config) {
     return;
   }
 
+  config = normalizeConfig({
+    ...config,
+    ...command,
+  });
+
   const cacheDir = config.cacheDir || '.cache';
   const distDir = config.outDir || 'dist';
-  const cleanCache = command.withCache;
-  const cleanDir = [cleanCache && cacheDir, distDir].filter(
-    (dir) => typeof dir === 'string'
-  );
+  const cleanDir = [cacheDir, distDir].filter((dir) => typeof dir === 'string');
 
   console.log(`clean  ${cleanDir.map((dir) => `[${dir}]`).join(' , ')} ...`);
 

@@ -24,11 +24,10 @@
   },
   "dependencies": {
     "@sentry/node": "^5.15.4",
-    "@types/commander": "^2.12.2",
     "@types/json5": "^0.0.30",
     "babel-core": "^6.26.3",
     "chalk": "^2.4.1",
-    "commander": "^2.16.0",
+    "commander": "^5.1.0",
     "debug": "^3.1.0",
     "download-git-repo": "^1.1.0",
     "envinfo": "^7.5.0",
