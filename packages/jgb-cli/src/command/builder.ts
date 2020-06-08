@@ -19,8 +19,6 @@ export default async function builder(main: any = [], command: any = {}) {
     ...command,
   });
   
-  console.log('config', config)
-
   command.target = transformTarget(command.target || 'wx');
 
   const core = new Core(config);
