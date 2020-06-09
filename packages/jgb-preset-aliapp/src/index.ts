@@ -100,12 +100,12 @@ export default declare((compiler, pluginConfig: IPluginConfig = {}) => {
   JsonPlugin(compiler, {});
   HtmlPlugin(compiler, {
     extensions: ['.axml'],
-    outExt: '.axml'
+    outExt: '.axml',
   });
 
   CssPlugin(compiler, {
     extensions: ['.acss'],
-    outExt: '.acss'
+    outExt: '.acss',
   });
 });
 
@@ -117,7 +117,7 @@ function attachCompilerEvent(compiler: ICompiler) {
 async function collectPageJson({
   dependences,
   pageJson,
-  ctx
+  ctx,
 }: {
   dependences: Set<string>;
   pageJson: IAliappPageJson;
@@ -144,7 +144,7 @@ async function collectPageJson({
 
   for (const [key, value] of Object.entries(pageJson.usingComponents)) {
     // 插件
-    if (value.startsWith('plugin://')) {
+    if (value.includes('://')) {
       continue;
     }
     const componentPath = await findComponent(value, ctx);
@@ -240,7 +240,7 @@ export async function usingNpmComponents(
     distPath,
     relativeRequirePath,
     realName,
-    absolutePath
+    absolutePath,
   } = await this.resolveAliasName(value);
 
   if (distPath && relativeRequirePath) {
@@ -264,7 +264,7 @@ export async function usingNpmComponents(
         const npmProjectDir = Path.join(dir, pkg.miniprogram);
 
         const allMatches = await glob.async(['**/**'], {
-          cwd: npmProjectDir
+          cwd: npmProjectDir,
         });
         if (allMatches) {
           allMatches.forEach((file: string) => {
@@ -287,7 +287,7 @@ async function findPackage(ctx: JsonAsset, dir: string) {
     const pkg = await ctx.resolver.findPackage(dir);
     return {
       pkg,
-      dir: pkg.pkgdir
+      dir: pkg.pkgdir,
     };
   } catch (err) {
     // ignore
@@ -297,7 +297,7 @@ async function findPackage(ctx: JsonAsset, dir: string) {
 async function collectAppJson({
   dependences,
   appJson,
-  ctx
+  ctx,
 }: {
   dependences: Set<string>;
   appJson: IAliAppJson;
@@ -330,7 +330,7 @@ async function collectAppJson({
 
   // tabBar asset
   if (appJson.tabBar && Array.isArray(appJson.tabBar.items)) {
-    appJson.tabBar.items.forEach(config => {
+    appJson.tabBar.items.forEach((config) => {
       // tslint:disable-next-line:no-unused-expression
       config.icon && dependences.add(config.icon);
       // tslint:disable-next-line:no-unused-expression
@@ -352,7 +352,7 @@ const windowNameMapping: { [key in WeappPageJsonName]?: string } = {
   enablePullDownRefresh: 'pullRefresh',
   navigationBarBackgroundColor: 'titleBarColor',
   component: 'component',
-  usingComponents: 'usingComponents'
+  usingComponents: 'usingComponents',
 };
 
 /** aliapp中page.json生效的关键字 */
@@ -363,7 +363,7 @@ const PageEnableKey = [
   'allowsBounceVertical',
   'titleBarColor',
   'component',
-  'usingComponents'
+  'usingComponents',
 ];
 
 /** aliapp中 app.json中 tabBar生效的关键字 */
@@ -371,7 +371,7 @@ const TabBarEnableKey = [
   'textColor',
   'selectedColor',
   'backgroundColor',
-  'items'
+  'items',
 ];
 
 const TabBarItemEnableKey = ['pagePath', 'name', 'icon', 'activeIcon'];
@@ -380,14 +380,14 @@ const tabBarNameMapping: { [key in WeappTabBarName]?: string } = {
   color: 'textColor',
   selectedColor: 'selectedColor',
   backgroundColor: 'backgroundColor',
-  list: 'items'
+  list: 'items',
 };
 
 const tabBarItemNameMapping: { [key in WeappTabBarItemName]?: string } = {
   pagePath: 'pagePath',
   text: 'name',
   iconPath: 'icon',
-  selectedIconPath: 'activeIcon'
+  selectedIconPath: 'activeIcon',
 };
 
 /** 是否需要转换json */
@@ -469,7 +469,7 @@ export function formatAsAliappTabBarJson(tabBar: any): IAliAppTabBar {
 }
 
 export function formatAsAliappTabBarItemsJson(json: any[]) {
-  return json.map(item => {
+  return json.map((item) => {
     const innerItem: IAliAppJsonTabarItemConfig = {};
     Object.keys(item).forEach((itemKey: WeappTabBarItemName) => {
       if (TabBarItemEnableKey.includes(itemKey)) {

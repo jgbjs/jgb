@@ -135,7 +135,7 @@ async function addComponents(
 
   for (const [key, value] of Object.entries(json.usingComponents)) {
     // 插件
-    if (value.startsWith('plugin://')) {
+    if (value.includes('://')) {
       continue;
     }
     const componentPath = await findComponent(value, ctx);
