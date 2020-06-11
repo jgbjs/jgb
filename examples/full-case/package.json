@@ -10,15 +10,15 @@
   "scripts": {
     "jgb": "node_modules/.bin/jgb",
     "build:log": "yarn jgb build --log-level 1",
-    "build": "jgb build --no-cache",
+    "build": "yarn jgb build --no-cache",
     "build:dev": "cross-env API=dev npm run build",
     "build:ut": "cross-env API=ut npm run build",
-    "info": "jgb info",
-    "build:plugin": "jgb build --no-cache -d dist-plugin --config jgb.config.plugin.js "
+    "info": "yarn jgb info",
+    "build:plugin": "yarn jgb build --no-cache -d dist-plugin --config jgb.config.plugin.js "
   },
   "dependencies": {
     "flyio": "^0.6.9",
-    "jgb-cli": "1.9.2-alpha.1",
+    "jgb-cli": "1.9.2",
     "jgb-plugin-babel": "1.9.2",
     "jgb-plugin-css": "1.9.2",
     "jgb-plugin-json": "1.9.2",

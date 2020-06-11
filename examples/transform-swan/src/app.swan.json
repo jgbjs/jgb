@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/swan/index",
+  ],
+  "debug": false,
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "小程序测试",
+    "navigationBarTextStyle": "black",
+    "backgroundTextStyle": "black",
+    "enablePullDownRefresh": false
+  }
+}

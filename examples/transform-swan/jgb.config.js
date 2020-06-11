@@ -1,6 +1,5 @@
 
 module.exports = {
-  // entryFiles: ['app.js'],
   cache: false,
   presets: ['weapp'],
   plugins: [['css', {
@@ -13,6 +12,6 @@ module.exports = {
   }],
   ['wxs', {
     extensions: ['.wxs'],
-    outExt: '.filter.js'
+    outExt: '.sjs'
   }]]
 }
