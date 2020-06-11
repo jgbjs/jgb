@@ -31,9 +31,10 @@ export default class JsonAsset extends Asset {
 
   async collectDependencies() {
     const baseName = path.basename(this.name);
-    if (baseName === 'app.json') {
+
+    if (/app(\.\w+)*\.json/.test(baseName)) {
       await this.collectAppJson(this.ast);
-    } else if (baseName === 'plugin.json') {
+    } else if (/plugin(\.\w+)*\.json/.test(baseName)) {
       await this.collectPluginJson(this.ast);
     } else {
       await this.collectPageJson(this.ast);
@@ -50,7 +51,7 @@ export default class JsonAsset extends Asset {
 
     return {
       code,
-      ext: JsonAsset.outExt
+      ext: JsonAsset.outExt,
     };
   }
 
@@ -60,7 +61,7 @@ export default class JsonAsset extends Asset {
     await this.compiler.emit('collect-page-json', {
       ctx: this,
       dependences,
-      pageJson: page
+      pageJson: page,
     });
 
     for (const name of dependences) {
@@ -79,7 +80,7 @@ export default class JsonAsset extends Asset {
     await this.compiler.emit('collect-app-json', {
       ctx: this,
       dependences,
-      appJson: app
+      appJson: app,
     });
 
     for (const name of [...dependences]) {
@@ -98,7 +99,7 @@ export default class JsonAsset extends Asset {
     await this.compiler.emit('collect-plugin-json', {
       ctx: this,
       dependences,
-      pluginJson: pkg
+      pluginJson: pkg,
     });
 
     for (const name of [...dependences]) {
@@ -112,7 +113,7 @@ export default class JsonAsset extends Asset {
     await this.compiler.emit('collect-app-json', {
       dependences,
       appJson: ctx.ast,
-      ctx
+      ctx,
     });
 
     for (const name of [...dependences]) {
@@ -146,24 +147,24 @@ export default class JsonAsset extends Asset {
       if (/\.js$/.test(key)) {
         currentData.js = {
           path: key,
-          distPath
+          distPath,
         };
       }
       if (/\.ts$/.test(key)) {
         currentData.js = {
           path: key,
-          distPath: distPath.replace('.ts', '.js')
+          distPath: distPath.replace('.ts', '.js'),
         };
       }
       if (/\.json$/.test(key)) {
         currentData.json = {
           path: key,
-          distPath
+          distPath,
         };
       }
     };
     if (type === 'app') {
-      const filterDependencies = [...dependencies].filter(item =>
+      const filterDependencies = [...dependencies].filter((item) =>
         new RegExp(/(\.json$)|(\.js$)|(\.ts$)/).test(item[0])
       );
       filterDependencies.forEach(([key, { name, distPath }]: any) => {
@@ -172,7 +173,7 @@ export default class JsonAsset extends Asset {
       return hash;
     }
     if (type === 'page') {
-      const filterDependencies = [...dependencies].filter(item =>
+      const filterDependencies = [...dependencies].filter((item) =>
         new RegExp(/(\.json$)|(\.js$)|(\.ts$)/).test(item)
       );
       filterDependencies.forEach((key: string) => {
@@ -188,7 +189,7 @@ export default class JsonAsset extends Asset {
     await this.compiler.emit('collect-page-json', {
       dependences,
       pageJson: ctx.ast,
-      ctx
+      ctx,
     });
 
     return this.filterDependenices([...dependences], 'page');

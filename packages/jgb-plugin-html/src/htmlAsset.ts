@@ -1,5 +1,6 @@
 // tslint:disable-next-line:ordered-imports
 import { Asset, IInitOptions, Utils } from 'jgb-shared/lib';
+import { logger } from 'jgb-shared/lib/Logger';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
 import { FileType } from 'jgb-shared/lib/utils/preProcess';
 import * as render from 'posthtml-render';
@@ -26,7 +27,8 @@ const ATTRS: {
     'import',
     'include',
     'wxs',
-    'filter'
+    'filter',
+    'import-sjs',
   ],
   href: ['link', 'a', 'use'],
   srcset: ['img', 'source'],
@@ -34,7 +36,7 @@ const ATTRS: {
   'xlink:href': ['use'],
   content: ['meta'],
   data: ['object'],
-  from : ['import-sjs']
+  from: ['import-sjs'],
 };
 
 // A list of metadata that should produce a dependency
@@ -53,7 +55,7 @@ const META: {
     'og:audio',
     'og:audio:secure_url',
     'og:video',
-    'og:video:secure_url'
+    'og:video:secure_url',
   ],
   name: [
     'twitter:image',
@@ -61,7 +63,7 @@ const META: {
     'msapplication-square310x310logo',
     'msapplication-square70x70logo',
     'msapplication-wide310x150logo',
-    'msapplication-TileImage'
+    'msapplication-TileImage',
   ],
   itemprop: [
     'image',
@@ -69,8 +71,8 @@ const META: {
     'screenshot',
     'thumbnailUrl',
     'contentUrl',
-    'downloadUrl'
-  ]
+    'downloadUrl',
+  ],
 };
 
 // Options to be passed to `addURLDependency` for certain tags + attributes
@@ -78,11 +80,11 @@ const OPTIONS: {
   [key: string]: any;
 } = {
   a: {
-    href: { entry: true }
+    href: { entry: true },
   },
   iframe: {
-    src: { entry: true }
-  }
+    src: { entry: true },
+  },
 };
 
 const enableEmptyAttrs = ['class'];
@@ -140,7 +142,7 @@ export default class HtmlAsset extends Asset {
       ast.messages.forEach((message: any) => {
         if (message.type === 'dependency') {
           this.addDependency(message.file, {
-            includedInParent: true
+            includedInParent: true,
           });
         }
       });
@@ -154,6 +156,15 @@ export default class HtmlAsset extends Asset {
       }
       if (node.attrs) {
         const task = async () => {
+          // 支付宝只能独立文件
+          if (
+            node.tag === 'import-sjs' &&
+            typeof node.content !== 'undefined' &&
+            !node.content?.trim?.()
+          ) {
+            logger.warning(`file: ${this.name} \n <wxs>、 <import-sjs> 只能使用独立文件。`);
+          }
+
           // if (node.tag === 'meta') {
           //   if (
           //     !Object.keys(node.attrs).some((attr: any) => {
@@ -229,9 +240,9 @@ export default class HtmlAsset extends Asset {
           'switch',
           // 'wxs'
         ],
-        closingSingleTag: 'slash'
+        closingSingleTag: 'slash',
       }),
-      ext: HtmlAsset.outExt
+      ext: HtmlAsset.outExt,
     };
   }
 }

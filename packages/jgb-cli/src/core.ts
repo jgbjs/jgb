@@ -9,12 +9,12 @@ import { normalizeAlias, pathToUnixType } from 'jgb-shared/lib/utils/index';
 import WorkerFarm from 'jgb-shared/lib/workerfarm/WorkerFarm';
 import * as Path from 'path';
 import * as semver from 'semver';
-import { promisify } from 'util';
 import Compiler from './Compiler';
 import FSCache from './FSCache';
 import { IPipelineProcessed } from './Pipeline';
 import PromiseQueue from './utils/PromiseQueue';
 import Watcher from './Watcher';
+import { isPlatformFile } from './utils/platfromFile';
 
 const debug = Debug('core');
 
@@ -63,7 +63,10 @@ export default class Core extends AwaitEventEmitter {
       .filter(Boolean)
       .map((f) => Path.resolve(this.options.sourceDir, f));
 
-    return fg.sync(files, { onlyFiles: true, unique: true });
+    return (fg.sync(files, {
+      onlyFiles: true,
+      unique: true,
+    }) as string[]).filter((f) => !isPlatformFile(f));
   }
 
   /**
@@ -247,8 +250,9 @@ export default class Core extends AwaitEventEmitter {
   }
 
   async resolveAsset(name: string, parent?: string) {
-    const { path } = await this.resolver.resolve(name, parent);
+    let { path } = await this.resolver.resolve(name, parent);
 
+    path = await this.resolver.resolvePlatformModule(path);
     return this.getLoadedAsset(path);
   }
 

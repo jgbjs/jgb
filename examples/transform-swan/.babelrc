@@ -1,0 +1,7 @@
+{
+  "sourceMap": true,
+  "presets": ["env"],
+  "plugins": [
+    "inline-package-json"
+  ]
+}
