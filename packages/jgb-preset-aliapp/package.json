@@ -36,6 +36,7 @@
     "@types/debug": "^0.0.30",
     "@types/fs-extra": "^5.0.5",
     "@types/jest": "^23.3.12",
+    "@types/lodash": "^4.14.155",
     "@types/node": "12.12.6",
     "jest": "^23.6.0",
     "miniprogram-recycle-view": "^0.1.0",

@@ -10,5 +10,8 @@
     "navigationBarTextStyle": "black",
     "backgroundTextStyle": "black",
     "enablePullDownRefresh": false
+  },
+  "usingComponents": {
+    "gb": "./components/gb/index"
   }
 }

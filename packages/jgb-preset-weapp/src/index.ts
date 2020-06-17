@@ -10,6 +10,7 @@ import { declare, IInitOptions } from 'jgb-shared/lib';
 import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
+import _ from 'lodash';
 
 /**
  * jgb 插件配置
@@ -106,6 +107,16 @@ function attachCompilerEvent(compiler: ICompiler) {
   compiler.on('collect-plugin-json', collectPluginJson);
 }
 
+const gcn = 'GlobalComponents';
+
+function setGlobalComponent(comps: Record<string, string>) {
+  process.env[gcn] = JSON.stringify(comps);
+}
+
+function getGlobalComponent(): Record<string, string> {
+  return JSON.parse(process.env[gcn] || '{}');
+}
+
 export async function collectPageJson({
   dependences,
   pageJson,
@@ -115,6 +126,18 @@ export async function collectPageJson({
   pageJson: IPageJson;
   ctx: JsonAsset;
 }) {
+  const globalComponents = getGlobalComponent();
+  // 非微信平台都不支持全局组件。
+  // 所有页面组件都要，添加全局组件
+  // 避免自己引用自己
+  if (process.env.JGB_ENV !== 'wx' && Object.keys(globalComponents)) {
+    pageJson.usingComponents = {
+      ..._.pickBy(globalComponents, (value: string) => {
+        return !ctx.name.includes(value);
+      }),
+      ...(pageJson.usingComponents || {}),
+    };
+  }
   await addComponents(dependences, pageJson, ctx);
 }
 
@@ -132,6 +155,7 @@ async function addComponents(
   const components: string[] = [];
 
   const usingComponent = usingNpmComponents.bind(ctx);
+  const realPathUsingComponent = {} as Record<string, string>;
 
   for (const [key, value] of Object.entries(json.usingComponents)) {
     // 插件
@@ -140,6 +164,7 @@ async function addComponents(
     }
     const componentPath = await findComponent(value, ctx);
     try {
+      realPathUsingComponent[key] = componentPath;
       await usingComponent(key, componentPath, json, dependences, components);
     } catch (error) {
       console.error('usingComponent Error', error);
@@ -148,6 +173,11 @@ async function addComponents(
 
   // expandFiles
   if (components.length > 0) {
+    // 是app.json
+    if ((json as IAppJson).pages) {
+      setGlobalComponent(realPathUsingComponent);
+    }
+
     for (const dep of await ctx.expandFiles(
       new Set(components),
       supportExtensions
