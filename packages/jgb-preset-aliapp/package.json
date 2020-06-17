@@ -1,6 +1,6 @@
 {
   "name": "jgb-preset-aliapp",
-  "version": "1.9.3-alpha.0",
+  "version": "1.9.3-alpha.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -24,11 +24,11 @@
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
     "fast-glob": "^2.2.2",
-    "jgb-plugin-babel": "1.9.3-alpha.0",
-    "jgb-plugin-css": "1.9.3-alpha.0",
-    "jgb-plugin-html": "1.9.3-alpha.0",
-    "jgb-plugin-json": "1.9.3-alpha.0",
-    "jgb-shared": "1.9.3-alpha.0",
+    "jgb-plugin-babel": "1.9.3-alpha.1",
+    "jgb-plugin-css": "1.9.3-alpha.1",
+    "jgb-plugin-html": "1.9.3-alpha.1",
+    "jgb-plugin-json": "1.9.3-alpha.1",
+    "jgb-shared": "1.9.3-alpha.1",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
