@@ -173,9 +173,10 @@ async function addComponents(
 
   // expandFiles
   if (components.length > 0) {
-    // 是app.json
-    if ((json as IAppJson).pages) {
+    // app.json 中 usingComponent视为全局组件
+    if ((json as IAppJson).pages && process.env.JGB_ENV !== 'wx') {
       setGlobalComponent(realPathUsingComponent);
+      delete json.usingComponents;
     }
 
     for (const dep of await ctx.expandFiles(
