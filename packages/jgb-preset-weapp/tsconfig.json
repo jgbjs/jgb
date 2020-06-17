@@ -4,6 +4,8 @@
     "outDir": "./lib/",
     "declarationDir": "lib",
     "baseUrl": "src",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "typeRoots": ["./node_modules/@types"]
   },
   "exclude": ["node_modules", "dist", "lib", "test"]

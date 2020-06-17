@@ -1,5 +1,6 @@
 <import src="../../components/toast.wxml" />
 <scroll-view scroll-top="{{scrollTop}}">
+  <gb />
   <view class="s-view">
     <block>
       <view
@@ -29,12 +30,8 @@
 ></video>
 <wxs src="./wxs.wxs" module="wxs" />
 <wxs module="utils">
-  var foo = "'hello world' from comm.wxs"; 
-  var bar = function(d) { return d; } 
-  module.exports = {
-    foo: foo, 
-    bar: bar 
-  };
+  var foo = "'hello world' from comm.wxs"; var bar = function(d) { return d; } module.exports = {
+  foo: foo, bar: bar };
 </wxs>
 <view>this is wxs value: {{wxs.test}}</view>
 <view>

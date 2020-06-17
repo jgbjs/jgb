@@ -33,6 +33,7 @@
     "@types/babylon": "^6.16.3",
     "@types/debug": "^0.0.30",
     "@types/jest": "^23.3.12",
+    "@types/lodash": "^4.14.155",
     "@types/node": "12.12.6",
     "@types/semver": "^5.5.0",
     "jest": "^23.6.0",
