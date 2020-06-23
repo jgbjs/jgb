@@ -17,7 +17,7 @@
     "clean:all": "lerna run clean",
     "watch:all": "yarn run build --watch",
     "release": "lerna publish  --force-publish=* --exact",
-    "release:beta": "lerna publish  --force-publish=* --exact  --npm-tag=beta --cd-version prepatch",
+    "release:beta": "lerna publish  --force-publish=* --exact  --npm-tag=beta",
     "test": "lerna exec --scope jgb-* -- yarn test"
   },
   "devDependencies": {

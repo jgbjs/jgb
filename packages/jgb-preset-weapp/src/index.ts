@@ -107,14 +107,16 @@ function attachCompilerEvent(compiler: ICompiler) {
   compiler.on('collect-plugin-json', collectPluginJson);
 }
 
-const gcn = 'GlobalComponents';
+const gcn = '.gcn';
 
 function setGlobalComponent(comps: Record<string, string>) {
-  process.env[gcn] = JSON.stringify(comps);
+  fs.writeFileSync('.cache/' + gcn, JSON.stringify(comps));
 }
 
 function getGlobalComponent(): Record<string, string> {
-  return JSON.parse(process.env[gcn] || '{}');
+  return JSON.parse(
+    fs.readFileSync('.cache/' + gcn, { encoding: 'utf-8' }) || '{}'
+  );
 }
 
 export async function collectPageJson({
@@ -126,17 +128,19 @@ export async function collectPageJson({
   pageJson: IPageJson;
   ctx: JsonAsset;
 }) {
-  const globalComponents = getGlobalComponent();
   // 非微信平台都不支持全局组件。
   // 所有页面组件都要，添加全局组件
   // 避免自己引用自己
-  if (process.env.JGB_ENV !== 'wx' && Object.keys(globalComponents)) {
-    pageJson.usingComponents = {
-      ..._.pickBy(globalComponents, (value: string) => {
-        return !ctx.name.includes(value);
-      }),
-      ...(pageJson.usingComponents || {}),
-    };
+  if (process.env.JGB_ENV !== 'wx') {
+    const globalComponents = getGlobalComponent();
+    if (Object.keys(globalComponents)) {
+      pageJson.usingComponents = {
+        ..._.pickBy(globalComponents, (value: string) => {
+          return !ctx.name.includes(value);
+        }),
+        ...(pageJson.usingComponents || {}),
+      };
+    }
   }
   await addComponents(dependences, pageJson, ctx);
 }
