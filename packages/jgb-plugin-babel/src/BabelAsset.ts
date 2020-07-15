@@ -37,6 +37,7 @@ export default class BabelAsset extends Asset {
     this.cacheData.env = {};
   }
 
+  isES6Module: boolean;
   babelConfig: any;
   babelFile: any;
   outputCode: string;
@@ -66,8 +67,8 @@ export default class BabelAsset extends Asset {
         'objectRestSpread',
         'asyncGenerators',
         'classProperties',
-        'decorators'
-      ]
+        'decorators',
+      ],
     };
 
     // Check if there is a babel config file. If so, determine which parser plugins to enable
@@ -93,15 +94,13 @@ export default class BabelAsset extends Asset {
   }
 
   mightHaveDependencies() {
-    return true;
-    // return (
-    //   !/.js$/.test(this.name) ||
-    //   IMPORT_RE.test(this.contents) ||
-    //   GLOBAL_RE.test(this.contents) ||
-    //   SW_RE.test(this.contents) ||
-    //   WORKER_RE.test(this.contents) ||
-    //   this.isAstDirty
-    // );
+    return (
+      this.isAstDirty ||
+      IMPORT_RE.test(this.contents) ||
+      GLOBAL_RE.test(this.contents)
+      // SW_RE.test(this.contents) ||
+      // WORKER_RE.test(this.contents)
+    );
   }
 
   async parse(code: string): Promise<Babel.types.File> {
@@ -125,13 +124,13 @@ export default class BabelAsset extends Asset {
     let resolveCollectDependency: any;
     // tslint:disable-next-line:no-unused-expression
     this.waitResolveCollectDependencies.push(
-      new Promise(r => (resolveCollectDependency = r))
+      new Promise((r) => (resolveCollectDependency = r))
     );
 
     const {
       realName,
       relativeRequirePath,
-      distPath
+      distPath,
     } = await this.resolveAliasName(name, BabelAsset.outExt);
 
     if (opts.node) {
@@ -146,7 +145,7 @@ export default class BabelAsset extends Asset {
             node.type = 'EmptyStatement';
             const commnentLine = {
               type: 'CommentLine',
-              value: `import '${opts.node.value}'`
+              value: `import '${opts.node.value}'`,
             } as any;
             if (Array.isArray(node.leadingComments)) {
               node.leadingComments.push(commnentLine);
@@ -221,8 +220,14 @@ export default class BabelAsset extends Asset {
     //     await babel(this);
     //   }
     // }
-
-    await babel(this);
+    if (this.isES6Module) {
+      await babel(this, {
+        internal: true,
+        config: {
+          plugins: [require('babel-plugin-transform-es2015-modules-commonjs')],
+        },
+      });
+    }
 
     if (this.options.minify) {
       await terser(this);
@@ -264,7 +269,7 @@ export default class BabelAsset extends Asset {
         );
         if (missingSources.length) {
           const contents = await Promise.all(
-            missingSources.map(async source => {
+            missingSources.map(async (source) => {
               try {
                 const sourceFile = path.join(
                   path.dirname(filename),
@@ -299,7 +304,7 @@ export default class BabelAsset extends Asset {
     if (this.isAstDirty) {
       const opts = {
         sourceMaps: true,
-        sourceFileName: pathToUnixType(this.relativeName)
+        sourceFileName: pathToUnixType(this.relativeName),
       };
 
       const generated: any = generate(this.ast, opts, this.contents);
@@ -335,7 +340,7 @@ export default class BabelAsset extends Asset {
     return {
       code,
       map: this.sourceMap,
-      ext: BabelAsset.outExt
+      ext: BabelAsset.outExt,
     };
   }
 }

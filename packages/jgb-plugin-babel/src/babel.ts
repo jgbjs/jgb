@@ -61,8 +61,11 @@ export async function getConfig(asset: BabelAsset): Promise<any> {
   return config;
 }
 
-export default async function babelTransform(asset: BabelAsset) {
-  const config = await getConfig(asset);
+export default async function babelTransform(
+  asset: BabelAsset,
+  options = {} as any
+) {
+  const config = options.config || (await getConfig(asset));
 
   if (!config) {
     return;
@@ -94,7 +97,7 @@ function generateIgnore(ignores = [] as string[], isDifferenceTarget) {
     // 移除node_modules相关的忽略
     return ignores.filter((ig) => !ig.includes('node_modules'));
   }
-  return [...new Set(ignores.concat('node_modules/**/*.js'))];
+  return [...new Set(ignores.concat('regeneratorRuntime.js', 'global.js'))];
 }
 
 async function getBabelConfig(asset: BabelAsset) {
@@ -246,7 +249,7 @@ async function getBabelRc(asset: BabelAsset, isSource: boolean) {
 }
 
 async function findBabelRc(asset: BabelAsset) {
-  return await asset.getConfig(['.babelrc', '.babelrc.js'], {
+  return await asset.getConfig(['.babelrc', '.babelrc.js', 'babel.config.js'], {
     packageKey: 'babel',
   });
 }
