@@ -112,10 +112,8 @@ async function getBabelConfig(asset: BabelAsset) {
 
   // Consider the module source code rather than precompiled if the resolver
   // used the `source` field, or it is not in node_modules.
-  const pkg = await asset.getPackage();
-  let isSource =
-    !!(pkg && pkg.source && (await Realpath(asset.name)) !== asset.name) ||
-    !asset.name.includes(NODE_MODULES);
+  // const pkg = await asset.getPackage();
+  let isSource = true;
 
   // Try to resolve a .babelrc file. If one is found, consider the module source code.
   const babelrc = (await getBabelRc(asset, isSource)) || {
@@ -248,9 +246,13 @@ async function getBabelRc(asset: BabelAsset, isSource: boolean) {
   return null;
 }
 
+/**
+ * find in sourceDir
+ */
 async function findBabelRc(asset: BabelAsset) {
   return await asset.getConfig(['.babelrc', '.babelrc.js', 'babel.config.js'], {
     packageKey: 'babel',
+    path: asset.options.sourceDir || asset.options.rootDir,
   });
 }
 
