@@ -1,4 +1,5 @@
-import FSWatcher = require('fswatcher-child');
+// import FSWatcher = require('fswatcher-child');
+import { FSWatcher } from 'chokidar';
 import * as Path from 'path';
 
 /**
@@ -9,19 +10,21 @@ import * as Path from 'path';
  */
 export default class Watcher {
   shouldWatchDirs: boolean;
-  watcher: any;
+  watcher: FSWatcher;
   watchedDirectories = new Map();
   stopped = false;
   constructor() {
-    // FS events on macOS are flakey in the tests, which write lots of files very quickly
-    // See https://github.com/paulmillr/chokidar/issues/612
-    this.shouldWatchDirs =
-      process.platform === 'darwin' && process.env.NODE_ENV !== 'test';
+    // this.watcher = chokidar.watch('', {
+    //   ignoreInitial: true,
+    //   ignorePermissionErrors: true,
+    //   ignored: /\.cache|\.git/,
+    // });
+
     this.watcher = new FSWatcher({
       useFsEvents: this.shouldWatchDirs,
       ignoreInitial: true,
       ignorePermissionErrors: true,
-      ignored: /\.cache|\.git/
+      ignored: /\.cache|\.git/,
     });
   }
 
@@ -74,7 +77,7 @@ export default class Watcher {
         // tslint:disable-next-line:no-shadowed-variable
         for (const dir of children) {
           count += this.watchedDirectories.get(dir);
-          this.watcher._closePath(dir);
+          this.watcher.unwatch(dir);
           this.watchedDirectories.delete(dir);
         }
 

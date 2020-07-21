@@ -250,9 +250,10 @@ async function getBabelRc(asset: BabelAsset, isSource: boolean) {
  * find in sourceDir
  */
 async function findBabelRc(asset: BabelAsset) {
+  const isFileInRoot = asset.name.includes(asset.options.rootDir);
   return await asset.getConfig(['.babelrc', '.babelrc.js', 'babel.config.js'], {
     packageKey: 'babel',
-    path: asset.options.sourceDir || asset.options.rootDir,
+    path: isFileInRoot ? asset.options.sourceDir || asset.options.rootDir : '',
   });
 }
 
