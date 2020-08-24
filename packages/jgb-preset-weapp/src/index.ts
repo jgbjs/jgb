@@ -1,5 +1,5 @@
 import * as glob from 'fast-glob';
-import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import BabelPlugin from 'jgb-plugin-babel';
 import CssPlugin from 'jgb-plugin-css';
 import HtmlPlugin from 'jgb-plugin-html';
@@ -110,13 +110,11 @@ function attachCompilerEvent(compiler: ICompiler) {
 const gcn = '.gcn';
 
 function setGlobalComponent(comps: Record<string, string>) {
-  fs.writeFileSync('.cache/' + gcn, JSON.stringify(comps));
+  fse.writeFileSync('.cache/' + gcn, JSON.stringify(comps));
 }
 
 function getGlobalComponent(): Record<string, string> {
-  return JSON.parse(
-    fs.readFileSync('.cache/' + gcn, { encoding: 'utf-8' }) || '{}'
-  );
+  return fse.readJsonSync('.cache/' + gcn, { throws: false }) || {};
 }
 
 export async function collectPageJson({
@@ -260,7 +258,7 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
 
   if (
     module.filePath &&
-    (fs.existsSync(module.filePath) || fs.existsSync(module.filePath + '.json'))
+    (fse.existsSync(module.filePath) || fse.existsSync(module.filePath + '.json'))
   ) {
     return module.filePath;
   }
@@ -272,7 +270,7 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
       module.subPath
     );
 
-    if (fs.existsSync(realComponentPath + '.json')) {
+    if (fse.existsSync(realComponentPath + '.json')) {
       return realComponentPath;
     }
   }
