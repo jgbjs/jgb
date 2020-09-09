@@ -11,5 +11,6 @@ export default declare((compiler, pluginConfig = {}) => {
     TypeScriptAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, TypeScriptAsset);
+  if (pluginConfig.glob) compiler.addResolveGlob(pluginConfig.glob, TypeScriptAsset);
   return pkg.name
 });

@@ -11,5 +11,6 @@ export default declare((compiler, pluginConfig = {}) => {
     LessAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, LessAsset);
+  if (pluginConfig.glob) compiler.addResolveGlob(pluginConfig.glob, LessAsset);
   return pkg.name
 });

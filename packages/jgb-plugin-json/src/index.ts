@@ -12,5 +12,6 @@ export default declare((compiler, pluginConfig = {}) => {
   }
   JsonAsset.prototype.parentCompiler = compiler;
   compiler.addAssetsType(exts, JsonAsset);
+  if (pluginConfig.glob) compiler.addResolveGlob(pluginConfig.glob, JsonAsset);
   return pkg.name;
 });

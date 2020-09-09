@@ -1,7 +1,7 @@
 import { declare } from 'jgb-shared/lib';
 // @ts-ignore
 import * as pkg from '../package.json';
-import WxsAsset from './WxsAsset'
+import WxsAsset from './WxsAsset';
 const defaultExts = ['.wxs'];
 
 export default declare((compiler, pluginConfig = {}) => {
@@ -10,5 +10,6 @@ export default declare((compiler, pluginConfig = {}) => {
     WxsAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, WxsAsset);
+  if (pluginConfig.glob) compiler.addResolveGlob(pluginConfig.glob, WxsAsset);
   return pkg.name;
 }) as (compiler: any, config: any) => any;

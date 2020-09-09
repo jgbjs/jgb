@@ -11,5 +11,6 @@ export default declare((compiler, pluginConfig = {}) => {
     BabelAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, BabelAsset);
+  if (pluginConfig.glob) compiler.addResolveGlob(pluginConfig.glob, BabelAsset);
   return pkg.name;
 }) as (compiler: any, config: any) => any;

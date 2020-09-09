@@ -9,10 +9,14 @@ export type TypeAsset = typeof Asset;
  */
 export interface ICompiler extends AwaitEventEmitter {
   addAssetsType(exts: string | string[], asset: TypeAsset): void;
+  addResolveGlob(glob: string, asset: string | TypeAsset): void;
 }
 
 /** 返回pluginName  */
-export type IPluginRegister = (compiler: ICompiler, config: any) => string | void;
+export type IPluginRegister = (
+  compiler: ICompiler,
+  config: any
+) => string | void;
 
 const loadedPlugins = new Set();
 

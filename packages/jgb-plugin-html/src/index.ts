@@ -11,5 +11,6 @@ export default declare((compiler, pluginConfig = {}) => {
     htmlAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, htmlAsset);
+  if (pluginConfig.glob) compiler.addResolveGlob(pluginConfig.glob, htmlAsset);
   return pkg.name;
 });

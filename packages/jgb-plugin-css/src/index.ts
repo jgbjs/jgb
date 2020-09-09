@@ -11,5 +11,6 @@ export default declare((compiler, pluginConfig = {}) => {
     CssAsset.outExt = pluginConfig.outExt;
   }
   compiler.addAssetsType(exts, CssAsset);
+  if (pluginConfig.glob) compiler.addResolveGlob(pluginConfig.glob, CssAsset);
   return pkg.name;
 });

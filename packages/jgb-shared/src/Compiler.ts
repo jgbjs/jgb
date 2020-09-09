@@ -5,11 +5,14 @@ import { IInitOptions, IPluginConfig, Resolver } from './index';
 import { ICompiler, IPluginRegister } from './pluginDeclare';
 import StaticAsset from './StaticAsset';
 import { localRequire } from './utils';
+import minimatch = require('minimatch');
+import { logger } from './Logger';
 
 type TypeAsset = typeof Asset;
 
 export default class Compiler extends AwaitEventEmitter implements ICompiler {
   private extensions = new Map<string, TypeAsset>();
+  private resolveGlob = new Map<string, TypeAsset>();
   resolver: Resolver;
 
   constructor(private options: IInitOptions) {
@@ -98,7 +101,24 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     });
   }
 
+  addResolveGlob(test: string, asset: string | TypeAsset) {
+    if (typeof asset === 'string') {
+      const assetTemp = require(asset);
+      asset = (assetTemp.default || assetTemp) as TypeAsset;
+    }
+
+    asset.prototype.parentCompiler = this;
+    this.resolveGlob.set(test, asset);
+  }
+
   findParser(fileName: string, fromPipeline: boolean = false): TypeAsset {
+    for (const [glob, asset] of this.resolveGlob) {
+      if (minimatch(fileName, glob)) {
+        logger.log(`[matchGlob] ${glob} => ${fileName}`)
+        return asset;
+      }
+    }
+    
     const extension = path.extname(fileName).toLowerCase();
     return this.extensions.get(extension);
   }
