@@ -101,24 +101,26 @@ export default class Compiler extends AwaitEventEmitter implements ICompiler {
     });
   }
 
-  addResolveGlob(test: string, asset: string | TypeAsset) {
-    if (typeof asset === 'string') {
-      const assetTemp = require(asset);
-      asset = (assetTemp.default || assetTemp) as TypeAsset;
-    }
+  addResolveGlob(globs: string | string[], asset: string | TypeAsset) {
+    [].concat(globs).forEach(glob => {
+      if (typeof asset === 'string') {
+        const assetTemp = require(asset);
+        asset = (assetTemp.default || assetTemp) as TypeAsset;
+      }
 
-    asset.prototype.parentCompiler = this;
-    this.resolveGlob.set(test, asset);
+      asset.prototype.parentCompiler = this;
+      this.resolveGlob.set(glob, asset);
+    });
   }
 
   findParser(fileName: string, fromPipeline: boolean = false): TypeAsset {
     for (const [glob, asset] of this.resolveGlob) {
       if (minimatch(fileName, glob)) {
-        logger.log(`[matchGlob] ${glob} => ${fileName}`)
+        logger.log(`[matchGlob] ${glob} => ${fileName}`);
         return asset;
       }
     }
-    
+
     const extension = path.extname(fileName).toLowerCase();
     return this.extensions.get(extension);
   }

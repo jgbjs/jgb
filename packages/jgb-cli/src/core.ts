@@ -66,7 +66,7 @@ export default class Core extends AwaitEventEmitter {
     return (fg.sync(files, {
       onlyFiles: true,
       unique: true,
-    }) as string[]).filter((f) => !isPlatformFile(f));
+    }) as string[]).filter((f) => !isPlatformFile(f, this.options.target));
   }
 
   /**

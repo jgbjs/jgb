@@ -929,10 +929,10 @@ path-parse@^1.0.6:
   resolved "https://registry.npm.taobao.org/path-parse/download/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
   integrity sha1-1i27VnlAXXLEc37FhgDp3c8G0kw=
 
-posthtml-transform-miniprogram@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.5.1.tgz#4b6b40a0cdbc179aa4818a9d22060df9d46571bd"
-  integrity sha1-S2tAoM28F5qkgYqdIgYN+dRlcb0=
+posthtml-transform-miniprogram@0.8.2:
+  version "0.8.2"
+  resolved "https://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.8.2.tgz#e53c30c9cfcf0b1149cdc346ec407ce062d03ce2"
+  integrity sha1-5Twwyc/PCxFJzcNG7EB84GLQPOI=
   dependencies:
     lodash "^4.17.11"
 

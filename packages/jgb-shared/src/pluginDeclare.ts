@@ -9,7 +9,7 @@ export type TypeAsset = typeof Asset;
  */
 export interface ICompiler extends AwaitEventEmitter {
   addAssetsType(exts: string | string[], asset: TypeAsset): void;
-  addResolveGlob(glob: string, asset: string | TypeAsset): void;
+  addResolveGlob(globs: string | string[], asset: string | TypeAsset): void;
 }
 
 /** 返回pluginName  */
