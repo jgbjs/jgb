@@ -1,5 +1,5 @@
 import * as glob from 'fast-glob';
-import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import BabelPlugin from 'jgb-plugin-babel';
 import CssPlugin from 'jgb-plugin-css';
 import HtmlPlugin from 'jgb-plugin-html';
@@ -9,6 +9,7 @@ import { declare, IInitOptions } from 'jgb-shared/lib';
 import { ICompiler } from 'jgb-shared/lib/pluginDeclare';
 import { pathToUnixType } from 'jgb-shared/lib/utils';
 import * as Path from 'path';
+import _ = require('lodash');
 
 interface IPluginConfig {
   coreOptions?: IInitOptions;
@@ -31,6 +32,12 @@ interface IAppJson {
     root: string;
     pages: string[];
   }>;
+  /**
+   * 全局组件
+   */
+  usingComponents: {
+    [componentName: string]: string;
+  };
 }
 
 interface IAppWindowJson {
@@ -72,10 +79,20 @@ interface IAliAppJsonTabarItemConfig {
 }
 
 interface IAliappWindowJson {
+  /**页面默认标题。 */
   defaultTitle?: string;
+  /** 是否允许下拉刷新，默认 true*/
   pullRefresh?: boolean;
+  /** allowsBounceVertical */
   allowsBounceVertical?: string;
+  /** 导航栏背景色。 */
   titleBarColor?: string;
+  /** 导航栏透明设置。默认 none，支持 always 一直透明 / auto 滑动自适应 / none 不透明。 */
+  transparentTitle?: string;
+  /** 页面的背景色。 */
+  backgroundColor?: string;
+  /** 仅支持 Android，是否显示 WebView 滚动条。默认 YES，支持 YES / NO。  */
+  enableScrollBar?: string;
 }
 
 interface IAliappPageJson extends IAliappWindowJson {
@@ -89,6 +106,12 @@ interface IAliAppJson {
   pages?: string[];
   window?: IAliappWindowJson;
   tabBar?: IAliAppTabBar;
+  /**
+   * 全局组件
+   */
+  usingComponents?: {
+    [componentName: string]: string;
+  };
 }
 
 const EXT_REGEX = /\.(\w)+$/;
@@ -114,6 +137,16 @@ function attachCompilerEvent(compiler: ICompiler) {
   compiler.on('collect-page-json', collectPageJson);
 }
 
+const gcn = '.gcn';
+
+function setGlobalComponent(comps: Record<string, string>) {
+  fse.writeFileSync('.cache/' + gcn, JSON.stringify(comps));
+}
+
+function getGlobalComponent(): Record<string, string> {
+  return fse.readJsonSync('.cache/' + gcn, { throws: false }) || {};
+}
+
 async function collectPageJson({
   dependences,
   pageJson,
@@ -129,11 +162,30 @@ async function collectPageJson({
     ctx.ast = pageJson;
   }
 
+  // 非微信平台都不支持全局组件。
+  // 所有页面组件都要，添加全局组件
+  // 避免自己引用自己
+  if (process.env.JGB_ENV !== 'wx') {
+    const globalComponents = getGlobalComponent();
+    if (Object.keys(globalComponents)) {
+      pageJson.usingComponents = {
+        ..._.pickBy(globalComponents, (value: string) => {
+          return !ctx.name.includes(value);
+        }),
+        ...(pageJson.usingComponents || {}),
+      };
+    }
+  }
+  await addComponents(dependences, pageJson, ctx);
+}
+
+async function addComponents(
+  dependences: Set<string>,
+  json: IPageJson | IAppJson,
+  ctx: JsonAsset
+) {
   // 是否使用组件
-  if (
-    !pageJson.usingComponents ||
-    typeof pageJson.usingComponents !== 'object'
-  ) {
+  if (!json.usingComponents || typeof json.usingComponents !== 'object') {
     return;
   }
   const extensions = ctx.options.parser.extensions as Map<string, any>;
@@ -141,26 +193,30 @@ async function collectPageJson({
   const components: string[] = [];
 
   const usingComponent = usingNpmComponents.bind(ctx);
+  const realPathUsingComponent = {} as Record<string, string>;
 
-  for (const [key, value] of Object.entries(pageJson.usingComponents)) {
+  for (const [key, value] of Object.entries(json.usingComponents)) {
     // 插件
     if (value.includes('://')) {
       continue;
     }
     const componentPath = await findComponent(value, ctx);
     try {
-      await usingComponent(
-        key,
-        componentPath,
-        pageJson,
-        dependences,
-        components
-      );
-    } catch (error) {}
+      realPathUsingComponent[key] = componentPath;
+      await usingComponent(key, componentPath, json, dependences, components);
+    } catch (error) {
+      console.error('usingComponent Error', error);
+    }
   }
 
   // expandFiles
   if (components.length > 0) {
+    // app.json 中 usingComponent视为全局组件
+    if ((json as IAppJson).pages && process.env.JGB_ENV !== 'wx') {
+      setGlobalComponent(realPathUsingComponent);
+      delete json.usingComponents;
+    }
+
     for (const dep of await ctx.expandFiles(
       new Set(components),
       supportExtensions
@@ -199,7 +255,8 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
 
   if (
     module.filePath &&
-    (fs.existsSync(module.filePath) || fs.existsSync(module.filePath + '.json'))
+    (fse.existsSync(module.filePath) ||
+      fse.existsSync(module.filePath + '.json'))
   ) {
     return module.filePath;
   }
@@ -212,7 +269,7 @@ export async function findComponent(componentPath: string, ctx: JsonAsset) {
       module.subPath
     );
 
-    if (fs.existsSync(realComponentPath + '.json')) {
+    if (fse.existsSync(realComponentPath + '.json')) {
       return realComponentPath;
     }
   }
@@ -318,6 +375,11 @@ async function collectAppJson({
     assetPaths.push(...appJson.pages);
   }
 
+  const usingComponents = appJson.usingComponents;
+  if (usingComponents) {
+    await addComponents(dependences, appJson, ctx);
+  }
+
   // expandFiles
   if (Array.isArray(assetPaths)) {
     for (const dep of await ctx.expandFiles(
@@ -362,6 +424,11 @@ const PageEnableKey = [
   'pullRefresh',
   'allowsBounceVertical',
   'titleBarColor',
+  'transparentTitle',
+  'titlePenetrate',
+  'showTitleLoading',
+  'backgroundColor',
+  'enableScrollBar',
   'component',
   'usingComponents',
 ];
@@ -410,6 +477,13 @@ export function formatAsAliappPageJson(json: any): IAliappWindowJson {
     const value = windowNameMapping[key] as keyof IAliAppJson['window'];
     if (value) {
       windowJson[value] = json[key];
+    }
+
+    // 自定义导航栏
+    if (json.navigationStyle === 'custom' || process.env.customNavBar) {
+      windowJson.transparentTitle = 'always';
+      windowJson.titlePenetrate = 'YES';
+      windowJson.defaultTitle = '';
     }
   });
   return windowJson;

@@ -52,6 +52,7 @@ export async function getConfig(asset: Asset) {
         {
           source,
           target,
+          name: asset.name
         },
       ]);
     }

@@ -2365,6 +2365,9 @@ js-yaml@^3.7.0:
   version "3.12.0"
   resolved "http://registry.npm.taobao.org/js-yaml/download/js-yaml-3.12.0.tgz#eaed656ec8344f10f527c6bfa1b6e2244de167d1"
   integrity sha1-6u1lbsg0TxD1J8a/obbiJE3hZ9E=
+  dependencies:
+    argparse "^1.0.7"
+    esprima "^4.0.0"
 
 js-yaml@~3.10.0:
   version "3.10.0"
@@ -3413,10 +3416,10 @@ posthtml-render@^1.1.0, posthtml-render@^1.1.4:
   resolved "http://registry.npm.taobao.org/posthtml-render/download/posthtml-render-1.1.4.tgz#95dac09892f4f183fad5ac823f08f42c0256551e"
   integrity sha1-ldrAmJL08YP61ayCPwj0LAJWVR4=
 
-posthtml-transform-miniprogram@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.7.0.tgz#612a58e1d4e23e1b036716a16ce51ac25f954bfa"
-  integrity sha1-YSpY4dTiPhsDZxahbOUawl+VS/o=
+posthtml-transform-miniprogram@beta:
+  version "0.8.4-alpha.0"
+  resolved "https://registry.npm.taobao.org/posthtml-transform-miniprogram/download/posthtml-transform-miniprogram-0.8.4-alpha.0.tgz#a33286b7e900103f35a9ec59ea4f2535743da445"
+  integrity sha1-ozKGt+kAED81qexZ6k8lNXQ9pEU=
   dependencies:
     lodash "^4.17.11"
 

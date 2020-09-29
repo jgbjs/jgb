@@ -140,6 +140,7 @@ async function getBabelConfig(asset: BabelAsset) {
           source,
           target,
           lib,
+          name: asset.name
         },
       ]);
     }

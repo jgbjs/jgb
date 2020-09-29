@@ -1,6 +1,8 @@
-# jgb-preset-weapp
+# jgb-preset-aliapp
 
-微信小程序预设值
+支付宝小程序预设值
+
+* 如果需要支持微信`navigationStyle:custom` , 设置`process.env.customNavBar=true`
 
 ## 依赖插件
 
