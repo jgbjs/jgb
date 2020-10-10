@@ -3,7 +3,7 @@ import urlJoin from 'jgb-shared/lib/utils/urlJoin';
 import matchesPattern from './matchesPattern';
 
 import template = require('babel-template');
-import traverse from 'babel-traverse';
+import traverse, { NodePath } from 'babel-traverse';
 import types = require('babel-types');
 import nodeBuiltins = require('node-libs-browser');
 
@@ -12,29 +12,29 @@ const argTemplate = template('require.resolve(MODULE)');
 const serviceWorkerPattern = ['navigator', 'serviceWorker', 'register'];
 
 export default {
-  ImportDeclaration(node, asset) {
+  ImportDeclaration(path, asset) {
     asset.isES6Module = true;
-    addDependency(asset, node.source, void 0, node);
+    addDependency(asset, path.node.source, void 0, path);
   },
 
-  ExportNamedDeclaration(node, asset) {
+  ExportNamedDeclaration(path, asset) {
     asset.isES6Module = true;
-    if (node.source) {
-      addDependency(asset, node.source, void 0, node);
+    if (path.node.source) {
+      addDependency(asset, path.node.source, void 0, path);
     }
   },
 
-  ExportAllDeclaration(node, asset) {
+  ExportAllDeclaration(path, asset) {
     asset.isES6Module = true;
-    addDependency(asset, node.source, void 0, node);
+    addDependency(asset, path.node.source, void 0, path);
   },
 
-  ExportDefaultDeclaration(node, asset) {
+  ExportDefaultDeclaration(path, asset) {
     asset.isES6Module = true;
   },
 
-  CallExpression(node, asset, ancestors) {
-    const { callee, arguments: args } = node;
+  CallExpression(path, asset, ancestors = []) {
+    const { callee, arguments: args } = path.node;
 
     const isRequire =
       types.isIdentifier(callee) &&
@@ -46,14 +46,14 @@ export default {
 
     if (isRequire) {
       const optional =
-        ancestors.some(a => types.isTryStatement(a)) || undefined;
+        ancestors.some((a) => types.isTryStatement(a)) || undefined;
       addDependency(
         asset,
         args[0],
         {
-          optional
+          optional,
         },
-        node
+        path
       );
       return;
     }
@@ -111,13 +111,13 @@ export default {
 
 function hasBinding(node, name) {
   if (Array.isArray(node)) {
-    return node.some(ancestor => hasBinding(ancestor, name));
+    return node.some((ancestor) => hasBinding(ancestor, name));
   } else if (
     types.isProgram(node) ||
     types.isBlockStatement(node) ||
     types.isBlock(node)
   ) {
-    return node.body.some(statement => hasBinding(statement, name));
+    return node.body.some((statement) => hasBinding(statement, name));
   } else if (
     types.isFunctionDeclaration(node) ||
     types.isFunctionExpression(node) ||
@@ -126,7 +126,7 @@ function hasBinding(node, name) {
     return (
       (node.id !== null && node.id.name === name) ||
       node.params.some(
-        param => types.isIdentifier(param) && param.name === name
+        (param) => types.isIdentifier(param) && param.name === name
       )
     );
   } else if (types.isVariableDeclaration(node)) {
@@ -164,13 +164,13 @@ function evaluateExpression(node) {
     Expression(path) {
       res = path.evaluate();
       path.stop();
-    }
+    },
   });
 
   return res;
 }
 
-function addDependency(asset, node, opts = {} as any, babelNode?: any) {
+function addDependency(asset, node, opts = {} as any, babelNode?: NodePath) {
   // Don't bundle node builtins
   if (asset.options.target === 'node' && node.value in nodeBuiltins) {
     return;

@@ -1,8 +1,9 @@
 import * as Babel from 'babel-core';
 import { File as BabelFile } from 'babel-core/lib/transformation/file';
 import generate from 'babel-generator';
-import traverse from 'babel-traverse';
+import traverse, { NodePath } from 'babel-traverse';
 import * as t from 'babel-types';
+import template from 'babel-template';
 import * as babylon from 'babylon';
 import * as walk from 'babylon-walk';
 import * as fs from 'fs';
@@ -109,7 +110,8 @@ export default class BabelAsset extends Asset {
   }
 
   async collectDependencies() {
-    walk.ancestor(this.ast, collectDependencies, this);
+    // walk.ancestor(this.ast, collectDependencies, this);
+    traverse(this.ast, collectDependencies as any, null, this);
 
     await Promise.all(this.waitResolveCollectDependencies);
 
@@ -120,7 +122,7 @@ export default class BabelAsset extends Asset {
     return walk.simple(this.ast, visitor, this);
   }
 
-  async addDependency(name: string, opts: any = {}, node?: Babel.Node) {
+  async addDependency(name: string, opts: any = {}, path?: NodePath) {
     let resolveCollectDependency: any;
     // tslint:disable-next-line:no-unused-expression
     this.waitResolveCollectDependencies.push(
@@ -140,17 +142,31 @@ export default class BabelAsset extends Asset {
       const ext = Path.extname(opts.node.value);
       if (ext) {
         if (!this.options.extensions.has(ext)) {
-          // if import file not in extension then Comment it
-          if (node) {
-            node.type = 'EmptyStatement';
-            const commnentLine = {
-              type: 'CommentLine',
-              value: `import '${opts.node.value}'`,
-            } as any;
-            if (Array.isArray(node.leadingComments)) {
-              node.leadingComments.push(commnentLine);
+          if (path) {
+            const node = path.node;
+            // `import img from './image.png' `  => `const img = './image.png'`
+            if (t.isImportDeclaration(node) && node.specifiers.length) {
+              const importName = node.specifiers[0].local.name;
+              path.replaceWith(
+                this.genVariableDeclartion(importName, opts.node.value)
+              );
+            }
+            // `const img = require('./image.png')` => `const img = './image.png'`
+            else if (
+              t.isCallExpression(node) &&
+              t.isIdentifier(node.callee) &&
+              node.callee.name === 'require' &&
+              t.isVariableDeclarator(path.parent)
+            ) {
+              path.replaceWith(t.stringLiteral(opts.node.value));
             } else {
-              node.leadingComments = [commnentLine];
+              // when `import './image.png'`
+              // or `require('./image.png')`
+              if (t.isExpressionStatement(path.parent)) {
+                path.parentPath.replaceWith(t.emptyStatement());
+              } else {
+                path.replaceWith(t.emptyStatement());
+              }
             }
           }
         }
@@ -160,6 +176,13 @@ export default class BabelAsset extends Asset {
     // avoid save large data or circle data
     super.addDependency(realName, { ...opts, node: null });
     resolveCollectDependency(relativeRequirePath);
+  }
+
+  private genVariableDeclartion(importName: string, source: string) {
+    return template(`var IMPORT_NAME = SOURCE;`)({
+      IMPORT_NAME: t.identifier(importName),
+      SOURCE: t.stringLiteral(source),
+    });
   }
 
   /**

@@ -20,7 +20,8 @@
     "clean": "rimraf ./lib",
     "watch": "yarn run build --watch",
     "test": "jest",
-    "prepublish": "yarn run clean && yarn run build"
+    "prepublish": "yarn run clean && yarn run build",
+    "debug": "yarn test -t 'import image'"
   },
   "dependencies": {
     "babel-code-frame": "^6.26.0",

@@ -1,6 +1,4 @@
 .utils-index {
   color: #333;
-  .test-less {
-    color: #222;
-  }
+
 }

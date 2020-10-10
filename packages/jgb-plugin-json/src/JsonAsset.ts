@@ -32,9 +32,9 @@ export default class JsonAsset extends Asset {
   async collectDependencies() {
     const baseName = path.basename(this.name);
 
-    if (/app(\.\w+)*\.json/.test(baseName)) {
+    if (/^app(\.\w+)*\.json/.test(baseName)) {
       await this.collectAppJson(this.ast);
-    } else if (/plugin(\.\w+)*\.json/.test(baseName)) {
+    } else if (/^plugin(\.\w+)*\.json/.test(baseName)) {
       await this.collectPluginJson(this.ast);
     } else {
       await this.collectPageJson(this.ast);

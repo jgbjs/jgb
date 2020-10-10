@@ -7,7 +7,10 @@ import './init.js';
 import testUtil from './utils/index';
 import test from './utils/test';
 import './imgs/qa-red.png';
+import qagrey from './imgs/qa-grey.png';
 import './test';
+
+console.log(qagrey)
 
 // @ts-ignore
 const isProd = process.env.NODE_ENV === 'production';

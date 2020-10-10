@@ -3,7 +3,7 @@ const Path = require('path');
 module.exports = {
   inlineSourceMap: true,
   // entryFiles: ['assets/index.wxss'],
-  entryFiles: ['project.config.json'],
+  entryFiles: ['app.*', 'project.config.json'],
   // entryFiles: ['testAlias.ts'],
   cache: false,
   alias: {

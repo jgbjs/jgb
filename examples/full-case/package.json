@@ -26,7 +26,7 @@
     "jgb-plugin-typescript": "1.9.4-alpha.5",
     "jgb-plugin-wxs": "1.9.4-alpha.5",
     "jgb-preset-weapp": "1.9.4-alpha.5",
-    "jgb-weapp": "^1.5.2",
+    "jgb-weapp": "^1.6.9",
     "lodash": "4.17.15",
     "lodash-es": "^4.17.14",
     "lottie-miniapp": "^1.4.0",
