@@ -1,5 +1,6 @@
 @import "./assets/index.wxss";
+@import (less) "@/src/define.wxss";
 
 .app {
-  color: #fff;
+  color: @color;
 }
