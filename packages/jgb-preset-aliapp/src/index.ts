@@ -106,6 +106,7 @@ interface IAliAppJson {
   pages?: string[];
   window?: IAliappWindowJson;
   tabBar?: IAliAppTabBar;
+  subPackages?: Record<string, any>;
   /**
    * 全局组件
    */
@@ -499,16 +500,19 @@ export function formatAsAliappJson(json: any) {
   aliappJson.pages = json.pages;
   aliappJson.window = {} as any;
   aliappJson.tabBar = {} as any;
-  if (json.subPackages && json.subPackages.length) {
-    const allSubPages: string[] = [];
-    json.subPackages.forEach((sub: any) => {
-      const pages = sub.pages.map((page: string) =>
-        pathToUnixType(Path.join(sub.root, page))
-      );
-      allSubPages.push(...pages);
-    });
-    aliappJson.pages.push(...allSubPages);
-  }
+  aliappJson.subPackages = json.subPackages || {};
+  aliappJson.usingComponents = json.usingComponents || {}
+  // 支付宝已经支持分包功能
+  // if (json.subPackages && json.subPackages.length) {
+  //   const allSubPages: string[] = [];
+  //   json.subPackages.forEach((sub: any) => {
+  //     const pages = sub.pages.map((page: string) =>
+  //       pathToUnixType(Path.join(sub.root, page))
+  //     );
+  //     allSubPages.push(...pages);
+  //   });
+  //   aliappJson.pages.push(...allSubPages);
+  // }
 
   if (json.window) {
     const windowJSON = formatAsAliappPageJson(json.window);
