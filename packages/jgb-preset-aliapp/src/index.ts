@@ -376,6 +376,19 @@ async function collectAppJson({
     assetPaths.push(...appJson.pages);
   }
 
+  // subPackages asset
+  // fix wechatminiprogram support [subpackages]
+  const subPackages = appJson.subPackages;
+  if (Array.isArray(subPackages)) {
+    // tslint:disable-next-line:no-shadowed-variable
+    subPackages.forEach(({ root, pages }) => {
+      const subPackagePages = pages.map((page: string) =>
+        Path.join(root, page)
+      );
+      assetPaths.push(...subPackagePages);
+    });
+  }
+
   const usingComponents = appJson.usingComponents;
   if (usingComponents) {
     await addComponents(dependences, appJson, ctx);
@@ -501,7 +514,7 @@ export function formatAsAliappJson(json: any) {
   aliappJson.window = {} as any;
   aliappJson.tabBar = {} as any;
   aliappJson.subPackages = json.subPackages || {};
-  aliappJson.usingComponents = json.usingComponents || {}
+  aliappJson.usingComponents = json.usingComponents || {};
   // 支付宝已经支持分包功能
   // if (json.subPackages && json.subPackages.length) {
   //   const allSubPages: string[] = [];
