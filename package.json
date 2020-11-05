@@ -24,7 +24,7 @@
     "@types/jest": "^23.3.12",
     "@types/node": "^12.12.6",
     "js-yaml": "^3.13.1",
-    "lerna": "^3.4.3",
+    "lerna": "^3.22.1",
     "typescript": "^3.7.2"
   }
 }
