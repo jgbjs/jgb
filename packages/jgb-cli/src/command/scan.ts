@@ -384,19 +384,19 @@ class Core {
           return;
         }
 
+        let collect = {
+          path,
+          title: '',
+          params: null as any,
+        };
         try {
-          const json = json5.parse(data);
-          const pageParams = json.$pageParams || null;
-          const pageTitle = json.navigationBarTitleText || '';
-          resolve({
-            path,
-            title: pageTitle,
-            params: pageParams,
-          });
+          const json = json5.parse(data) || {};
+          collect.params = json.$pageParams || null;
+          collect.title = json.$pageTitle || json.navigationBarTitleText || '';
         } catch (e) {
           console.log(pageJsonPath, e);
-          resolve(null);
         }
+        resolve(collect);
       })
     })
   }
