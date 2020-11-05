@@ -146,6 +146,7 @@ class Core {
       spinner.start(chalk.green('start scanning'))
       const data = await this._getAppJson(this.entry)
       if (!data) {
+        spinner.stop();
         return console.log(chalk.red('文件内容为空'))
       }
       const mainPackages = data.pages
@@ -164,8 +165,8 @@ class Core {
         console.log(chalk.greenBright(`共${ chalk.blueBright(`${ paths.length }`) }个页面, ,去除${ chalk.blueBright(`${ subPackages.length + mainPackages.length - paths.length }`) }个多余页面`))
       })
     } catch (e) {
-      spinner.stop()
-      // console.log('e', e)
+      spinner.stop();
+      console.log(e);
     }
   }
 
@@ -243,6 +244,9 @@ class Core {
 
 // 获取分包的路径，返回绝对路径
   _getSubPackagesPath(subPackages: ISubPackage[]) {
+    if (!subPackages?.length) {
+      return [];
+    }
     return subPackages.reduce((pre, subPackage) => {
       const root = subPackage.root
       return pre.concat(subPackage.pages.map((path) => `${ root }/${ path }`))
