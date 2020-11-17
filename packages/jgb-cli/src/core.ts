@@ -332,7 +332,9 @@ export default class Core extends AwaitEventEmitter {
     // 兼容老版本
     if (this.useCoreOutput) {
       const generated: IAssetGenerate[] = [].concat(asset.generated);
-      for (const { code, ext, map } of generated) {
+      for (const generate of generated) {
+        await this.emit('before-output', generate, asset);
+        const { code, ext, map } = generate;
         const { distPath, ignore } = await asset.output(
           code,
           ext,
