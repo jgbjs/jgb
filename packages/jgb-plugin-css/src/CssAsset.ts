@@ -64,20 +64,17 @@ export default class CssAsset extends Asset {
         const {
           realName,
           relativeRequirePath,
-          distPath
+          distPath,
         } = await this.resolveAliasName(name.value, CssAsset.outExt);
-
         const depDist = distPath;
-        const depExt = path.extname(depDist);
-        if (depExt !== ext) {
-          // app.wxss => app.css
-          rule.params = `"${relativeRequirePath}"`;
-        }
+        // const depExt = path.extname(depDist);
+        // app.wxss => app.css
+        rule.params = `"${relativeRequirePath}"`;
 
         this.addDependency(realName, {
           distPath,
           media,
-          loc: rule.source.start
+          loc: rule.source.start,
         });
       };
 
@@ -104,7 +101,7 @@ export default class CssAsset extends Asset {
 
             tasks.push(async () => {
               const url = await this.addURLDependency(nodeValue, this.name, {
-                loc: decl.source.start
+                loc: decl.source.start,
               });
               dirty = nodeValue !== url;
               node.nodes[0].value = url;
@@ -156,7 +153,7 @@ export default class CssAsset extends Asset {
 
     return {
       code: css,
-      ext: CssAsset.outExt
+      ext: CssAsset.outExt,
     };
   }
 }

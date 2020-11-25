@@ -1,11 +1,13 @@
 import CssAsset from 'jgb-plugin-css/lib/CssAsset';
 import * as Less from 'less';
+import * as path from 'path';
 
 // @ts-ignore
 class FileResolveManager extends Less.FileManager {
   constructor(private asset: CssAsset) {
     super();
   }
+
   /**
    *
    *
@@ -14,7 +16,10 @@ class FileResolveManager extends Less.FileManager {
    * @returns {undefined|string}
    */
   async resolve(filename: string, currentDirectory: string) {
+    const name = this.asset.name;
+    this.asset.name = path.join(currentDirectory, path.basename(name));
     const { relativeRequirePath } = await this.asset.resolveAliasName(filename);
+    this.asset.name = name;
     return relativeRequirePath;
   }
 

@@ -1,4 +1,4 @@
-@import "./assets/index.wxss";
+@import "@/src/assets/index.wxss";
 @import (less) "@/src/define.wxss";
 
 .app {

@@ -22,7 +22,6 @@ export default class LessAsset extends CssAsset {
       // urlPlugin(this),
       fileResolvePlugin(this)
     );
-
     // 如果没有指定@import的importOption  默认是css
     code = code.replace(importOptionReg, (g, r1) => {
       if (!r1) {
